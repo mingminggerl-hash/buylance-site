@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Order | Buylance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<style>
+  :root{
+    --bg-top:#EEF3FF; --ink:#0F1B3D; --brand-blue:#2F5FE0;
+    --muted:#6B7A99; --card-border:#D7E3FF; --error:#E8412C; --success:#1E8E3E;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background:linear-gradient(180deg, var(--bg-top) 0%, #FFFFFF 320px);
+    color:var(--ink); font-family:'Nunito Sans', sans-serif;
+    min-height:100vh; padding:30px 16px; display:flex; flex-direction:column; align-items:center;
+  }
+  .logo{ font-family:'Baloo 2', sans-serif; font-weight:800; font-size:22px; text-decoration:none; color:var(--ink); margin-bottom:20px; }
+  .logo span{ color:var(--brand-blue); }
+  .wrap{ width:100%; max-width:520px; }
+  .card{ background:#fff; border:1px solid var(--card-border); border-radius:16px; padding:20px; margin-bottom:14px; }
+  h2{ font-family:'Baloo 2', sans-serif; font-size:18px; margin-bottom:10px; }
+  .status-badge{ display:inline-block; font-size:11px; font-weight:800; padding:4px 10px; border-radius:20px; margin-bottom:10px; }
+  .status-waiting_for_seller{ background:#FFF4E5; color:#B8720A; }
+  .status-in_progress{ background:#EAF3FF; color:var(--brand-blue); }
+  .status-delivered{ background:#E9F9EE; color:var(--success); }
+  .status-completed{ background:#E9F9EE; color:var(--success); }
+  .status-disputed{ background:#FDEBEA; color:var(--error); }
+  .status-cancelled{ background:#F1F1F1; color:var(--muted); }
+  .item-line{ font-size:13px; color:var(--muted); font-weight:600; padding:3px 0; }
+  .total-line{ font-weight:900; font-size:15px; margin-top:8px; border-top:1px solid var(--card-border); padding-top:8px; }
+
+  #reminder-banner{ display:none; background:var(--error); color:#fff; padding:12px; border-radius:10px; margin-bottom:12px; text-align:center; font-weight:800; font-size:13px; }
+
+  #chat-box{ height:280px; overflow-y:auto; background:#F7F9FF; border-radius:12px; padding:12px; margin-bottom:10px; }
+  .msg{ margin-bottom:10px; font-size:13px; }
+  .msg .who{ font-weight:800; font-size:11.5px; }
+  .msg.buyer .who{ color:var(--brand-blue); }
+  .msg.seller .who{ color:var(--success); }
+  .msg.system .who{ color:var(--muted); }
+  .chat-row{ display:flex; gap:8px; }
+  .chat-row input{ flex:1; padding:11px 12px; border:1px solid var(--card-border); border-radius:10px; font-family:'Nunito Sans', sans-serif; font-size:13px; }
+  .chat-row button{ background:var(--brand-blue); color:#fff; border:none; border-radius:10px; padding:0 18px; font-weight:800; font-size:13px; cursor:pointer; }
+
+  .proof-box{ margin-top:10px; }
+  .proof-box img{ max-width:100%; border-radius:10px; border:1px solid var(--card-border); }
+  .action-row{ display:flex; gap:8px; margin-top:12px; }
+  .btn-confirm{ flex:1; background:var(--success); color:#fff; border:none; padding:12px; border-radius:10px; font-weight:800; font-size:13px; cursor:pointer; }
+  .btn-report{ flex:1; background:#fff; color:var(--error); border:1px solid var(--error); padding:12px; border-radius:10px; font-weight:800; font-size:13px; cursor:pointer; }
+
+  select, textarea{ width:100%; padding:10px 12px; border:1px solid var(--card-border); border-radius:10px; font-family:'Nunito Sans', sans-serif; font-size:13px; margin-top:8px; }
+
+  .sub{ color:var(--muted); font-size:12.5px; font-weight:600; }
+  .center{ text-align:center; padding:20px; }
+</style>
+</head>
+<body>
+
+<a href="index.html" class="logo">BUY<span>LANCE</span></a>
+
+<div class="wrap">
+  <div id="reminder-banner">🔔 <span id="reminder-text">Seller is waiting for you!</span></div>
+
+  <div class="card" id="orderSummaryCard">
+    <p class="sub">Loading your order…</p>
+  </div>
+
+  <div class="card" id="deliveryActionsCard" style="display:none;"></div>
+
+  <div class="card">
+    <h2>💬 Order Chat</h2>
+    <div id="chat-box"></div>
+    <div class="chat-row">
+      <input type="text" id="chat-input" placeholder="Type a message...">
+      <button onclick="sendMessage()">Send</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const urlParams = new URLSearchParams(window.location.search);
+  const orderId = urlParams.get('id');
+  // Same webhook URL as index.html — paste the same one here so buyer chat
+  // messages also ping Discord, not just new orders.
+  const DISCORD_ORDER_WEBHOOK_URL = 'https://discord.com/api/webhooks/1538240096757616661/tCRVlYfNKD4fhiWJ5MT_6A3_zAMQ0iSl_GdTbqWl5ajdXoHhGvfIrKWMXF4lcR_vVoAK';
+  let currentUser = null;
+  let currentOrder = null;
+
+  const audioCtx = typeof AudioContext !== 'undefined' || typeof webkitAudioContext !== 'undefined'
+    ? new (window.AudioContext || window.webkitAudioContext)() : null;
+  function playChime(){
+    if(!audioCtx) return;
+    if(audioCtx.state === 'suspended') audioCtx.resume();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(440, audioCtx.currentTime + 0.5);
+    gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.5);
+  }
+
+  let originalTabTitle = document.title;
+  let titleFlashInterval = null;
+  function triggerReminder(text){
+    playChime();
+    document.getElementById('reminder-banner').style.display = 'block';
+    document.getElementById('reminder-text').textContent = text;
+    if(!titleFlashInterval){
+      let flip = false;
+      titleFlashInterval = setInterval(() => {
+        document.title = flip ? originalTabTitle : '🔴 (1) SELLER ALERT!';
+        flip = !flip;
+      }, 1000);
+    }
+  }
+  window.addEventListener('focus', () => {
+    if(titleFlashInterval){ clearInterval(titleFlashInterval); titleFlashInterval = null; document.title = originalTabTitle; }
+  });
+
+  const STATUS_LABELS = {
+    waiting_for_seller: '⏳ Waiting for Seller',
+    in_progress: '🔄 In Progress',
+    delivered: '📦 Delivered — Please Confirm',
+    completed: '✅ Completed',
+    disputed: '🛑 Under Review',
+    cancelled: '❌ Cancelled'
+  };
+
+  function formatMoney(n){ return '$' + Number(n).toFixed(2); }
+
+  function renderSummary(order){
+    currentOrder = order;
+    const items = (order.items_json || []).map(i =>
+      `<div class="item-line">• ${i.game}: ${i.item} x${i.qty} ($${Number(i.price).toFixed(2)})</div>`
+    ).join('');
+    document.getElementById('orderSummaryCard').innerHTML = `
+      <div class="status-badge status-${order.status}">${STATUS_LABELS[order.status] || order.status}</div>
+      <h2>Order #${order.order_number}</h2>
+      ${items}
+      <div class="total-line">Total: ${formatMoney(order.total_amount)}</div>
+    `;
+
+    const actionsCard = document.getElementById('deliveryActionsCard');
+    if(order.status === 'delivered'){
+      actionsCard.style.display = 'block';
+      actionsCard.innerHTML = `
+        <h2>📦 Delivery Proof</h2>
+        ${order.proof_image_url ? `<div class="proof-box"><img src="${order.proof_image_url}" alt="Delivery proof"></div>` : '<p class="sub">No proof image attached.</p>'}
+        <p class="sub" style="margin-top:10px;">Did you receive your item?</p>
+        <div class="action-row">
+          <button class="btn-confirm" onclick="confirmDelivery()">✅ I Received It</button>
+          <button class="btn-report" onclick="showReportForm()">⚠️ Report an Issue</button>
+        </div>
+        <div id="reportForm" style="display:none; margin-top:10px;">
+          <select id="disputeReason">
+            <option value="I didn't receive it">I didn't receive it</option>
+            <option value="I don't know how to claim it">I don't know how to claim it</option>
+            <option value="Wrong item">Wrong item</option>
+            <option value="Other">Other</option>
+          </select>
+          <textarea id="disputeDetails" placeholder="Any extra details? (optional)" rows="3"></textarea>
+          <button class="btn-report" style="width:100%; margin-top:8px;" onclick="submitReport()">Submit Report</button>
+        </div>
+      `;
+    } else if(order.status === 'disputed'){
+      actionsCard.style.display = 'block';
+      actionsCard.innerHTML = `<h2>🛑 Your Report Is Under Review</h2><p class="sub">We're looking into it — you'll hear back here shortly.</p>`;
+    } else if(order.status === 'completed'){
+      actionsCard.style.display = 'block';
+      actionsCard.innerHTML = `<div class="center">🎉<br><b>Order complete — thank you!</b></div>`;
+    } else {
+      actionsCard.style.display = 'none';
+    }
+  }
+
+  async function loadOrder(){
+    if(!orderId){
+      document.getElementById('orderSummaryCard').innerHTML = '<p class="sub">No order specified.</p>';
+      return;
+    }
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    currentUser = session ? session.user : null;
+    if(!currentUser){
+      document.getElementById('orderSummaryCard').innerHTML = '<p class="sub">Please <a href="login.html">log in</a> to view this order.</p>';
+      return;
+    }
+    const { data: order, error } = await supabaseClient.from('orders').select('*').eq('id', orderId).single();
+    if(error || !order){
+      document.getElementById('orderSummaryCard').innerHTML = '<p class="sub">Order not found, or you don\'t have access to it.</p>';
+      return;
+    }
+    renderSummary(order);
+    await loadMessages();
+    subscribeRealtime();
+  }
+
+  async function loadMessages(){
+    const { data: messages } = await supabaseClient
+      .from('order_messages')
+      .select('*')
+      .eq('order_id', orderId)
+      .order('created_at', { ascending: true });
+    const box = document.getElementById('chat-box');
+    box.innerHTML = '';
+    (messages || []).forEach(renderMessage);
+  }
+
+  function escapeHtml(str){
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  function renderMessage(msg){
+    const box = document.getElementById('chat-box');
+    const div = document.createElement('div');
+    div.className = 'msg ' + msg.sender_type;
+    const who = msg.sender_type === 'buyer' ? 'You' : (msg.sender_type === 'seller' ? 'Seller' : 'System');
+    div.innerHTML = `<div class="who">${who}</div><div>${escapeHtml(msg.message)}</div>`;
+    box.appendChild(div);
+    box.scrollTop = box.scrollHeight;
+  }
+
+  function subscribeRealtime(){
+    supabaseClient
+      .channel('order_' + orderId)
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'order_messages', filter: `order_id=eq.${orderId}` }, (payload) => {
+        renderMessage(payload.new);
+        if(payload.new.is_reminder) triggerReminder(payload.new.message);
+      })
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'orders', filter: `id=eq.${orderId}` }, (payload) => {
+        renderSummary(payload.new);
+      })
+      .subscribe();
+  }
+
+  window.sendMessage = async function(){
+    const input = document.getElementById('chat-input');
+    const text = input.value.trim();
+    if(!text) return;
+    input.value = '';
+    await supabaseClient.from('order_messages').insert([{
+      order_id: orderId,
+      sender_type: 'buyer',
+      sender_name: currentUser.email,
+      message: text
+    }]);
+    sendDiscordChatPing(text);
+  };
+
+  // Pings Discord whenever the buyer sends a new chat message, so the
+  // seller doesn't have to keep the dashboard open to notice it.
+  async function sendDiscordChatPing(text){
+    if(!DISCORD_ORDER_WEBHOOK_URL || DISCORD_ORDER_WEBHOOK_URL.includes('PASTE_YOUR') || !currentOrder) return;
+    const dashboardLink = window.location.origin + '/admin-order.html?id=' + orderId;
+    const payload = {
+      content: `💬 **New message on Order #${currentOrder.order_number}** from \`${currentOrder.roblox_username}\`:\n> ${text}\n[Open Order Chat](${dashboardLink})`
+    };
+    try {
+      await fetch(DISCORD_ORDER_WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+    } catch(e){
+      console.warn('Discord chat ping failed (message is still saved fine):', e);
+    }
+  }
+
+  window.showReportForm = function(){
+    document.getElementById('reportForm').style.display = 'block';
+  };
+
+  window.confirmDelivery = async function(){
+    if(!confirm('Confirm you received your item?')) return;
+    const { error } = await supabaseClient.rpc('buyer_confirm_delivery', { p_order_id: orderId });
+    if(error){ alert('Something went wrong — please try again.'); return; }
+    const { data: order } = await supabaseClient.from('orders').select('*').eq('id', orderId).single();
+    if(order) renderSummary(order);
+    sendDiscordSimplePing(`✅ **Order #${order.order_number}** was confirmed as received by \`${order.roblox_username}\`.`);
+  };
+
+  window.submitReport = async function(){
+    const reasonSelect = document.getElementById('disputeReason').value;
+    const details = document.getElementById('disputeDetails').value.trim();
+    const fullReason = details ? `${reasonSelect} — ${details}` : reasonSelect;
+    const { error } = await supabaseClient.rpc('buyer_report_issue', { p_order_id: orderId, p_reason: fullReason });
+    if(error){ alert('Something went wrong — please try again.'); return; }
+    const { data: order } = await supabaseClient.from('orders').select('*').eq('id', orderId).single();
+    if(order) renderSummary(order);
+    const dashboardLink = window.location.origin + '/admin-order.html?id=' + orderId;
+    sendDiscordSimplePing(`🛑 **DISPUTE on Order #${order.order_number}** from \`${order.roblox_username}\`: ${fullReason}\n[Review it here](${dashboardLink})`);
+  };
+
+  async function sendDiscordSimplePing(content){
+    if(!DISCORD_ORDER_WEBHOOK_URL || DISCORD_ORDER_WEBHOOK_URL.includes('PASTE_YOUR')) return;
+    try {
+      await fetch(DISCORD_ORDER_WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content })
+      });
+    } catch(e){
+      console.warn('Discord ping failed (order status is still saved fine):', e);
+    }
+  }
+
+  document.getElementById('chat-input').addEventListener('keydown', (e) => {
+    if(e.key === 'Enter') sendMessage();
+  });
+
+  loadOrder();
+</script>
+
+</body>
+</html>

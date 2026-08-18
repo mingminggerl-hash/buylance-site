@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seller Dashboard | Buylance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<style>
+  :root{
+    --bg-top:#EEF3FF; --ink:#0F1B3D; --brand-blue:#2F5FE0;
+    --muted:#6B7A99; --card-border:#D7E3FF; --error:#E8412C; --success:#1E8E3E;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background:linear-gradient(180deg, var(--bg-top) 0%, #FFFFFF 320px);
+    color:var(--ink); font-family:'Nunito Sans', sans-serif;
+    min-height:100vh; padding:30px 16px;
+  }
+  .logo{ font-family:'Baloo 2', sans-serif; font-weight:800; font-size:22px; text-decoration:none; color:var(--ink); }
+  .logo span{ color:var(--brand-blue); }
+  .layout{ display:flex; gap:20px; max-width:1100px; margin:20px auto 0; align-items:flex-start; }
+  .col-orders{ width:320px; flex-shrink:0; }
+  .col-detail{ flex:1; min-width:0; }
+  .card{ background:#fff; border:1px solid var(--card-border); border-radius:16px; padding:16px; margin-bottom:14px; }
+  h2{ font-family:'Baloo 2', sans-serif; font-size:16px; margin-bottom:10px; }
+  .sub{ color:var(--muted); font-size:12.5px; font-weight:600; }
+
+  .order-row{ padding:10px; border-radius:10px; cursor:pointer; margin-bottom:6px; border:1px solid var(--card-border); }
+  .order-row:hover{ background:#F7F9FF; }
+  .order-row.active{ background:#EAF3FF; border-color:var(--brand-blue); }
+  .order-row .num{ font-weight:800; font-size:13px; }
+  .order-row .who{ font-size:11.5px; color:var(--muted); font-weight:600; }
+  .status-badge{ display:inline-block; font-size:10px; font-weight:800; padding:3px 8px; border-radius:20px; margin-top:4px; }
+  .status-waiting_for_seller{ background:#FFF4E5; color:#B8720A; }
+  .status-in_progress{ background:#EAF3FF; color:var(--brand-blue); }
+  .status-delivered{ background:#E9F9EE; color:var(--success); }
+  .status-completed{ background:#E9F9EE; color:var(--success); }
+  .status-disputed{ background:#FDEBEA; color:var(--error); }
+  .status-cancelled{ background:#F1F1F1; color:var(--muted); }
+
+  .item-line{ font-size:13px; color:var(--muted); font-weight:600; padding:3px 0; }
+  .total-line{ font-weight:900; font-size:15px; margin-top:8px; border-top:1px solid var(--card-border); padding-top:8px; }
+
+  #chat-box{ height:260px; overflow-y:auto; background:#F7F9FF; border-radius:12px; padding:12px; margin-bottom:10px; }
+  .msg{ margin-bottom:10px; font-size:13px; }
+  .msg .who{ font-weight:800; font-size:11.5px; }
+  .msg.buyer .who{ color:var(--brand-blue); }
+  .msg.seller .who{ color:var(--success); }
+  .msg.system .who{ color:var(--muted); }
+  .chat-row{ display:flex; gap:8px; }
+  .chat-row input{ flex:1; padding:11px 12px; border:1px solid var(--card-border); border-radius:10px; font-family:'Nunito Sans', sans-serif; font-size:13px; }
+  .chat-row button{ background:var(--brand-blue); color:#fff; border:none; border-radius:10px; padding:0 18px; font-weight:800; font-size:13px; cursor:pointer; }
+
+  input[type=text], textarea{ width:100%; padding:10px 12px; border:1px solid var(--card-border); border-radius:10px; font-family:'Nunito Sans', sans-serif; font-size:13px; margin-top:6px; }
+  button.action{ background:var(--brand-blue); color:#fff; border:none; padding:11px 16px; border-radius:10px; font-weight:800; font-size:13px; cursor:pointer; margin-top:8px; }
+  button.action.danger{ background:var(--error); }
+  button.action.success{ background:var(--success); }
+  .dispute-box{ background:#FDEBEA; border:1px solid #F5C2BE; border-radius:10px; padding:12px; margin-top:10px; }
+</style>
+</head>
+<body>
+
+<a href="index.html" class="logo">BUY<span>LANCE</span> <span style="color:var(--muted); font-size:14px;">Seller Dashboard</span></a>
+
+<div id="accessGate" class="card" style="max-width:500px; margin:40px auto;">
+  <p class="sub">Checking access…</p>
+</div>
+
+<div class="layout" id="dashboardLayout" style="display:none;">
+  <div class="col-orders">
+    <div class="card">
+      <h2>📦 Orders</h2>
+      <div id="ordersList"><p class="sub">Loading…</p></div>
+    </div>
+  </div>
+  <div class="col-detail">
+    <div class="card" id="orderDetailCard">
+      <p class="sub">Select an order from the list to view details.</p>
+    </div>
+    <div class="card" id="chatCard" style="display:none;">
+      <h2>💬 Chat</h2>
+      <div id="chat-box"></div>
+      <div class="chat-row">
+        <input type="text" id="chat-input" placeholder="Type a reply...">
+        <button onclick="sendMessage()">Send</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const urlParams = new URLSearchParams(window.location.search);
+  const preselectId = urlParams.get('id');
+  let currentUser = null;
+  let activeOrderId = null;
+  let activeChannel = null;
+
+  const STATUS_LABELS = {
+    waiting_for_seller: '⏳ Waiting for Seller',
+    in_progress: '🔄 In Progress',
+    delivered: '📦 Delivered',
+    completed: '✅ Completed',
+    disputed: '🛑 Disputed',
+    cancelled: '❌ Cancelled'
+  };
+
+  function formatMoney(n){ return '$' + Number(n).toFixed(2); }
+
+  async function init(){
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    currentUser = session ? session.user : null;
+    if(!currentUser){
+      document.getElementById('accessGate').innerHTML = '<p class="sub">Please <a href="login.html">log in</a> to access the seller dashboard.</p>';
+      return;
+    }
+    const { data: profile } = await supabaseClient.from('profiles').select('is_admin').eq('id', currentUser.id).single();
+    if(!profile || !profile.is_admin){
+      document.getElementById('accessGate').innerHTML = '<p class="sub">You don\'t have access to this page.</p>';
+      return;
+    }
+    document.getElementById('accessGate').style.display = 'none';
+    document.getElementById('dashboardLayout').style.display = 'flex';
+    await loadOrdersList();
+    if(preselectId) selectOrder(preselectId);
+
+    // Live-refresh the order list whenever anything changes
+    supabaseClient
+      .channel('admin_orders_list')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, () => loadOrdersList())
+      .subscribe();
+  }
+
+  async function loadOrdersList(){
+    const { data: orders } = await supabaseClient.from('orders').select('*').order('created_at', { ascending: false });
+    const list = document.getElementById('ordersList');
+    if(!orders || orders.length === 0){
+      list.innerHTML = '<p class="sub">No orders yet.</p>';
+      return;
+    }
+    list.innerHTML = orders.map(o => `
+      <div class="order-row ${o.id === activeOrderId ? 'active' : ''}" onclick="selectOrder('${o.id}')">
+        <div class="num">#${o.order_number} — ${o.roblox_username || 'unknown'}</div>
+        <div class="who">${formatMoney(o.total_amount)} — ${o.user_email || ''}</div>
+        <span class="status-badge status-${o.status}">${STATUS_LABELS[o.status] || o.status}</span>
+      </div>
+    `).join('');
+  }
+
+  window.selectOrder = async function(orderId){
+    activeOrderId = orderId;
+    await loadOrdersList();
+    const { data: order, error } = await supabaseClient.from('orders').select('*').eq('id', orderId).single();
+    if(error || !order){
+      document.getElementById('orderDetailCard').innerHTML = '<p class="sub">Order not found.</p>';
+      return;
+    }
+    renderDetail(order);
+    document.getElementById('chatCard').style.display = 'block';
+    await loadMessages(orderId);
+    subscribeChat(orderId);
+  };
+
+  function renderDetail(order){
+    const items = (order.items_json || []).map(i =>
+      `<div class="item-line">• ${i.game}: ${i.item} x${i.qty} ($${Number(i.price).toFixed(2)})</div>`
+    ).join('');
+
+    let actionsHtml = '';
+    if(order.status === 'waiting_for_seller'){
+      actionsHtml = `<button class="action" onclick="acceptOrder('${order.id}')">✅ Accept Order</button>`;
+    } else if(order.status === 'in_progress'){
+      actionsHtml = `
+        <button class="action" onclick="sendReminder()">🔔 Remind Buyer</button>
+        <input type="text" id="proofUrlInput" placeholder="Paste screenshot/proof image URL">
+        <button class="action success" onclick="markDelivered('${order.id}')">📦 Mark Delivered</button>
+      `;
+    } else if(order.status === 'disputed'){
+      actionsHtml = `
+        <div class="dispute-box">
+          <b>Buyer's reported reason:</b>
+          <p>${order.dispute_reason || 'No reason given'}</p>
+          ${order.proof_image_url ? `<p style="margin-top:8px;"><a href="${order.proof_image_url}" target="_blank">View your delivery proof →</a></p>` : ''}
+        </div>
+        <button class="action danger" onclick="resolveDispute('${order.id}', 'completed')">Reject Dispute / Force Complete</button>
+        <button class="action" onclick="resolveDispute('${order.id}', 'in_progress')">Resend Item / Reopen</button>
+      `;
+    } else if(order.status === 'delivered'){
+      actionsHtml = `<p class="sub">Waiting on the buyer to confirm or report an issue.</p>`;
+      if(order.proof_image_url){
+        actionsHtml += `<p style="margin-top:6px;"><a href="${order.proof_image_url}" target="_blank">View your delivery proof →</a></p>`;
+      }
+    }
+
+    document.getElementById('orderDetailCard').innerHTML = `
+      <span class="status-badge status-${order.status}">${STATUS_LABELS[order.status] || order.status}</span>
+      <h2>Order #${order.order_number}</h2>
+      <p class="sub">Roblox: <b>${order.roblox_username}</b> &nbsp;|&nbsp; Email: <b>${order.user_email}</b></p>
+      ${items}
+      <div class="total-line">Total: ${formatMoney(order.total_amount)}</div>
+      ${actionsHtml}
+    `;
+  }
+
+  async function loadMessages(orderId){
+    const { data: messages } = await supabaseClient
+      .from('order_messages')
+      .select('*')
+      .eq('order_id', orderId)
+      .order('created_at', { ascending: true });
+    const box = document.getElementById('chat-box');
+    box.innerHTML = '';
+    (messages || []).forEach(renderMessage);
+  }
+
+  function escapeHtml(str){
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  function renderMessage(msg){
+    const box = document.getElementById('chat-box');
+    const div = document.createElement('div');
+    div.className = 'msg ' + msg.sender_type;
+    const who = msg.sender_type === 'seller' ? 'You' : (msg.sender_type === 'buyer' ? 'Buyer' : 'System');
+    div.innerHTML = `<div class="who">${who}</div><div>${escapeHtml(msg.message)}</div>`;
+    box.appendChild(div);
+    box.scrollTop = box.scrollHeight;
+  }
+
+  function subscribeChat(orderId){
+    if(activeChannel) supabaseClient.removeChannel(activeChannel);
+    activeChannel = supabaseClient
+      .channel('admin_order_' + orderId)
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'order_messages', filter: `order_id=eq.${orderId}` }, (payload) => {
+        renderMessage(payload.new);
+      })
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'orders', filter: `id=eq.${orderId}` }, (payload) => {
+        renderDetail(payload.new);
+      })
+      .subscribe();
+  }
+
+  window.sendMessage = async function(){
+    const input = document.getElementById('chat-input');
+    const text = input.value.trim();
+    if(!text || !activeOrderId) return;
+    input.value = '';
+    await supabaseClient.from('order_messages').insert([{
+      order_id: activeOrderId,
+      sender_type: 'seller',
+      sender_name: currentUser.email,
+      message: text
+    }]);
+  };
+
+  window.sendReminder = async function(){
+    if(!activeOrderId) return;
+    await supabaseClient.from('order_messages').insert([{
+      order_id: activeOrderId,
+      sender_type: 'seller',
+      sender_name: currentUser.email,
+      message: 'Hey! The seller is waiting for you in Roblox.',
+      is_reminder: true
+    }]);
+  };
+
+  window.acceptOrder = async function(orderId){
+    const { error } = await supabaseClient.rpc('seller_accept_order', { p_order_id: orderId });
+    if(error){ alert('Something went wrong.'); return; }
+    selectOrder(orderId);
+  };
+
+  window.markDelivered = async function(orderId){
+    const proofUrl = document.getElementById('proofUrlInput').value.trim();
+    if(!proofUrl){ alert('Please paste a proof image URL first.'); return; }
+    const { error } = await supabaseClient.rpc('seller_mark_delivered', { p_order_id: orderId, p_proof_url: proofUrl });
+    if(error){ alert('Something went wrong.'); return; }
+    selectOrder(orderId);
+  };
+
+  window.resolveDispute = async function(orderId, newStatus){
+    if(!confirm('Are you sure?')) return;
+    const { error } = await supabaseClient.rpc('seller_resolve_dispute', { p_order_id: orderId, p_new_status: newStatus });
+    if(error){ alert('Something went wrong.'); return; }
+    selectOrder(orderId);
+  };
+
+  document.getElementById('chat-input') && document.getElementById('chat-input').addEventListener('keydown', (e) => {
+    if(e.key === 'Enter') sendMessage();
+  });
+
+  init();
+</script>
+
+</body>
+</html>
