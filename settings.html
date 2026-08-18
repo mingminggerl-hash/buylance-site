@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Account Settings | Buylance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<style>
+  :root{
+    --bg:#0F172A; --card:#1E293B; --card-2:#0F172A; --border:#334155;
+    --ink:#F8FAFC; --muted:#94A3B8; --brand-blue:#3B82F6; --error:#EF4444; --success:#10B981; --vip:#A855F7;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background:var(--bg); color:var(--ink); font-family:'Nunito Sans', sans-serif;
+    min-height:100vh; padding:30px 16px;
+  }
+  .logo{ font-family:'Baloo 2', sans-serif; font-weight:800; font-size:22px; text-decoration:none; color:var(--ink); }
+  .logo span{ color:var(--brand-blue); }
+
+  .layout{ display:flex; gap:20px; max-width:900px; margin:24px auto 0; align-items:flex-start; }
+  .sidebar{ width:230px; flex-shrink:0; background:var(--card); border:1px solid var(--border); border-radius:14px; padding:14px; }
+  .sidebar-btn{ width:100%; text-align:left; padding:12px 14px; background:transparent; border:none; color:var(--muted); font-weight:800; font-size:13px; border-radius:10px; cursor:pointer; margin-bottom:6px; font-family:'Nunito Sans', sans-serif; }
+  .sidebar-btn.active, .sidebar-btn:hover{ background:var(--brand-blue); color:#fff; }
+
+  .main{ flex:1; min-width:0; background:var(--card); border:1px solid var(--border); border-radius:14px; padding:26px; }
+  h2{ font-family:'Baloo 2', sans-serif; font-size:19px; margin-bottom:16px; }
+  h4{ font-size:13.5px; margin-bottom:8px; }
+  .sub{ color:var(--muted); font-size:12.5px; font-weight:600; }
+  .tab-section{ display:none; }
+  .tab-section.active{ display:block; }
+
+  .card{ background:var(--card-2); border:1px solid var(--border); border-radius:12px; padding:16px; margin-bottom:14px; }
+  input{ width:100%; padding:10px 12px; margin-top:6px; margin-bottom:12px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--ink); font-family:'Nunito Sans', sans-serif; font-size:13.5px; }
+  label{ font-size:11.5px; font-weight:700; color:var(--muted); display:block; }
+  button.action{ padding:10px 16px; border:none; color:#fff; font-weight:800; font-size:13px; border-radius:8px; cursor:pointer; font-family:'Baloo 2', sans-serif; }
+  button.action.blue{ background:var(--brand-blue); }
+  button.action.green{ background:var(--success); }
+  button.action.red{ background:var(--error); }
+  button.action:disabled{ opacity:0.5; cursor:not-allowed; }
+
+  .status-badge{ display:inline-block; font-size:10px; font-weight:800; padding:3px 9px; border-radius:20px; }
+  .status-waiting_for_seller{ background:#FFF4E5; color:#B8720A; }
+  .status-in_progress{ background:#EAF3FF; color:var(--brand-blue); }
+  .status-delivered{ background:#E9F9EE; color:var(--success); }
+  .status-completed{ background:#E9F9EE; color:var(--success); }
+  .status-disputed{ background:#FDEBEA; color:var(--error); }
+  .status-cancelled{ background:#33384A; color:var(--muted); }
+
+  .order-row{ display:flex; justify-content:space-between; align-items:center; gap:10px; }
+  .order-row a.action-link{ padding:8px 14px; background:var(--success); color:#fff; text-decoration:none; border-radius:8px; font-weight:800; font-size:12px; white-space:nowrap; }
+  .needs-action{ border-color:var(--error) !important; }
+  .needs-action-tag{ color:var(--error); font-weight:800; font-size:11.5px; margin-top:4px; }
+
+  .msg-inline{ font-size:12px; font-weight:700; margin-top:6px; display:none; }
+  .msg-inline.success{ color:var(--success); }
+  .msg-inline.error{ color:var(--error); }
+</style>
+</head>
+<body>
+
+<a href="index.html" class="logo">BUY<span>LANCE</span></a>
+
+<div id="accessGate" class="card" style="max-width:480px; margin:60px auto;">
+  <p class="sub">Loading your account…</p>
+</div>
+
+<div class="layout" id="settingsLayout" style="display:none;">
+  <div class="sidebar">
+    <button class="sidebar-btn active" data-tab="orders" onclick="switchTab('orders', this)">📦 Ongoing Orders</button>
+    <button class="sidebar-btn" data-tab="vip" onclick="switchTab('vip', this)">👑 VIP Subscription</button>
+    <button class="sidebar-btn" data-tab="profile" onclick="switchTab('profile', this)">⚙️ Profile & Security</button>
+  </div>
+
+  <div class="main">
+    <!-- ORDERS TAB -->
+    <div id="tab-orders" class="tab-section active">
+      <h2>Ongoing Orders</h2>
+      <div id="ordersListContainer"><p class="sub">Loading…</p></div>
+    </div>
+
+    <!-- VIP TAB -->
+    <div id="tab-vip" class="tab-section">
+      <h2>VIP Subscription</h2>
+      <div id="vipStatusContainer"><p class="sub">Loading…</p></div>
+    </div>
+
+    <!-- PROFILE TAB -->
+    <div id="tab-profile" class="tab-section">
+      <h2>Profile & Security</h2>
+
+      <div class="card">
+        <h4>Email Address</h4>
+        <p class="sub" id="currentEmailDisplay">—</p>
+        <label style="margin-top:12px;">New Email</label>
+        <input type="email" id="newEmailInput" placeholder="new@email.com">
+        <button class="action blue" onclick="requestEmailChange()">Send Verification to New Email</button>
+        <p class="sub" style="margin-top:8px;">We'll send a confirmation link to your new email — nothing changes until you click it.</p>
+        <div class="msg-inline" id="emailChangeMsg"></div>
+      </div>
+
+      <div class="card">
+        <h4>Roblox Username</h4>
+        <p class="sub" id="currentRobloxDisplay">—</p>
+        <label style="margin-top:12px;">New Roblox Username</label>
+        <input type="text" id="newRobloxInput" placeholder="e.g. builderman123">
+        <button class="action blue" onclick="updateRobloxUsername()">Update Username</button>
+        <div class="msg-inline" id="robloxChangeMsg"></div>
+      </div>
+
+      <div class="card">
+        <h4>Change Password</h4>
+        <label>Old Password</label>
+        <input type="password" id="oldPasswordInput">
+        <label>New Password</label>
+        <input type="password" id="newPasswordInput">
+        <label>Confirm New Password</label>
+        <input type="password" id="confirmPasswordInput">
+        <button class="action green" onclick="updatePassword()">Update Password</button>
+        <div class="msg-inline" id="passwordChangeMsg"></div>
+      </div>
+
+      <div class="card">
+        <h4>Log Out</h4>
+        <p class="sub" style="margin-bottom:10px;">Sign out of your account on this device.</p>
+        <button class="action red" onclick="doLogout()">🚪 Log Out</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let currentUser = null;
+
+  function switchTab(tabName, btnEl){
+    document.querySelectorAll('.tab-section').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.sidebar-btn').forEach(el => el.classList.remove('active'));
+    document.getElementById('tab-' + tabName).classList.add('active');
+    btnEl.classList.add('active');
+  }
+
+  function showMsg(elId, text, isError){
+    const el = document.getElementById(elId);
+    el.textContent = text;
+    el.className = 'msg-inline ' + (isError ? 'error' : 'success');
+    el.style.display = 'block';
+  }
+
+  async function init(){
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    currentUser = session ? session.user : null;
+    if(!currentUser){
+      document.getElementById('accessGate').innerHTML = '<p class="sub">Please <a href="login.html" style="color:#3B82F6;">log in</a> to view your account.</p>';
+      return;
+    }
+    document.getElementById('accessGate').style.display = 'none';
+    document.getElementById('settingsLayout').style.display = 'flex';
+
+    document.getElementById('currentEmailDisplay').textContent = currentUser.email;
+
+    const { data: profile } = await supabaseClient.from('profiles').select('*').eq('id', currentUser.id).single();
+    document.getElementById('currentRobloxDisplay').textContent = profile && profile.roblox_username ? '@' + profile.roblox_username : 'Not set';
+
+    loadOrders();
+    loadVIPStatus(profile);
+
+    // Jump straight to the right tab if ?tab=... is in the URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const wantedTab = urlParams.get('tab');
+    if(wantedTab){
+      const btn = document.querySelector(`[data-tab="${wantedTab}"]`);
+      if(btn) switchTab(wantedTab, btn);
+    }
+  }
+
+  const STATUS_LABELS = {
+    waiting_for_seller: '⏳ Waiting for Seller',
+    in_progress: '🔄 In Progress',
+    delivered: '📦 Delivered — Action Needed',
+    completed: '✅ Completed',
+    disputed: '🛑 Under Review',
+    cancelled: '❌ Cancelled'
+  };
+
+  async function loadOrders(){
+    const { data: orders } = await supabaseClient
+      .from('orders')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    const container = document.getElementById('ordersListContainer');
+    if(!orders || orders.length === 0){
+      container.innerHTML = '<p class="sub">No orders yet — go place your first one!</p>';
+      return;
+    }
+
+    container.innerHTML = orders.map(o => {
+      const needsAction = o.status === 'delivered';
+      return `
+        <div class="card ${needsAction ? 'needs-action' : ''}">
+          <div class="order-row">
+            <div>
+              <span class="status-badge status-${o.status}">${STATUS_LABELS[o.status] || o.status}</span>
+              <h4 style="margin:6px 0 2px;">Order #${o.order_number}</h4>
+              <p class="sub">Total: $${Number(o.total_amount).toFixed(2)}</p>
+              ${needsAction ? '<div class="needs-action-tag">🔴 Seller delivered — please confirm or report an issue!</div>' : ''}
+            </div>
+            <a class="action-link" href="order.html?id=${o.id}">${needsAction ? 'Confirm / Dispute' : 'Open Chat'}</a>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function loadVIPStatus(profile){
+    const container = document.getElementById('vipStatusContainer');
+    const isVip = profile && profile.is_vip;
+    const cancelled = profile && profile.vip_cancelled;
+
+    if(!isVip){
+      container.innerHTML = `
+        <div class="card">
+          <p class="sub">You're not a VIP member yet.</p>
+          <a href="index.html#perks" style="color:#A855F7; font-weight:800; font-size:13px;">See VIP Perks →</a>
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = `
+      <div class="card" style="border-color:var(--vip);">
+        <h4 style="color:var(--vip);">👑 Crown VIP Pass ($9.99/mo)</h4>
+        <p class="sub">Status: <b style="color:${cancelled ? '#EF4444' : '#10B981'};">${cancelled ? 'Cancelling — active until end of period' : 'Active'}</b></p>
+        <p class="sub" style="margin-top:8px;">${cancelled ? "You've cancelled — you'll keep your 2x Luck and perks until your current period ends, then it won't renew." : 'Cancelling keeps your perks active until the end of your current billing period.'}</p>
+        ${cancelled ? '' : '<button class="action red" style="margin-top:10px;" onclick="cancelVIP()">Cancel Next Billing Cycle</button>'}
+      </div>
+    `;
+  }
+
+  window.cancelVIP = async function(){
+    if(!confirm("Cancel VIP? You'll keep your perks until the end of this period, then it won't renew.")) return;
+    await supabaseClient.from('profiles').update({ vip_cancelled: true }).eq('id', currentUser.id);
+    const { data: profile } = await supabaseClient.from('profiles').select('*').eq('id', currentUser.id).single();
+    loadVIPStatus(profile);
+  };
+
+  window.requestEmailChange = async function(){
+    const newEmail = document.getElementById('newEmailInput').value.trim();
+    if(!newEmail){ showMsg('emailChangeMsg', 'Please enter a new email.', true); return; }
+    const { error } = await supabaseClient.auth.updateUser({ email: newEmail });
+    if(error){ showMsg('emailChangeMsg', error.message, true); return; }
+    showMsg('emailChangeMsg', 'Check your new email for a confirmation link!', false);
+  };
+
+  window.updateRobloxUsername = async function(){
+    const newUsername = document.getElementById('newRobloxInput').value.trim();
+    if(!newUsername){ showMsg('robloxChangeMsg', 'Please enter a username.', true); return; }
+
+    try {
+      const { data, error } = await supabaseClient.functions.invoke('verify-roblox', { body: { username: newUsername } });
+      if(error || !data || !data.success){
+        showMsg('robloxChangeMsg', "That Roblox username wasn't found — please check it.", true);
+        return;
+      }
+
+      await supabaseClient.from('profiles').update({
+        roblox_username: data.robloxUsername,
+        roblox_avatar_url: data.avatarUrl,
+        roblox_id: data.robloxId
+      }).eq('id', currentUser.id);
+
+      document.getElementById('currentRobloxDisplay').textContent = '@' + data.robloxUsername;
+      document.getElementById('newRobloxInput').value = '';
+      showMsg('robloxChangeMsg', 'Roblox username updated!', false);
+    } catch(e){
+      showMsg('robloxChangeMsg', 'Something went wrong — please try again.', true);
+    }
+  };
+
+  window.updatePassword = async function(){
+    const oldPassword = document.getElementById('oldPasswordInput').value;
+    const newPassword = document.getElementById('newPasswordInput').value;
+    const confirmPassword = document.getElementById('confirmPasswordInput').value;
+
+    if(!oldPassword || !newPassword || !confirmPassword){
+      showMsg('passwordChangeMsg', 'Please fill in all three fields.', true);
+      return;
+    }
+    if(newPassword.length < 8){
+      showMsg('passwordChangeMsg', 'New password must be at least 8 characters.', true);
+      return;
+    }
+    if(newPassword !== confirmPassword){
+      showMsg('passwordChangeMsg', "New passwords don't match.", true);
+      return;
+    }
+
+    // Verify the old password is correct by attempting to sign in with it,
+    // before allowing the change.
+    const { error: verifyError } = await supabaseClient.auth.signInWithPassword({
+      email: currentUser.email,
+      password: oldPassword
+    });
+    if(verifyError){
+      showMsg('passwordChangeMsg', 'Old password is incorrect.', true);
+      return;
+    }
+
+    const { error } = await supabaseClient.auth.updateUser({ password: newPassword });
+    if(error){
+      showMsg('passwordChangeMsg', error.message, true);
+      return;
+    }
+    document.getElementById('oldPasswordInput').value = '';
+    document.getElementById('newPasswordInput').value = '';
+    document.getElementById('confirmPasswordInput').value = '';
+    showMsg('passwordChangeMsg', 'Password updated!', false);
+  };
+
+  window.doLogout = async function(){
+    await supabaseClient.auth.signOut();
+    window.location.href = 'index.html';
+  };
+
+  init();
+</script>
+
+</body>
+</html>
