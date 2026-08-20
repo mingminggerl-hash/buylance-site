@@ -71,6 +71,8 @@
 <div class="layout" id="settingsLayout" style="display:none;">
   <div class="sidebar">
     <button class="sidebar-btn active" data-tab="orders" onclick="switchTab('orders', this)">📦 Ongoing Orders</button>
+    <button class="sidebar-btn" data-tab="mailbox" onclick="switchTab('mailbox', this)">✉️ Mailbox <span id="mailboxBadge" style="display:none; background:var(--error); color:#fff; font-size:10px; font-weight:800; padding:1px 6px; border-radius:10px; margin-left:4px;">0</span></button>
+    <button class="sidebar-btn" data-tab="wallet-history" onclick="switchTab('wallet-history', this)">💰 Wallet History</button>
     <button class="sidebar-btn" data-tab="vip" onclick="switchTab('vip', this)">👑 VIP Subscription</button>
     <button class="sidebar-btn" data-tab="profile" onclick="switchTab('profile', this)">⚙️ Profile & Security</button>
   </div>
@@ -80,6 +82,19 @@
     <div id="tab-orders" class="tab-section active">
       <h2>Ongoing Orders</h2>
       <div id="ordersListContainer"><p class="sub">Loading…</p></div>
+    </div>
+
+    <!-- MAILBOX TAB -->
+    <div id="tab-mailbox" class="tab-section">
+      <h2>Mailbox</h2>
+      <div id="mailboxContainer"><p class="sub">Loading…</p></div>
+    </div>
+
+    <!-- WALLET HISTORY TAB -->
+    <div id="tab-wallet-history" class="tab-section">
+      <h2>Wallet History</h2>
+      <p class="sub" id="walletHistoryBalance" style="margin-bottom:14px;"></p>
+      <div id="walletHistoryContainer"><p class="sub">Loading…</p></div>
     </div>
 
     <!-- VIP TAB -->
@@ -166,6 +181,8 @@
 
     loadOrders();
     loadVIPStatus(profile);
+    loadMailbox();
+    loadWalletHistory();
 
     // Jump straight to the right tab if ?tab=... is in the URL
     const urlParams = new URLSearchParams(window.location.search);
@@ -209,6 +226,85 @@
               ${needsAction ? '<div class="needs-action-tag">🔴 Seller delivered — please confirm or report an issue!</div>' : ''}
             </div>
             <a class="action-link" href="order.html?id=${o.id}">${needsAction ? 'Confirm / Dispute' : 'Open Chat'}</a>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  async function loadMailbox(){
+    const container = document.getElementById('mailboxContainer');
+    const { data: warnings } = await supabaseClient
+      .from('warnings')
+      .select('*')
+      .eq('user_id', currentUser.id)
+      .order('created_at', { ascending: false });
+
+    if(!warnings || warnings.length === 0){
+      container.innerHTML = '<p class="sub">Nothing here — no warnings on file. 🎉</p>';
+      document.getElementById('mailboxBadge').style.display = 'none';
+      return;
+    }
+
+    const unreadCount = warnings.filter(w => !w.read_at).length;
+    const badge = document.getElementById('mailboxBadge');
+    if(unreadCount > 0){
+      badge.textContent = unreadCount;
+      badge.style.display = 'inline-block';
+    } else {
+      badge.style.display = 'none';
+    }
+
+    const ordinal = n => n === 1 ? '1st' : n === 2 ? '2nd' : `${n}rd+`;
+
+    container.innerHTML = warnings.map(w => `
+      <div class="card" style="border-color:${w.read_at ? 'var(--border)' : '#F0B94D'};">
+        <h4 style="color:#B8720A;">⚠️ ${ordinal(w.strike_number)} Warning</h4>
+        <p class="sub" style="margin-top:6px;">${escapeAttr(w.reason)}</p>
+        <p class="sub" style="margin-top:8px; font-size:11px;">${new Date(w.created_at).toLocaleString()}</p>
+      </div>
+    `).join('');
+
+    // mark all as read now that they've opened the mailbox
+    const unreadIds = warnings.filter(w => !w.read_at).map(w => w.id);
+    if(unreadIds.length > 0){
+      await supabaseClient.from('warnings').update({ read_at: new Date().toISOString() }).in('id', unreadIds);
+    }
+  }
+
+  function escapeAttr(str){
+    const div = document.createElement('div');
+    div.textContent = str || '';
+    return div.innerHTML;
+  }
+
+  async function loadWalletHistory(){
+    const container = document.getElementById('walletHistoryContainer');
+    const { data: profile } = await supabaseClient.from('profiles').select('wallet_balance').eq('id', currentUser.id).single();
+    const balance = (profile && profile.wallet_balance) ? Number(profile.wallet_balance) : 0;
+    document.getElementById('walletHistoryBalance').innerHTML = `Current balance: <b style="color:var(--brand-blue); font-size:16px;">$${balance.toFixed(2)}</b>`;
+
+    const { data: txns } = await supabaseClient
+      .from('wallet_transactions')
+      .select('*')
+      .eq('user_id', currentUser.id)
+      .order('created_at', { ascending: false });
+
+    if(!txns || txns.length === 0){
+      container.innerHTML = '<p class="sub">No wallet activity yet.</p>';
+      return;
+    }
+
+    container.innerHTML = txns.map(t => {
+      const positive = Number(t.amount) >= 0;
+      return `
+        <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <p style="font-weight:800; font-size:13.5px;">${escapeAttr(t.reason)}</p>
+            <p class="sub" style="margin-top:2px;">${new Date(t.created_at).toLocaleString()}</p>
+          </div>
+          <div style="font-weight:800; font-size:15px; color:${positive ? 'var(--success)' : 'var(--error)'};">
+            ${positive ? '+' : ''}$${Number(t.amount).toFixed(2)}
           </div>
         </div>
       `;
