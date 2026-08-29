@@ -36,7 +36,39 @@
 
   #reminder-banner{ display:none; background:var(--error); color:#fff; padding:12px; border-radius:10px; margin-bottom:12px; text-align:center; font-weight:800; font-size:13px; }
 
-  #chat-box{ height:340px; overflow-y:auto; background:#F0F3FA; border-radius:12px; padding:14px; margin-bottom:10px; display:flex; flex-direction:column; gap:10px; }
+  #chat-box{
+    height:340px; overflow-y:auto; border-radius:12px; padding:14px; margin-bottom:10px;
+    display:flex; flex-direction:column; gap:10px;
+    background-color:#EAF0FB;
+    background-image:
+      radial-gradient(circle at 20% 15%, rgba(47,95,224,0.05) 0, transparent 40%),
+      radial-gradient(circle at 80% 30%, rgba(255,122,41,0.05) 0, transparent 40%),
+      radial-gradient(circle at 40% 80%, rgba(47,95,224,0.04) 0, transparent 45%),
+      radial-gradient(circle at 90% 85%, rgba(47,95,224,0.05) 0, transparent 40%);
+  }
+  .reply-quote{
+    display:block; border-left:3px solid var(--brand-blue); background:rgba(47,95,224,0.08);
+    border-radius:6px; padding:5px 9px; margin-bottom:6px; cursor:pointer;
+  }
+  .msg-row.sent .reply-quote{ border-left-color:rgba(255,255,255,0.85); background:rgba(255,255,255,0.15); }
+  .reply-quote-sender{ display:block; font-size:11px; font-weight:800; color:var(--brand-blue); }
+  .msg-row.sent .reply-quote-sender{ color:#fff; }
+  .reply-quote-text{ display:block; font-size:12px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:220px; }
+  .msg-row.sent .reply-quote-text{ color:rgba(255,255,255,0.85); }
+  .flash-highlight{ animation:flashHighlight 1.2s ease; border-radius:10px; }
+  @keyframes flashHighlight{ 0%{ background:rgba(255,122,41,0.25); } 100%{ background:transparent; } }
+  .img-lightbox{
+    position:fixed; inset:0; background:rgba(10,14,30,0.9); z-index:9999;
+    display:flex; align-items:center; justify-content:center;
+    opacity:0; pointer-events:none; transition:opacity 0.2s ease;
+  }
+  .img-lightbox.open{ opacity:1; pointer-events:auto; }
+  .img-lightbox img{ max-width:92vw; max-height:88vh; border-radius:10px; box-shadow:0 10px 50px rgba(0,0,0,0.5); }
+  .img-lightbox-close{
+    position:absolute; top:18px; right:22px; color:#fff; font-size:26px; font-weight:800;
+    cursor:pointer; opacity:0.85;
+  }
+  .img-lightbox-close:hover{ opacity:1; }
   .msg-row{ display:flex; flex-direction:column; max-width:78%; }
   .msg-row.sent{ align-self:flex-end; align-items:flex-end; }
   .msg-row.received{ align-self:flex-start; align-items:flex-start; }
@@ -380,7 +412,7 @@
       row.innerHTML = `
         <div class="bubble">
           <div class="delivery-title">📦 Order Delivered</div>
-          ${msg.image_url ? `<img class="chat-img" src="${msg.image_url}" onclick="window.open('${msg.image_url}','_blank')" style="max-width:260px; max-height:260px;">` : ''}
+          ${msg.image_url ? `<img class="chat-img" src="${msg.image_url}" onclick="openImageLightbox('${msg.image_url}')" style="max-width:260px; max-height:260px;">` : ''}
         </div>
         <div class="msg-time">${formatTime(msg.created_at)}</div>
       `;
@@ -392,12 +424,17 @@
       `;
     } else {
       const isMine = msg.sender_type === 'buyer';
-      const imgHtml = msg.image_url ? `<img class="chat-img" src="${msg.image_url}" onclick="window.open('${msg.image_url}','_blank')">` : '';
+      const imgHtml = msg.image_url ? `<img class="chat-img" src="${msg.image_url}" onclick="openImageLightbox('${msg.image_url}')">` : '';
       const rawText = msg.message || '';
       const textHtml = rawText ? escapeHtml(rawText) : '';
       const avatarUrl = isMine ? (currentOrder ? currentOrder.roblox_avatar_url : '') : sellerAvatarUrl;
       const nameLabel = isMine ? 'You' : `Seller · ${SELLER_ROBLOX_USERNAME}`;
       const pillsHtml = renderReactionPills(msg.reactions, msg.id, 'buyer');
+      const replyHtml = msg.reply_to_text ? `
+        <div class="reply-quote" onclick="jumpToMessage('${msg.reply_to_id || ''}')">
+          <span class="reply-quote-sender">${escapeHtml(msg.reply_to_sender || '')}</span>
+          <span class="reply-quote-text">${escapeHtml(msg.reply_to_text)}</span>
+        </div>` : '';
       row.setAttribute('data-msg-text', rawText);
       row.setAttribute('data-msg-mine', isMine ? '1' : '0');
       row.setAttribute('data-msg-sender-label', isMine ? 'You' : SELLER_ROBLOX_USERNAME);
@@ -407,7 +444,7 @@
           ${avatarUrl ? `<img class="msg-avatar" src="${avatarUrl}">` : '<span class="msg-avatar"></span>'}
           <div class="msg-row ${isMine ? 'sent' : 'received'}" style="max-width:100%;">
             <div class="bubble-wrap">
-              <div class="bubble">${textHtml}${imgHtml}</div>
+              <div class="bubble">${replyHtml}${textHtml}${imgHtml}</div>
               <span class="react-trigger" onclick="toggleReactionBar('${msg.id}', event)">🙂</span>
               ${reactionBarHtml(msg.id)}
             </div>
@@ -421,6 +458,34 @@
     box.appendChild(row);
     box.scrollTop = box.scrollHeight;
   }
+
+  window.openImageLightbox = function(url){
+    let overlay = document.getElementById('imgLightbox');
+    if(!overlay){
+      overlay = document.createElement('div');
+      overlay.id = 'imgLightbox';
+      overlay.className = 'img-lightbox';
+      overlay.innerHTML = `<span class="img-lightbox-close" onclick="closeImageLightbox()">✕</span><img id="imgLightboxPic">`;
+      overlay.addEventListener('click', (e) => { if(e.target === overlay) closeImageLightbox(); });
+      document.body.appendChild(overlay);
+    }
+    document.getElementById('imgLightboxPic').src = url;
+    overlay.classList.add('open');
+  };
+
+  window.closeImageLightbox = function(){
+    const overlay = document.getElementById('imgLightbox');
+    if(overlay) overlay.classList.remove('open');
+  };
+
+  window.jumpToMessage = function(msgId){
+    if(!msgId) return;
+    const el = document.querySelector(`[data-msg-id="${msgId}"]`);
+    if(!el) return;
+    el.scrollIntoView({behavior:'smooth', block:'center'});
+    el.classList.add('flash-highlight');
+    setTimeout(() => el.classList.remove('flash-highlight'), 1200);
+  };
 
   window.sendReaction = async function(msgId, emoji, event){
     if(event) event.stopPropagation();
@@ -651,8 +716,8 @@
     const input = document.getElementById('chat-input');
     let text = input.value.trim();
     if(!text) return;
+    const replySnapshot = pendingReplyTo;
     if(pendingReplyTo){
-      text = `↩️ Replying to ${pendingReplyTo.senderLabel}: "${pendingReplyTo.text.slice(0,80)}"\n${text}`;
       pendingReplyTo = null;
       document.getElementById('replyPreviewBar').style.display = 'none';
     }
@@ -661,7 +726,10 @@
       order_id: orderId,
       sender_type: 'buyer',
       sender_name: currentUser.email,
-      message: text
+      message: text,
+      reply_to_id: replySnapshot ? replySnapshot.id : null,
+      reply_to_text: replySnapshot ? replySnapshot.text.slice(0,120) : null,
+      reply_to_sender: replySnapshot ? replySnapshot.senderLabel : null
     }]);
     await supabaseClient.from('orders').update({ last_buyer_activity_at: new Date().toISOString() }).eq('id', orderId);
     sendDiscordChatPing(text);

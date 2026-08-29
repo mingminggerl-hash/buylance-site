@@ -35,7 +35,9 @@
     position:sticky; top:0; z-index:200;
     background:#fff;
     box-shadow:0 2px 10px rgba(15,27,61,0.06);
+    transition:transform 0.25s ease;
   }
+  header.header-hidden{ transform:translateY(-100%); }
   .logo{
     display:flex; align-items:center; gap:8px;
     font-family:'Baloo 2', sans-serif;
@@ -123,9 +125,10 @@
     background:#fff; width:min(360px, 90vw); height:100%;
     padding:26px 22px; overflow-y:auto;
     animation:slide-in 0.22s ease;
+    position:relative;
   }
   @keyframes slide-in{ from{ transform:translateX(100%); } to{ transform:translateX(0); } }
-  .search-panel-top{ display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
+  .search-panel-top{ display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; position:sticky; top:-26px; padding-top:26px; margin-top:-26px; background:#fff; z-index:5; }
   .search-title{ font-family:'Baloo 2', sans-serif; font-weight:800; font-size:20px; color:var(--brand-blue); }
   .search-input{
     width:100%; padding:12px 14px; border:1px solid var(--card-border); border-radius:12px;
@@ -724,7 +727,7 @@
       <a onclick="goToSellerTab('baddies', 'Baddies'); toggleGameMenu();">💜 Baddies</a>
       <a onclick="goToSellerTab('psx', 'Pet Simulator X'); toggleGameMenu();">💎 Pet Simulator X</a>
       <a onclick="goToSellerTab('tapsim', 'Tap Sim'); toggleGameMenu();">👆 Tap Sim</a>
-      <div class="game-menu-soon">🥷 Steal a Brainrot <span>Soon</span></div>
+      <a href="stealabrainrot.html">🥷 Steal a Brainrot</a>
     </div>
   </div>
 
@@ -789,7 +792,7 @@
     <a onclick="goToSellerTab('baddies', 'Baddies'); toggleSearch();">Baddies</a>
     <a onclick="goToSellerTab('psx', 'Pet Simulator X'); toggleSearch();">Pet Simulator X</a>
     <a onclick="goToSellerTab('tapsim', 'Tap Sim'); toggleSearch();">Tap Sim</a>
-    <div class="game-menu-soon" style="padding:8px 0;">Steal a Brainrot <span>Soon</span></div>
+    <a href="stealabrainrot.html">Steal a Brainrot</a>
     <div class="search-label">More</div>
     <a onclick="scrollToId('rewards'); toggleSearch();">Rewards</a>
     <a href="support.html">Support</a>
@@ -877,6 +880,7 @@
   <button class="seller-tab" onclick="showSellerTab('baddies', this)">💜 Baddies</button>
   <button class="seller-tab" onclick="showSellerTab('psx', this)">💎 Pet Simulator X</button>
   <button class="seller-tab" onclick="showSellerTab('tapsim', this)">👆 Tap Sim</button>
+  <button class="seller-tab" onclick="window.location.href='stealabrainrot.html'">🥷 Steal a Brainrot</button>
 </div>
 <div class="inline-search-wrap" style="position:relative; width:100%; max-width:520px;">
   <input type="text" id="inlineSearchInput" class="inline-search-input" oninput="inlineLiveSearch(this.value)" onfocus="inlineLiveSearch(this.value)" placeholder="🔍 Search items across games (e.g. Harvester, PSX, Gems)..." style="width:100%; padding:12px 18px; border-radius:25px; border:1.5px solid var(--card-border); font-family:'Nunito Sans', sans-serif; font-size:14px; outline:none; box-shadow:0 2px 8px rgba(0,0,0,0.05); box-sizing:border-box;">
@@ -1879,7 +1883,7 @@
   <div class="perk-card">
     <div class="perk-icon">🧑</div>
     <h3>Dedicated Support</h3>
-    <p>Message us anytime — expect a reply within 12–48 hours as we sort things out for you.</p>
+    <p>Message us anytime — since a real person handles support (not a bot), it might take a little while, but we'll get back to you as we sort things out for you.</p>
   </div>
   <div class="perk-card" id="vipPerkCard">
     <span class="perk-tag">$9.99/MO</span>
@@ -1913,7 +1917,7 @@
     <div class="safety-icon"><div class="ico">💰</div><h4>Fair Pricing</h4><p>No hidden markups</p></div>
   </div>
   <div class="safety-note">
-    We only ever ask for your in-game username to deliver an order — never your password, and never a download. Payments run through trusted, secure providers, so your info stays yours.
+    We only ever ask for your in-game username to deliver your order — never your password. Every payment goes through a trusted, secure provider, so your information stays private.
   </div>
 </div>
 
@@ -1947,7 +1951,7 @@
 
     <div id="reviewForm" style="display:none;">
       <label style="font-weight:700; font-size:12.5px; display:block; margin-bottom:6px;">Your Name <span style="color:var(--accent-orange);">*</span></label>
-      <input type="text" id="revName" placeholder="Your name">
+      <input type="text" id="revName" placeholder="Your name" readonly style="background:#F0F3FA;">
       <label style="font-weight:700; font-size:12.5px; display:block; margin:10px 0 6px;">Your Rating</label>
       <div class="star-picker" id="starPicker">
         <span data-star="1">★</span><span data-star="2">★</span><span data-star="3">★</span><span data-star="4">★</span><span data-star="5">★</span>
@@ -1992,7 +1996,7 @@
     <div class="faq-a">
       <p>First, don't panic — delivery delays usually come down to something simple, like a Roblox trade cooldown or us needing to double check your username.</p>
       <p>Message support with your order number, your Roblox username, and a short description of what's going on. Screenshots help us sort it out faster if you have any.</p>
-      <p>Since a real person (not a bot) handles support, replies land within 12–48 hours. We'll either finish the delivery or figure out what went wrong together.</p>
+      <p>Since a real person (not a bot) handles support, it might take a little while to get back to you. We'll either finish the delivery or figure out what went wrong together.</p>
     </div>
   </div>
   <div class="faq-item">
@@ -2059,7 +2063,7 @@
     <div>
       <div class="seo-icon">💬</div>
       <h4>Something's wrong with my order — now what?</h4>
-      <p>Message support with your order details — since it's handled by a real person rather than an automated system, expect a reply within 12–48 hours.</p>
+      <p>Message support with your order details — since it's handled by a real person rather than an automated system, it might take a little while, but we'll get back to you.</p>
     </div>
   </div>
   <p class="seo-disclaimer">Buylance.gg is not affiliated, associated, or partnered with Roblox Corporation or any game developers. Buylance.gg is an independent platform for digital item and currency sales. All trademarks and copyrights belong to their respective owners.</p>
@@ -2112,9 +2116,10 @@
       <div id="authPwHint" style="font-size:11.5px; color:var(--muted); font-weight:600; margin-top:6px;">Needs: 6+ characters, 1 capital letter, 1 number, 1 symbol (like ! @ # $ %)</div>
       <label>Confirm Password</label>
       <div class="pw-wrap">
-        <input type="password" id="authSignupConfirm" placeholder="Re-enter password">
+        <input type="password" id="authSignupConfirm" placeholder="Re-enter password" oninput="checkPasswordStrength()">
         <button type="button" class="pw-eye" onclick="togglePasswordVisibility('authSignupConfirm', this)">👁️</button>
       </div>
+      <div id="authConfirmHint" style="font-size:11.5px; font-weight:600; margin-top:6px; display:none;"></div>
       <div class="error" id="authSignupError" style="display:none; color:#E8412C; font-size:12.5px; font-weight:700; margin-top:10px;"></div>
       <button class="modal-submit" id="authSignupBtn" onclick="handleInlineSignup()">Sign Up</button>
       <div style="text-align:center; margin-top:12px; font-size:13px; font-weight:600;">
@@ -2196,20 +2201,22 @@
       <h3>🛒 Ready to Check Out</h3>
       <p class="sub">Pay securely with PayPal below — your order is created automatically once payment is confirmed.</p>
       <label>Roblox Username</label>
-      <div style="font-size:11px; color:var(--muted); font-weight:600; margin-bottom:6px;">Type your username below — we'll show your avatar so you can confirm it's really you.</div>
-      <input type="text" id="checkoutRoblox" placeholder="e.g. builderman123" oninput="lookupRobloxAvatar(this.value)">
-      <div id="robloxPreview" style="display:none; align-items:center; gap:10px; margin-top:8px; padding:8px 10px; background:#F7F9FF; border-radius:10px;">
-        <img id="robloxAvatarImg" src="" alt="" style="width:40px; height:40px; border-radius:50%; background:#E4E9F7;">
+      <div id="checkoutRobloxKnown" style="display:none; align-items:center; gap:10px; margin-top:4px; padding:10px 12px; background:#F7F9FF; border-radius:10px;">
+        <img id="checkoutRobloxAvatarImg" src="" alt="" style="width:40px; height:40px; border-radius:50%; background:#E4E9F7;">
         <div>
-          <div id="robloxDisplayName" style="font-weight:800; font-size:13px;"></div>
-          <div id="robloxUsername" style="font-size:11.5px; color:var(--muted); font-weight:600;"></div>
+          <div id="checkoutRobloxDisplayName" style="font-weight:800; font-size:13px;"></div>
+          <div id="checkoutRobloxHandle" style="font-size:11.5px; color:var(--muted); font-weight:600;"></div>
         </div>
       </div>
-      <div id="robloxNotFound" style="display:none; font-size:11.5px; color:#C0392B; font-weight:700; margin-top:6px;">Couldn't find that username — please double check it.</div>
-      <label>Contact Email</label>
-      <input type="text" id="checkoutEmail" placeholder="you@email.com">
+      <div id="checkoutRobloxMissing" style="display:none; font-size:12px; color:#C0392B; font-weight:700; margin-top:6px; line-height:1.5;">
+        You haven't set a Roblox username on your account yet.
+        <a href="settings.html" style="color:var(--brand-blue); font-weight:800;">Set it in Settings →</a>
+      </div>
+      <div style="font-size:11px; color:var(--muted); font-weight:600; margin-top:6px;">
+        This is pulled from your account. If it's ever wrong, just let us know in the order chat and we'll sort it out.
+      </div>
       <div style="background:#EEF3FF; border-radius:10px; padding:12px 14px; margin-top:14px; font-size:11.5px; color:var(--muted); font-weight:600; line-height:1.6;">
-        <b style="color:var(--ink);">⏱️ NOTE:</b> Delivery usually takes 5–15 minutes after payment — but it's not guaranteed. Delays can happen from Roblox trade cooldowns, account restrictions, or us being asleep (replies land within 12–48 hours).
+        <b style="color:var(--ink);">⏱️ NOTE:</b> Delivery usually takes 5–15 minutes after payment — but it's not guaranteed. Delays can happen from Roblox trade cooldowns or account restrictions. If it's taking longer than usual, that just means your order needs a bit more time to process — we haven't forgotten about you.
       </div>
       <div id="mutationWarningBox" style="display:none; background:#FFF4E5; border:1px solid #FFD79A; border-radius:10px; padding:12px 14px; margin-top:10px; font-size:11.5px; color:var(--ink); font-weight:600; line-height:1.6;">
         <b>⚠️ We noticed you're ordering a Grow a Garden 1 pet with a mutation.</b><br>
@@ -2339,7 +2346,9 @@
   }
   function checkPasswordStrength(){
     const pw = document.getElementById('authSignupPassword').value;
+    const confirmPw = document.getElementById('authSignupConfirm').value;
     const hint = document.getElementById('authPwHint');
+    const confirmHint = document.getElementById('authConfirmHint');
     if(pw.length === 0){
       hint.style.color = 'var(--muted)';
       hint.textContent = 'Needs: 6+ characters, 1 capital letter, 1 number, 1 symbol (like ! @ # $ %)';
@@ -2349,6 +2358,18 @@
     } else {
       hint.style.color = '#C0392B';
       hint.textContent = 'Still needs: 6+ characters, 1 capital letter, 1 number, 1 symbol';
+    }
+
+    if(confirmPw.length === 0){
+      confirmHint.style.display = 'none';
+    } else if(confirmPw === pw){
+      confirmHint.style.display = 'block';
+      confirmHint.style.color = '#1E8E3E';
+      confirmHint.textContent = '✅ Passwords match!';
+    } else {
+      confirmHint.style.display = 'block';
+      confirmHint.style.color = '#C0392B';
+      confirmHint.textContent = "❌ Doesn't match yet";
     }
   }
 
@@ -2427,6 +2448,7 @@
     } catch(e) {
       currentUser = null;
     }
+    if(currentUser){ syncSpinPrizeIntoCart(); }
     const btn = document.getElementById('headerLoginBtn');
     const badgeWrap = document.getElementById('headerUserBadgeWrap');
 
@@ -2780,15 +2802,94 @@
   function changeQty(key, delta){
     const item = cart.find(i => i.key === key);
     if(!item) return;
+    if(item.locked) return; // spin wheel prizes: fixed at qty 1, can't be changed
     if(delta < 0 && item.qty <= item.min){ return; } // can't go below the minimum order qty from the minus button
     item.qty += delta;
     saveCartToStorage();
     renderCart();
   }
   function removeFromCart(key){
+    const item = cart.find(i => i.key === key);
+    if(item && item.locked){
+      showSpinPrizeToast("This prize can't be removed — check out with it whenever you're ready!");
+      return;
+    }
     cart = cart.filter(i => i.key !== key);
     saveCartToStorage();
     renderCart();
+  }
+
+  // Pulls in any unredeemed spin-wheel prize the user has won and makes
+  // sure it's sitting in their cart as a locked, free (\$0) line item.
+  // Source of truth is Supabase, not localStorage — so this re-appears
+  // even after clearing browser data, switching devices, or years later.
+  async function syncSpinPrizeIntoCart(){
+    if(!currentUser) return;
+    try {
+      const { data: status, error } = await supabaseClient.rpc('get_spin_status', { p_user_id: currentUser.id });
+      if(error || !status) return;
+      const hasUnredeemedPrize = status.last_won_item && !status.prize_redeemed;
+      const alreadyInCart = cart.some(i => i.key === 'spin50-prize');
+
+      if(hasUnredeemedPrize && !alreadyInCart){
+        cart.push({
+          key: 'spin50-prize',
+          name: status.last_won_item,
+          game: '🎰 Spin Wheel Prize',
+          price: 0,
+          qty: 1,
+          min: 1,
+          mutation: false,
+          locked: true
+        });
+        saveCartToStorage();
+        renderCart();
+        showSpinPrizeBanner(status.last_won_item);
+      } else if(!hasUnredeemedPrize && alreadyInCart){
+        // Already redeemed elsewhere (or data changed) — don't keep showing it.
+        cart = cart.filter(i => i.key !== 'spin50-prize');
+        saveCartToStorage();
+        renderCart();
+      }
+    } catch(e){
+      console.warn('Spin prize sync failed:', e);
+    }
+  }
+
+  function showSpinPrizeBanner(itemName){
+    if(document.getElementById('spinPrizeBanner')) return; // don't stack duplicates
+    const banner = document.createElement('div');
+    banner.id = 'spinPrizeBanner';
+    banner.style.cssText = `
+      position:fixed; top:90px; left:50%; transform:translateX(-50%); z-index:500;
+      background:linear-gradient(90deg,#FF7A29,#FF9A52); color:#fff; font-weight:800;
+      font-size:14px; padding:14px 22px; border-radius:30px; box-shadow:0 8px 24px rgba(255,122,41,0.4);
+      display:flex; align-items:center; gap:12px; max-width:90vw; text-align:center;
+    `;
+    banner.innerHTML = `
+      <span>🎁 Check your cart to see your winning prize — <b>${itemName}</b>!</span>
+      <button onclick="document.getElementById('spinPrizeBanner').remove()" style="background:rgba(255,255,255,0.25); border:none; color:#fff; border-radius:50%; width:22px; height:22px; cursor:pointer; font-weight:800; flex-shrink:0;">✕</button>
+    `;
+    document.body.appendChild(banner);
+  }
+
+  function showSpinPrizeToast(msg){
+    let toast = document.getElementById('spinPrizeToast');
+    if(!toast){
+      toast = document.createElement('div');
+      toast.id = 'spinPrizeToast';
+      toast.style.cssText = `
+        position:fixed; left:50%; bottom:24px; transform:translateX(-50%);
+        background:var(--ink); color:#fff; font-weight:800; font-size:13px;
+        padding:11px 18px; border-radius:24px; box-shadow:0 8px 24px rgba(0,0,0,0.25); z-index:9999;
+        max-width:90vw; text-align:center;
+      `;
+      document.body.appendChild(toast);
+    }
+    toast.textContent = msg;
+    toast.style.opacity = '1';
+    clearTimeout(toast._hideTimer);
+    toast._hideTimer = setTimeout(() => { toast.style.opacity = '0'; }, 2600);
   }
   function renderCart(){
     const totalQty = cart.reduce((s,i)=>s+i.qty,0);
@@ -2802,7 +2903,15 @@
       const games = [...new Set(cart.map(i => i.game))];
       wrap.innerHTML = games.map(g => {
         const items = cart.filter(i => i.game === g);
-        return `<div class="cart-game-label">${g}</div>` + items.map(i => `
+        return `<div class="cart-game-label">${g}</div>` + items.map(i => i.locked ? `
+          <div class="cart-item" style="background:#FFF7ED; border:1px solid #FFD9A8; border-radius:10px; padding:6px 8px;">
+            <div class="cart-item-info">
+              <div class="cart-item-name">🎁 ${i.name}</div>
+              <div style="font-size:11px; font-weight:800; color:#FF7A29;">FREE PRIZE — no expiration</div>
+            </div>
+            <div class="cart-item-price" style="color:#FF7A29;">FREE</div>
+          </div>
+        ` : `
           <div class="cart-item">
             <div class="cart-item-info">
               <div class="cart-item-name">${i.name}</div>
@@ -2923,12 +3032,11 @@
         return;
       }
 
-      // Reserve it now so it can't be applied twice, even across sessions
-      const { error: insertErr } = await supabaseClient
-        .from('promo_redemptions')
-        .insert({ user_id: userId, code: 'BUYLANCE' });
-      if(insertErr) throw insertErr;
-
+      // NOTE: we don't reserve/insert the redemption here anymore — that
+      // used to permanently burn the one-time use the moment someone
+      // clicked Apply, even if they never actually completed an order.
+      // The redemption now only gets recorded once an order truly succeeds
+      // (see finalizeOrder).
       appliedPromoCode = 'BUYLANCE';
       msg.style.display = 'block';
       msg.style.color = '#1E8E3E';
@@ -2948,11 +3056,75 @@
     document.getElementById('cartOverlay').classList.toggle('open');
   }
 
+  document.getElementById('cartOverlay').addEventListener('click', (e) => {
+    if(e.target.id === 'cartOverlay'){
+      document.getElementById('cartOverlay').classList.remove('open');
+    }
+  });
+
   window.addEventListener('scroll', () => {
     const btn = document.getElementById('stickyCart');
     if(window.scrollY > 400){ btn.classList.add('show'); }
     else{ btn.classList.remove('show'); }
   });
+
+  // Header: hide while scrolling down, snap back into view the moment
+  // the user scrolls up (even slightly) or nears the very top.
+  (function(){
+    const headerEl = document.querySelector('header');
+    if(!headerEl) return;
+    let lastScrollY = window.scrollY;
+    let ticking = false;
+
+    function handleScroll(){
+      const currentY = window.scrollY;
+      const cartOpen = document.getElementById('cartOverlay')?.classList.contains('open');
+      const menuOpen = document.querySelector('.game-menu')?.classList.contains('open');
+
+      if(currentY <= 80 || cartOpen || menuOpen){
+        headerEl.classList.remove('header-hidden');
+      } else if(currentY > lastScrollY){
+        headerEl.classList.add('header-hidden');
+      } else {
+        headerEl.classList.remove('header-hidden');
+      }
+      lastScrollY = currentY;
+      ticking = false;
+    }
+
+    window.addEventListener('scroll', () => {
+      if(!ticking){
+        requestAnimationFrame(handleScroll);
+        ticking = true;
+      }
+    });
+  })();
+
+  let checkoutRobloxData = null; // { username, avatarUrl, displayName } pulled from their profile, or null if unset
+
+  async function loadCheckoutRobloxInfo(){
+    const knownBox = document.getElementById('checkoutRobloxKnown');
+    const missingBox = document.getElementById('checkoutRobloxMissing');
+    checkoutRobloxData = null;
+    knownBox.style.display = 'none';
+    missingBox.style.display = 'none';
+
+    if(!currentUser) return;
+    const { data: profile } = await supabaseClient.from('profiles').select('roblox_username, roblox_avatar_url').eq('id', currentUser.id).single();
+
+    if(profile && profile.roblox_username){
+      checkoutRobloxData = {
+        username: profile.roblox_username,
+        avatarUrl: profile.roblox_avatar_url || ''
+      };
+      document.getElementById('checkoutRobloxAvatarImg').src = checkoutRobloxData.avatarUrl;
+      document.getElementById('checkoutRobloxDisplayName').textContent = checkoutRobloxData.username;
+      document.getElementById('checkoutRobloxHandle').textContent = '@' + checkoutRobloxData.username;
+      knownBox.style.display = 'flex';
+    } else {
+      missingBox.style.display = 'block';
+    }
+  }
 
   async function openCheckoutModal(){
     if(cart.length === 0) return;
@@ -2966,6 +3138,7 @@
     document.getElementById('cartOverlay').classList.remove('open');
     document.getElementById('checkoutModal').classList.add('open');
     checkoutClearError();
+    loadCheckoutRobloxInfo();
 
     const hasMutation = cart.some(i => i.mutation);
     const box = document.getElementById('mutationWarningBox');
@@ -3066,15 +3239,12 @@
       checkoutShowError('Please log in first to place an order!');
       return null;
     }
-    const roblox = document.getElementById('checkoutRoblox').value.trim();
-    const email = document.getElementById('checkoutEmail').value.trim();
-    if(!roblox){ checkoutShowError('Please enter your Roblox username.'); return null; }
-    if(!email){ checkoutShowError('Please enter a contact email.'); return null; }
+    const roblox = checkoutRobloxData ? checkoutRobloxData.username : '';
+    const email = currentUser.email || '';
+    if(!roblox){ checkoutShowError('Please set your Roblox username in Settings first, then come back.'); return null; }
     if(cart.length === 0){ checkoutShowError('Your cart is empty.'); return null; }
 
-    const avatarPreview = document.getElementById('robloxPreview');
-    const avatarImg = document.getElementById('robloxAvatarImg');
-    const avatarUrl = (avatarPreview && avatarPreview.style.display !== 'none' && avatarImg && avatarImg.src) ? avatarImg.src : null;
+    const avatarUrl = checkoutRobloxData ? checkoutRobloxData.avatarUrl : null;
 
     const itemsJson = cart.map(i => ({ game: i.game, item: i.name, qty: i.qty, price: i.price }));
 
@@ -3193,8 +3363,19 @@
       catch(e){ console.warn('Wallet deduction failed:', e); }
     }
 
+    // Only NOW — after the order has truly succeeded — do we record the
+    // promo code as used, so an abandoned/failed checkout never burns it.
+    if(appliedPromoCode === 'BUYLANCE'){
+      try { await supabaseClient.from('promo_redemptions').insert({ user_id: currentUser.id, code: 'BUYLANCE' }); }
+      catch(e){ console.warn('Promo redemption record failed:', e); }
+      appliedPromoCode = null;
+    }
+
     if(cart.some(item => item.key === 'free-mm2-reward')){
       await supabaseClient.rpc('mark_20_reward_claimed');
+    }
+    if(cart.some(item => item.key === 'spin50-prize')){
+      await supabaseClient.rpc('mark_spin_prize_redeemed');
     }
 
     sendDiscordOrderWebhook(order, itemsJson);
@@ -3674,12 +3855,24 @@
         loggedOutEl.style.display = 'none';
         formEl.style.display = 'block';
         alreadyEl.style.display = 'none';
+        prefillReviewName();
       }
     } catch(e) {
       console.warn('Could not check existing review:', e);
       loggedOutEl.style.display = 'none';
       formEl.style.display = 'block';
       alreadyEl.style.display = 'none';
+      prefillReviewName();
+    }
+  }
+
+  async function prefillReviewName(){
+    const { data: profile } = await supabaseClient.from('profiles').select('roblox_username').eq('id', currentUser.id).single();
+    const nameInput = document.getElementById('revName');
+    if(profile && profile.roblox_username){
+      nameInput.value = profile.roblox_username;
+      nameInput.readOnly = true;
+      nameInput.style.background = '#F0F3FA';
     }
   }
   refreshAuthUI();

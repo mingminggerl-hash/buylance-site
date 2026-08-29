@@ -44,7 +44,39 @@
   .item-line{ font-size:13px; color:var(--muted); font-weight:600; padding:3px 0; }
   .total-line{ font-weight:900; font-size:15px; margin-top:8px; border-top:1px solid var(--card-border); padding-top:8px; }
 
-  #chat-box{ height:340px; overflow-y:auto; background:#F0F3FA; border-radius:12px; padding:14px; margin-bottom:10px; display:flex; flex-direction:column; gap:10px; }
+  #chat-box{
+    height:340px; overflow-y:auto; border-radius:12px; padding:14px; margin-bottom:10px;
+    display:flex; flex-direction:column; gap:10px;
+    background-color:#EAF0FB;
+    background-image:
+      radial-gradient(circle at 20% 15%, rgba(47,95,224,0.05) 0, transparent 40%),
+      radial-gradient(circle at 80% 30%, rgba(255,122,41,0.05) 0, transparent 40%),
+      radial-gradient(circle at 40% 80%, rgba(47,95,224,0.04) 0, transparent 45%),
+      radial-gradient(circle at 90% 85%, rgba(47,95,224,0.05) 0, transparent 40%);
+  }
+  .reply-quote{
+    display:block; border-left:3px solid var(--brand-blue); background:rgba(47,95,224,0.08);
+    border-radius:6px; padding:5px 9px; margin-bottom:6px; cursor:pointer;
+  }
+  .msg-row.sent .reply-quote{ border-left-color:rgba(255,255,255,0.85); background:rgba(255,255,255,0.15); }
+  .reply-quote-sender{ display:block; font-size:11px; font-weight:800; color:var(--brand-blue); }
+  .msg-row.sent .reply-quote-sender{ color:#fff; }
+  .reply-quote-text{ display:block; font-size:12px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:220px; }
+  .msg-row.sent .reply-quote-text{ color:rgba(255,255,255,0.85); }
+  .flash-highlight{ animation:flashHighlight 1.2s ease; border-radius:10px; }
+  @keyframes flashHighlight{ 0%{ background:rgba(255,122,41,0.25); } 100%{ background:transparent; } }
+  .img-lightbox{
+    position:fixed; inset:0; background:rgba(10,14,30,0.9); z-index:9999;
+    display:flex; align-items:center; justify-content:center;
+    opacity:0; pointer-events:none; transition:opacity 0.2s ease;
+  }
+  .img-lightbox.open{ opacity:1; pointer-events:auto; }
+  .img-lightbox img{ max-width:92vw; max-height:88vh; border-radius:10px; box-shadow:0 10px 50px rgba(0,0,0,0.5); }
+  .img-lightbox-close{
+    position:absolute; top:18px; right:22px; color:#fff; font-size:26px; font-weight:800;
+    cursor:pointer; opacity:0.85;
+  }
+  .img-lightbox-close:hover{ opacity:1; }
   .msg-row{ display:flex; flex-direction:column; max-width:78%; }
   .msg-row.sent{ align-self:flex-end; align-items:flex-end; }
   .msg-row.received{ align-self:flex-start; align-items:flex-start; }
@@ -260,6 +292,69 @@
     area.innerHTML = `<div style="background:#FFF4E5; color:#8A5B00; font-weight:800; font-size:12px; padding:5px 10px; border-radius:8px; margin-bottom:10px; display:inline-block;">⚠️ ${ordinal} Warning on file${frozenNote}</div>`;
   }
 
+  let walletHistoryLoadedFor = null;
+
+  window.toggleWalletHistory = async function(userId){
+    const area = document.getElementById('walletHistoryArea');
+    if(!area) return;
+    const isOpen = area.style.display !== 'none';
+    if(isOpen){
+      area.style.display = 'none';
+      return;
+    }
+    area.style.display = 'block';
+    if(walletHistoryLoadedFor === userId) return; // already loaded, just re-showing
+    area.innerHTML = '<p class="sub">Loading wallet history…</p>';
+
+    const { data: profile } = await supabaseClient.from('profiles').select('wallet_balance').eq('id', userId).single();
+    const balance = (profile && profile.wallet_balance) ? Number(profile.wallet_balance) : 0;
+
+    let totalSpent = 0;
+    try {
+      const { data: spentResult } = await supabaseClient.rpc('get_total_spent', { p_user_id: userId });
+      totalSpent = Number(spentResult) || 0;
+    } catch(e){
+      console.warn('Could not load total spent:', e);
+    }
+
+    const { data: txns, error } = await supabaseClient
+      .rpc('get_wallet_transactions', { p_user_id: userId });
+
+    if(error){
+      area.innerHTML = `<p class="sub" style="color:var(--error);">Could not load wallet history: ${escapeHtml(error.message)}</p>`;
+      return;
+    }
+
+    walletHistoryLoadedFor = userId;
+
+    const balanceLine = `
+      <p class="sub" style="margin-bottom:4px;">Total spent (lifetime, delivered/completed orders): <b style="color:var(--ink); font-size:15px;">$${totalSpent.toFixed(2)}</b></p>
+      <p class="sub" style="margin-bottom:8px;">Current wallet balance: <b style="color:var(--brand-blue); font-size:15px;">$${balance.toFixed(2)}</b></p>
+    `;
+
+    if(!txns || txns.length === 0){
+      area.innerHTML = balanceLine + '<p class="sub">No wallet activity for this user yet.</p>';
+      return;
+    }
+
+    const rows = txns.map(t => {
+      const positive = Number(t.amount) >= 0;
+      return `
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--card-border);">
+          <div>
+            <p style="font-weight:800; font-size:12.5px;">${escapeHtml(t.reason || 'Wallet activity')}</p>
+            <p class="sub" style="margin-top:2px; font-size:11px;">${new Date(t.created_at).toLocaleString()}</p>
+          </div>
+          <div style="font-weight:800; font-size:13.5px; color:${positive ? 'var(--success)' : 'var(--error)'}; white-space:nowrap;">
+            ${positive ? '+' : ''}$${Number(t.amount).toFixed(2)}
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    area.innerHTML = balanceLine + `<div style="max-height:280px; overflow-y:auto; background:#F8FAFF; border:1px solid var(--card-border); border-radius:10px; padding:0 12px;">${rows}</div>`;
+  };
+
   window.openWarningModal = function(userId, robloxUsername){
     const reason = prompt(`Issuing a warning to ${robloxUsername}. What's the reason?`);
     if(!reason || !reason.trim()) return;
@@ -334,6 +429,10 @@
         <span>Roblox: <b>${order.roblox_username}</b> &nbsp;|&nbsp; Email: <b>${order.user_email}</b></span>
       </p>
       <div id="strikeBadgeArea"></div>
+      <div style="margin-bottom:10px;">
+        <button class="action" style="background:#2F5FE0; width:auto; padding:8px 14px; font-size:12.5px;" onclick="toggleWalletHistory('${order.user_id}')">💰 View Wallet History</button>
+        <div id="walletHistoryArea" style="display:none; margin-top:10px;"></div>
+      </div>
       ${items}
       <div class="total-line">Total: ${formatMoney(order.total_amount)}</div>
       ${paymentBreakdownHtml}
@@ -445,7 +544,7 @@
       row.innerHTML = `
         <div class="bubble">
           <div class="delivery-title">📦 Order Delivered</div>
-          ${msg.image_url ? `<img class="chat-img" src="${msg.image_url}" onclick="window.open('${msg.image_url}','_blank')" style="max-width:260px; max-height:260px;">` : ''}
+          ${msg.image_url ? `<img class="chat-img" src="${msg.image_url}" onclick="openImageLightbox('${msg.image_url}')" style="max-width:260px; max-height:260px;">` : ''}
         </div>
         <div class="msg-time">${formatTime(msg.created_at)}</div>
       `;
@@ -458,12 +557,17 @@
     } else {
       const isMine = msg.sender_type === 'seller';
       row.className = 'msg-row ' + (isMine ? 'sent' : 'received');
-      const imgHtml = msg.image_url ? `<img class="chat-img" src="${msg.image_url}" onclick="window.open('${msg.image_url}','_blank')">` : '';
+      const imgHtml = msg.image_url ? `<img class="chat-img" src="${msg.image_url}" onclick="openImageLightbox('${msg.image_url}')">` : '';
       const rawText = msg.message || '';
       const textHtml = rawText ? escapeHtml(rawText) : '';
       const avatarUrl = isMine ? sellerAvatarUrl : buyerAvatar;
       const nameLabel = isMine ? `You · ${SELLER_ROBLOX_USERNAME}` : buyerName;
       const pillsHtml = renderReactionPills(msg.reactions, msg.id, 'seller');
+      const replyHtml = msg.reply_to_text ? `
+        <div class="reply-quote" onclick="jumpToMessage('${msg.reply_to_id || ''}')">
+          <span class="reply-quote-sender">${escapeHtml(msg.reply_to_sender || '')}</span>
+          <span class="reply-quote-text">${escapeHtml(msg.reply_to_text)}</span>
+        </div>` : '';
       row.setAttribute('data-msg-text', rawText);
       row.setAttribute('data-msg-mine', isMine ? '1' : '0');
       row.setAttribute('data-msg-sender-label', isMine ? SELLER_ROBLOX_USERNAME : buyerName);
@@ -473,7 +577,7 @@
           ${avatarUrl ? `<img class="msg-avatar" src="${avatarUrl}">` : '<span class="msg-avatar"></span>'}
           <div class="msg-row ${isMine ? 'sent' : 'received'}" style="max-width:100%;">
             <div class="bubble-wrap">
-              <div class="bubble">${textHtml}${imgHtml}</div>
+              <div class="bubble">${replyHtml}${textHtml}${imgHtml}</div>
               <span class="react-trigger" onclick="toggleReactionBar('${msg.id}', event)">🙂</span>
               ${reactionBarHtml(msg.id)}
             </div>
@@ -644,8 +748,8 @@
     const input = document.getElementById('chat-input');
     let text = input.value.trim();
     if(!text || !activeOrderId) return;
+    const replySnapshot = pendingReplyTo;
     if(pendingReplyTo){
-      text = `↩️ Replying to ${pendingReplyTo.senderLabel}: "${pendingReplyTo.text.slice(0,80)}"\n${text}`;
       pendingReplyTo = null;
       document.getElementById('replyPreviewBar').style.display = 'none';
     }
@@ -654,8 +758,39 @@
       order_id: activeOrderId,
       sender_type: 'seller',
       sender_name: currentUser.email,
-      message: text
+      message: text,
+      reply_to_id: replySnapshot ? replySnapshot.id : null,
+      reply_to_text: replySnapshot ? replySnapshot.text.slice(0,120) : null,
+      reply_to_sender: replySnapshot ? replySnapshot.senderLabel : null
     }]);
+  };
+
+  window.openImageLightbox = function(url){
+    let overlay = document.getElementById('imgLightbox');
+    if(!overlay){
+      overlay = document.createElement('div');
+      overlay.id = 'imgLightbox';
+      overlay.className = 'img-lightbox';
+      overlay.innerHTML = `<span class="img-lightbox-close" onclick="closeImageLightbox()">✕</span><img id="imgLightboxPic">`;
+      overlay.addEventListener('click', (e) => { if(e.target === overlay) closeImageLightbox(); });
+      document.body.appendChild(overlay);
+    }
+    document.getElementById('imgLightboxPic').src = url;
+    overlay.classList.add('open');
+  };
+
+  window.closeImageLightbox = function(){
+    const overlay = document.getElementById('imgLightbox');
+    if(overlay) overlay.classList.remove('open');
+  };
+
+  window.jumpToMessage = function(msgId){
+    if(!msgId) return;
+    const el = document.querySelector(`[data-msg-id="${msgId}"]`);
+    if(!el) return;
+    el.scrollIntoView({behavior:'smooth', block:'center'});
+    el.classList.add('flash-highlight');
+    setTimeout(() => el.classList.remove('flash-highlight'), 1200);
   };
 
   async function uploadChatImage(file, orderId){
