@@ -670,7 +670,7 @@
     try {
       await fetch(REPORT_WEBHOOK_URL, {
         method: 'POST', headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({ content: `🚩 **Message reported** on Order #${activeOrderData ? activeOrderData.order_number : '?'}\n> ${text}\n[Open Order](${window.location.origin}/admin-order.html?id=${activeOrderId})` })
+        body: JSON.stringify({ content: `🚩 **Message reported** on Order #${activeOrderData ? activeOrderData.order_number : '?'}\n> ${text}\nhttps://buylance.gg/admin-order.html?id=${activeOrderId}` })
       });
     } catch(e){ console.warn('Report webhook failed:', e); }
     alert('Reported.');

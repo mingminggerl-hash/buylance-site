@@ -185,7 +185,7 @@
   const orderId = urlParams.get('id');
   // Same webhook URL as index.html — paste the same one here so buyer chat
   // messages also ping Discord, not just new orders.
-  const DISCORD_ORDER_WEBHOOK_URL = 'https://discord.com/api/webhooks/1539854823632019636/ZrQXZJhWAecjRoOA_gytBfFHZWBH3yDJt4KqsL9bm2Fl02QregPJ_XHt1NbIerHawqrd';
+  const DISCORD_ORDER_WEBHOOK_URL = 'https://discord.com/api/webhooks/1543453297015525517/V9idgXAO4jvAPqhR4uqY9GKE4-6hl6CxjD4CMXm3agTU-HRm3c9EeARyB4MpLWYN1eGg';
   let currentUser = null;
   let currentOrder = null;
   const SELLER_ROBLOX_USERNAME = 'Jethro_poter';
@@ -495,12 +495,54 @@
     if(error) console.error('Reaction failed:', error);
   };
 
+  function showOrderConfirm(msg, onYes, confirmLabel){
+    let overlay = document.getElementById('orderConfirmOverlay');
+    if(!overlay){
+      overlay = document.createElement('div');
+      overlay.id = 'orderConfirmOverlay';
+      overlay.style.cssText = `
+        position:fixed; inset:0; background:rgba(15,27,61,0.45); z-index:9998;
+        display:flex; align-items:center; justify-content:center;
+        opacity:0; pointer-events:none; transition:opacity 0.2s ease;
+      `;
+      overlay.innerHTML = `
+        <div id="orderConfirmBox" style="background:#fff; border-radius:16px; padding:22px 24px; max-width:320px; width:88vw; text-align:center; box-shadow:0 10px 40px rgba(0,0,0,0.3); transform:scale(0.9); transition:transform 0.2s ease;">
+          <p id="orderConfirmMsg" style="font-weight:800; font-size:14.5px; color:var(--ink); margin:0 0 18px;"></p>
+          <div style="display:flex; gap:10px; justify-content:center;">
+            <button id="orderConfirmNoBtn" style="font-family:'Baloo 2',sans-serif; font-weight:700; font-size:13px; border:none; border-radius:20px; padding:9px 18px; cursor:pointer; background:#EEF1F8; color:var(--ink);">Cancel</button>
+            <button id="orderConfirmYesBtn" style="font-family:'Baloo 2',sans-serif; font-weight:700; font-size:13px; border:none; border-radius:20px; padding:9px 18px; cursor:pointer; background:#2F5FE0; color:#fff;">Yes</button>
+          </div>
+        </div>`;
+      document.body.appendChild(overlay);
+      overlay.addEventListener('click', (e) => { if(e.target === overlay) hideOrderConfirm(); });
+      document.getElementById('orderConfirmNoBtn').addEventListener('click', hideOrderConfirm);
+    }
+    document.getElementById('orderConfirmMsg').textContent = msg;
+    document.getElementById('orderConfirmYesBtn').textContent = confirmLabel || 'Yes';
+    const yesBtn = document.getElementById('orderConfirmYesBtn');
+    const freshYesBtn = yesBtn.cloneNode(true);
+    yesBtn.parentNode.replaceChild(freshYesBtn, yesBtn);
+    freshYesBtn.addEventListener('click', () => { hideOrderConfirm(); onYes(); });
+    overlay.style.opacity = '1';
+    overlay.style.pointerEvents = 'auto';
+    document.getElementById('orderConfirmBox').style.transform = 'scale(1)';
+  }
+
+  function hideOrderConfirm(){
+    const overlay = document.getElementById('orderConfirmOverlay');
+    if(!overlay) return;
+    overlay.style.opacity = '0';
+    overlay.style.pointerEvents = 'none';
+    document.getElementById('orderConfirmBox').style.transform = 'scale(0.9)';
+  }
+
   window.unsendMessage = async function(msgId){
-    if(!confirm('Unsend this message for everyone? This cannot be undone.')) return;
-    const { error } = await supabaseClient.from('order_messages').delete().eq('id', msgId);
-    if(error){ alert('Could not unsend: ' + error.message); return; }
-    const el = document.querySelector(`[data-msg-id="${msgId}"]`);
-    if(el) el.remove();
+    showOrderConfirm('Unsend this message for everyone? This cannot be undone.', async () => {
+      const { error } = await supabaseClient.from('order_messages').delete().eq('id', msgId);
+      if(error){ alert('Could not unsend: ' + error.message); return; }
+      const el = document.querySelector(`[data-msg-id="${msgId}"]`);
+      if(el) el.remove();
+    });
   };
 
   async function uploadChatImage(file){
@@ -624,21 +666,22 @@
 
   window.reportMessageFromMenu = async function(msgId){
     hideMessageMenu();
-    if(!confirm('Report this message to the Buylance team?')) return;
-    const row = document.querySelector(`[data-msg-id="${msgId}"]`);
-    const text = row ? (row.getAttribute('data-msg-text') || '(image)') : '(unknown)';
-    try {
-      await supabaseClient.from('message_reports').insert([{
-        message_id: msgId, order_id: orderId, reported_by: currentUser.id, reported_message_text: text
-      }]);
-    } catch(e){ console.warn('Report insert failed:', e); }
-    try {
-      await fetch(REPORT_WEBHOOK_URL, {
-        method: 'POST', headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({ content: `🚩 **Message reported** on Order #${currentOrder ? currentOrder.order_number : '?'}\n> ${text}\n[Open Order](${window.location.origin}/admin-order.html?id=${orderId})` })
-      });
-    } catch(e){ console.warn('Report webhook failed:', e); }
-    alert('Reported — the team will review it.');
+    showOrderConfirm('Report this message to the Buylance team?', async () => {
+      const row = document.querySelector(`[data-msg-id="${msgId}"]`);
+      const text = row ? (row.getAttribute('data-msg-text') || '(image)') : '(unknown)';
+      try {
+        await supabaseClient.from('message_reports').insert([{
+          message_id: msgId, order_id: orderId, reported_by: currentUser.id, reported_message_text: text
+        }]);
+      } catch(e){ console.warn('Report insert failed:', e); }
+      try {
+        await fetch(REPORT_WEBHOOK_URL, {
+          method: 'POST', headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({ content: `🚩 **Message reported** on Order #${currentOrder ? currentOrder.order_number : '?'}\n> ${text}\nhttps://buylance.gg/admin-order.html?id=${orderId}` })
+        });
+      } catch(e){ console.warn('Report webhook failed:', e); }
+      alert('Reported — the team will review it.');
+    }, 'Report');
   };
 
   function hideMessageMenu(){
@@ -739,12 +782,14 @@
   // seller doesn't have to keep the dashboard open to notice it.
   async function sendDiscordChatPing(text){
     if(!DISCORD_ORDER_WEBHOOK_URL || DISCORD_ORDER_WEBHOOK_URL.includes('PASTE_YOUR') || !currentOrder) return;
-    const dashboardLink = window.location.origin + '/admin-order.html?id=' + orderId;
+    const dashboardLink = 'https://buylance.gg/admin-order.html?id=' + orderId;
     const payload = {
-      content: `💬 **New message on Order #${currentOrder.order_number}** from \`${currentOrder.roblox_username}\`:\n> ${text}\n[Open Order Chat](${dashboardLink})`
+      content: `💬 **New message on Order #${currentOrder.order_number}** from \`${currentOrder.roblox_username}\`:\n> ${text}\n${dashboardLink}`
     };
+    const threadId = currentOrder.discord_thread_id;
+    const url = threadId ? `${DISCORD_ORDER_WEBHOOK_URL}?thread_id=${threadId}` : DISCORD_ORDER_WEBHOOK_URL;
     try {
-      await fetch(DISCORD_ORDER_WEBHOOK_URL, {
+      await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -759,12 +804,13 @@
   };
 
   window.confirmDelivery = async function(){
-    if(!confirm('Confirm you received your item?')) return;
-    const { error } = await supabaseClient.rpc('buyer_confirm_delivery', { p_order_id: orderId });
-    if(error){ alert('Something went wrong — please try again.'); return; }
-    const { data: order } = await supabaseClient.from('orders').select('*').eq('id', orderId).single();
-    if(order) renderSummary(order);
-    sendDiscordSimplePing(`✅ **Order #${order.order_number}** was confirmed as received by \`${order.roblox_username}\`.`);
+    showOrderConfirm('Are you sure? Confirm you received your item?', async () => {
+      const { error } = await supabaseClient.rpc('buyer_confirm_delivery', { p_order_id: orderId });
+      if(error){ alert('Something went wrong — please try again.'); return; }
+      const { data: order } = await supabaseClient.from('orders').select('*').eq('id', orderId).single();
+      if(order) renderSummary(order);
+      sendDiscordSimplePing(`✅ **Order #${order.order_number}** was confirmed as received by \`${order.roblox_username}\`.`);
+    }, "Yes, I got it");
   };
 
   window.submitReport = async function(){
@@ -775,14 +821,18 @@
     if(error){ alert('Something went wrong — please try again.'); return; }
     const { data: order } = await supabaseClient.from('orders').select('*').eq('id', orderId).single();
     if(order) renderSummary(order);
-    const dashboardLink = window.location.origin + '/admin-order.html?id=' + orderId;
-    sendDiscordSimplePing(`🛑 **DISPUTE on Order #${order.order_number}** from \`${order.roblox_username}\`: ${fullReason}\n[Review it here](${dashboardLink})`);
+    const dashboardLink = 'https://buylance.gg/admin-order.html?id=' + orderId;
+    sendDiscordSimplePing(`🛑 **DISPUTE on Order #${order.order_number}** from \`${order.roblox_username}\`: ${fullReason}\n${dashboardLink}`);
   };
 
   async function sendDiscordSimplePing(content){
     if(!DISCORD_ORDER_WEBHOOK_URL || DISCORD_ORDER_WEBHOOK_URL.includes('PASTE_YOUR')) return;
+    // If this order already has its own Discord thread, post there instead
+    // of the main channel feed, so everything about this order stays together.
+    const threadId = currentOrder && currentOrder.discord_thread_id;
+    const url = threadId ? `${DISCORD_ORDER_WEBHOOK_URL}?thread_id=${threadId}` : DISCORD_ORDER_WEBHOOK_URL;
     try {
-      await fetch(DISCORD_ORDER_WEBHOOK_URL, {
+      await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content })
