@@ -129,7 +129,7 @@
     animation:slide-in 0.22s ease;
   }
   @keyframes slide-in{ from{ transform:translateX(100%); } to{ transform:translateX(0); } }
-  .search-panel-top{ display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
+  .search-panel-top{ display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; position:sticky; top:-26px; padding-top:26px; margin-top:-26px; background:#fff; z-index:5; }
   .search-title{ font-family:'Baloo 2', sans-serif; font-weight:800; font-size:20px; color:var(--brand-blue); }
   .search-input{
     width:100%; padding:12px 14px; border:1px solid var(--card-border); border-radius:12px;
@@ -728,7 +728,7 @@
       <a onclick="goToSellerTab('baddies', 'Baddies'); toggleGameMenu();">💜 Baddies</a>
       <a onclick="goToSellerTab('psx', 'Pet Simulator X'); toggleGameMenu();">💎 Pet Simulator X</a>
       <a onclick="goToSellerTab('tapsim', 'Tap Sim'); toggleGameMenu();">👆 Tap Sim</a>
-      <div class="game-menu-soon">🥷 Steal a Brainrot <span>Soon</span></div>
+      <a onclick="goToSellerTab('sab', 'Steal a Brainrot'); toggleGameMenu();">🥷 Steal a Brainrot</a>
     </div>
   </div>
 
@@ -793,7 +793,7 @@
     <a onclick="goToSellerTab('baddies', 'Baddies'); toggleSearch();">Baddies</a>
     <a onclick="goToSellerTab('psx', 'Pet Simulator X'); toggleSearch();">Pet Simulator X</a>
     <a onclick="goToSellerTab('tapsim', 'Tap Sim'); toggleSearch();">Tap Sim</a>
-    <div class="game-menu-soon" style="padding:8px 0;">Steal a Brainrot <span>Soon</span></div>
+    <a onclick="goToSellerTab('sab', 'Steal a Brainrot'); toggleSearch();">Steal a Brainrot</a>
     <div class="search-label">More</div>
     <a onclick="scrollToId('rewards'); toggleSearch();">Rewards</a>
     <a href="support.html">Support</a>
@@ -881,6 +881,7 @@
   <button class="seller-tab" onclick="goToSellerTab('baddies', 'Baddies')">💜 Baddies</button>
   <button class="seller-tab" onclick="goToSellerTab('psx', 'Pet Simulator X')">💎 Pet Simulator X</button>
   <button class="seller-tab" onclick="goToSellerTab('tapsim', 'Tap Sim')">👆 Tap Sim</button>
+  <button class="seller-tab" onclick="goToSellerTab('sab', 'Steal a Brainrot')">🥷 Steal a Brainrot</button>
 </div>
 <div class="inline-search-wrap" style="position:relative; width:100%; max-width:520px;">
   <input type="text" id="inlineSearchInput" class="inline-search-input" oninput="inlineLiveSearch(this.value)" onfocus="inlineLiveSearch(this.value)" placeholder="🔍 Search items across games (e.g. Harvester, PSX, Gems)..." style="width:100%; padding:12px 18px; border-radius:25px; border:1.5px solid var(--card-border); font-family:'Nunito Sans', sans-serif; font-size:14px; outline:none; box-shadow:0 2px 8px rgba(0,0,0,0.05); box-sizing:border-box;">
@@ -1116,7 +1117,7 @@
     <div class="safety-icon"><div class="ico">💰</div><h4>Fair Pricing</h4><p>No hidden markups</p></div>
   </div>
   <div class="safety-note">
-    We only ever ask for your in-game username to deliver an order — never your password, and never a download. Payments run through trusted, secure providers, so your info stays yours.
+    We only ever ask for your in-game username to deliver your order — never your password. Every payment goes through a trusted, secure provider, so your information stays private.
   </div>
 </div>
 
@@ -1150,7 +1151,7 @@
 
     <div id="reviewForm" style="display:none;">
       <label style="font-weight:700; font-size:12.5px; display:block; margin-bottom:6px;">Your Name <span style="color:var(--accent-orange);">*</span></label>
-      <input type="text" id="revName" placeholder="Your name">
+      <input type="text" id="revName" placeholder="Your name" readonly style="background:#F0F3FA;">
       <label style="font-weight:700; font-size:12.5px; display:block; margin:10px 0 6px;">Your Rating</label>
       <div class="star-picker" id="starPicker">
         <span data-star="1">★</span><span data-star="2">★</span><span data-star="3">★</span><span data-star="4">★</span><span data-star="5">★</span>
@@ -1315,9 +1316,10 @@
       <div id="authPwHint" style="font-size:11.5px; color:var(--muted); font-weight:600; margin-top:6px;">Needs: 6+ characters, 1 capital letter, 1 number, 1 symbol (like ! @ # $ %)</div>
       <label>Confirm Password</label>
       <div class="pw-wrap">
-        <input type="password" id="authSignupConfirm" placeholder="Re-enter password">
+        <input type="password" id="authSignupConfirm" placeholder="Re-enter password" oninput="checkPasswordStrength()">
         <button type="button" class="pw-eye" onclick="togglePasswordVisibility('authSignupConfirm', this)">👁️</button>
       </div>
+      <div id="authConfirmHint" style="font-size:11.5px; font-weight:600; margin-top:6px; display:none;"></div>
       <div class="error" id="authSignupError" style="display:none; color:#E8412C; font-size:12.5px; font-weight:700; margin-top:10px;"></div>
       <button class="modal-submit" id="authSignupBtn" onclick="handleInlineSignup()">Sign Up</button>
       <div style="text-align:center; margin-top:12px; font-size:13px; font-weight:600;">
@@ -1542,7 +1544,9 @@
   }
   function checkPasswordStrength(){
     const pw = document.getElementById('authSignupPassword').value;
+    const confirmPw = document.getElementById('authSignupConfirm').value;
     const hint = document.getElementById('authPwHint');
+    const confirmHint = document.getElementById('authConfirmHint');
     if(pw.length === 0){
       hint.style.color = 'var(--muted)';
       hint.textContent = 'Needs: 6+ characters, 1 capital letter, 1 number, 1 symbol (like ! @ # $ %)';
@@ -1552,6 +1556,18 @@
     } else {
       hint.style.color = '#C0392B';
       hint.textContent = 'Still needs: 6+ characters, 1 capital letter, 1 number, 1 symbol';
+    }
+
+    if(confirmPw.length === 0){
+      confirmHint.style.display = 'none';
+    } else if(confirmPw === pw){
+      confirmHint.style.display = 'block';
+      confirmHint.style.color = '#1E8E3E';
+      confirmHint.textContent = '✅ Passwords match!';
+    } else {
+      confirmHint.style.display = 'block';
+      confirmHint.style.color = '#C0392B';
+      confirmHint.textContent = "❌ Doesn't match yet";
     }
   }
 
@@ -2126,12 +2142,11 @@
         return;
       }
 
-      // Reserve it now so it can't be applied twice, even across sessions
-      const { error: insertErr } = await supabaseClient
-        .from('promo_redemptions')
-        .insert({ user_id: userId, code: 'BUYLANCE' });
-      if(insertErr) throw insertErr;
-
+      // NOTE: we don't reserve/insert the redemption here anymore — that
+      // used to permanently burn the one-time use the moment someone
+      // clicked Apply, even if they never actually completed an order.
+      // The redemption now only gets recorded once an order truly succeeds
+      // (see finalizeOrder).
       appliedPromoCode = 'BUYLANCE';
       msg.style.display = 'block';
       msg.style.color = '#1E8E3E';
@@ -2396,6 +2411,14 @@
       catch(e){ console.warn('Wallet deduction failed:', e); }
     }
 
+    // Only NOW — after the order has truly succeeded — do we record the
+    // promo code as used, so an abandoned/failed checkout never burns it.
+    if(appliedPromoCode === 'BUYLANCE'){
+      try { await supabaseClient.from('promo_redemptions').insert({ user_id: currentUser.id, code: 'BUYLANCE' }); }
+      catch(e){ console.warn('Promo redemption record failed:', e); }
+      appliedPromoCode = null;
+    }
+
     if(cart.some(item => item.key === 'free-mm2-reward')){
       await supabaseClient.rpc('mark_20_reward_claimed');
     }
@@ -2603,7 +2626,7 @@
   }
   function goToGagTab(){ goToSellerTab('gag', 'Grow a Garden 2'); }
 
-  const GAME_PAGE_MAP = {"bb": "index.html", "ps": "ps99.html", "gag": "growagarden2.html", "gag1": "growagarden1.html", "tsunami": "escapetsunami.html", "mm2": "mm2.html", "adoptme": "adoptme.html", "baddies": "baddies.html", "psx": "petsimulatorx.html", "tapsim": "tapsim.html"};
+  const GAME_PAGE_MAP = {"bb": "index.html", "ps": "ps99.html", "gag": "growagarden2.html", "gag1": "growagarden1.html", "tsunami": "escapetsunami.html", "mm2": "mm2.html", "adoptme": "adoptme.html", "baddies": "baddies.html", "psx": "petsimulatorx.html", "tapsim": "tapsim.html", "sab": "stealabrainrot.html"};
   const CURRENT_PAGE_FILE = 'adoptme.html';
   const SITE_SEARCH_INDEX = [{"n": "x1000 Blade Ball Tokens", "a": "", "t": "bb"}, {"n": "x500 Blade Ball Tokens", "a": "", "t": "bb"}, {"n": "x2500 Blade Ball Tokens", "a": "", "t": "bb"}, {"n": "x5000 Blade Ball Tokens", "a": "", "t": "bb"}, {"n": "x10000 Blade Ball Tokens", "a": "", "t": "bb"}, {"n": "x25000 Blade Ball Tokens", "a": "", "t": "bb"}, {"n": "x50000 Blade Ball Tokens", "a": "", "t": "bb"}, {"n": "1B PS99 Gems", "a": "", "t": "ps"}, {"n": "20B PS99 Gems", "a": "", "t": "ps"}, {"n": "50B PS99 Gems", "a": "", "t": "ps"}, {"n": "100B PS99 Gems", "a": "", "t": "ps"}, {"n": "250B PS99 Gems", "a": "", "t": "ps"}, {"n": "500B PS99 Gems", "a": "", "t": "ps"}, {"n": "1T PS99 Gems", "a": "", "t": "ps"}, {"n": "1000x Gag 1 Tokens", "a": "Grow a Garden 1 Tokens, Grow a Garden Tokens", "t": "gag1"}, {"n": "2000x Gag 1 Tokens", "a": "Grow a Garden 1 Tokens, Grow a Garden Tokens", "t": "gag1"}, {"n": "5000x Gag 1 Tokens", "a": "Grow a Garden 1 Tokens, Grow a Garden Tokens", "t": "gag1"}, {"n": "10000x Gag 1 Tokens", "a": "Grow a Garden 1 Tokens, Grow a Garden Tokens", "t": "gag1"}, {"n": "25000x Gag 1 Tokens", "a": "Grow a Garden 1 Tokens, Grow a Garden Tokens", "t": "gag1"}, {"n": "50000x Gag 1 Tokens", "a": "Grow a Garden 1 Tokens, Grow a Garden Tokens", "t": "gag1"}, {"n": "100000x Gag 1 Tokens", "a": "Grow a Garden 1 Tokens, Grow a Garden Tokens", "t": "gag1"}, {"n": "500x Etfb Tokens", "a": "Escape Tsunami Tokens, Escape That Facility Brainrot Tokens, ETFB Tokens", "t": "tsunami"}, {"n": "1000x Etfb Tokens", "a": "Escape Tsunami Tokens, Escape That Facility Brainrot Tokens, ETFB Tokens", "t": "tsunami"}, {"n": "2500x Etfb Tokens", "a": "Escape Tsunami Tokens, Escape That Facility Brainrot Tokens, ETFB Tokens", "t": "tsunami"}, {"n": "5000x Etfb Tokens", "a": "Escape Tsunami Tokens, Escape That Facility Brainrot Tokens, ETFB Tokens", "t": "tsunami"}, {"n": "10000x Etfb Tokens", "a": "Escape Tsunami Tokens, Escape That Facility Brainrot Tokens, ETFB Tokens", "t": "tsunami"}, {"n": "25000x Etfb Tokens", "a": "Escape Tsunami Tokens, Escape That Facility Brainrot Tokens, ETFB Tokens", "t": "tsunami"}, {"n": "50000x Etfb Tokens", "a": "Escape Tsunami Tokens, Escape That Facility Brainrot Tokens, ETFB Tokens", "t": "tsunami"}, {"n": "Harvester", "a": "", "t": "mm2"}, {"n": "Icepiercer", "a": "", "t": "mm2"}, {"n": "Bat", "a": "", "t": "mm2"}, {"n": "Candy", "a": "", "t": "mm2"}, {"n": "Sugar", "a": "", "t": "mm2"}, {"n": "Candy Set", "a": "", "t": "mm2"}, {"n": "Batwing", "a": "", "t": "mm2"}, {"n": "Icewing", "a": "", "t": "mm2"}, {"n": "Gingerscope", "a": "", "t": "mm2"}, {"n": "Alienbeam", "a": "", "t": "mm2"}, {"n": "Australis", "a": "", "t": "mm2"}, {"n": "Blizzard Set", "a": "", "t": "mm2"}, {"n": "Blaster", "a": "", "t": "mm2"}, {"n": "Bloom Set", "a": "", "t": "mm2"}, {"n": "Chroma Heart Wand", "a": "", "t": "mm2"}, {"n": "Xeno Set", "a": "", "t": "mm2"}, {"n": "Plasmabeam", "a": "", "t": "mm2"}, {"n": "Raygun", "a": "", "t": "mm2"}, {"n": "Snowcannoon", "a": "", "t": "mm2"}, {"n": "Snowflake", "a": "", "t": "mm2"}, {"n": "America Gun", "a": "", "t": "mm2"}, {"n": "Bauble Gun", "a": "", "t": "mm2"}, {"n": "Beachy Sands Gun", "a": "", "t": "mm2"}, {"n": "Blizzard Gun", "a": "", "t": "mm2"}, {"n": "Blossom Gun", "a": "", "t": "mm2"}, {"n": "Borealis Gun", "a": "", "t": "mm2"}, {"n": "Dark Shot Gun", "a": "", "t": "mm2"}, {"n": "Darkbringer Gun", "a": "", "t": "mm2"}, {"n": "Elderwood Revolver Gun", "a": "", "t": "mm2"}, {"n": "Flora Gun", "a": "", "t": "mm2"}, {"n": "Gingermint Gun", "a": "", "t": "mm2"}, {"n": "Hallow Gun", "a": "", "t": "mm2"}, {"n": "Ice Beam Gun", "a": "", "t": "mm2"}, {"n": "Ice Blaster Gun", "a": "", "t": "mm2"}, {"n": "Laser Gun", "a": "", "t": "mm2"}, {"n": "Latte Gun", "a": "", "t": "mm2"}, {"n": "Lightbringer Gun", "a": "", "t": "mm2"}, {"n": "Makeshift Gun", "a": "", "t": "mm2"}, {"n": "Ocean Gun", "a": "", "t": "mm2"}, {"n": "Pearlshine Gun", "a": "", "t": "mm2"}, {"n": "Rainbow Gun", "a": "", "t": "mm2"}, {"n": "Red Ice Blaster Gun", "a": "", "t": "mm2"}, {"n": "Sands Gun", "a": "", "t": "mm2"}, {"n": "Shark Gun", "a": "", "t": "mm2"}, {"n": "Soul Gun", "a": "", "t": "mm2"}, {"n": "Spectre Gun", "a": "", "t": "mm2"}, {"n": "Sunrise Gun", "a": "", "t": "mm2"}, {"n": "Sweet Gun", "a": "", "t": "mm2"}, {"n": "Swirly Gun", "a": "", "t": "mm2"}, {"n": "Traveler&#39;s Gun", "a": "", "t": "mm2"}, {"n": "Vampire Gun", "a": "", "t": "mm2"}, {"n": "Watergun", "a": "", "t": "mm2"}, {"n": "Xenoshot", "a": "", "t": "mm2"}, {"n": "Beachy", "a": "", "t": "mm2"}, {"n": "Bioblade", "a": "", "t": "mm2"}, {"n": "Celestial", "a": "", "t": "mm2"}, {"n": "Cookiecane", "a": "", "t": "mm2"}, {"n": "Corrupt", "a": "", "t": "mm2"}, {"n": "Darksword", "a": "", "t": "mm2"}, {"n": "Deathshard", "a": "", "t": "mm2"}, {"n": "Elderwood Scythe", "a": "", "t": "mm2"}, {"n": "Evergreen", "a": "", "t": "mm2"}, {"n": "Flowerwood", "a": "", "t": "mm2"}, {"n": "Gemstone", "a": "", "t": "mm2"}, {"n": "Hallowscythe", "a": "", "t": "mm2"}, {"n": "Heart Blade", "a": "", "t": "mm2"}, {"n": "Heart Wand", "a": "", "t": "mm2"}, {"n": "Ice Cream", "a": "", "t": "mm2"}, {"n": "Latte", "a": "", "t": "mm2"}, {"n": "Nightblade", "a": "", "t": "mm2"}, {"n": "Ornament", "a": "", "t": "mm2"}, {"n": "Pearl", "a": "", "t": "mm2"}, {"n": "Phantom Knife", "a": "", "t": "mm2"}, {"n": "Pixel", "a": "", "t": "mm2"}, {"n": "Plasmablade", "a": "", "t": "mm2"}, {"n": "Rainbow Knife", "a": "", "t": "mm2"}, {"n": "Sakure Blade", "a": "", "t": "mm2"}, {"n": "Slasher", "a": "", "t": "mm2"}, {"n": "Snow Dagger", "a": "", "t": "mm2"}, {"n": "Spirit", "a": "", "t": "mm2"}, {"n": "Sunset Knife", "a": "", "t": "mm2"}, {"n": "Sweet", "a": "", "t": "mm2"}, {"n": "Swirly Axe", "a": "", "t": "mm2"}, {"n": "Traveler&#39;s", "a": "", "t": "mm2"}, {"n": "Turkey", "a": "", "t": "mm2"}, {"n": "Vampires Axe", "a": "", "t": "mm2"}, {"n": "Waves Knife", "a": "", "t": "mm2"}, {"n": "Beachy Set Chroma", "a": "", "t": "mm2"}, {"n": "Binger Set Chroma", "a": "", "t": "mm2"}, {"n": "Candleflame Chroma", "a": "", "t": "mm2"}, {"n": "Constelattion Gun Chroma", "a": "", "t": "mm2"}, {"n": "Cookiecane Chroma", "a": "", "t": "mm2"}, {"n": "Deathshard Chroma", "a": "", "t": "mm2"}, {"n": "Elderwood Chroma", "a": "", "t": "mm2"}, {"n": "Gemstone Chroma", "a": "", "t": "mm2"}, {"n": "Ice Cream Knife Chroma", "a": "", "t": "mm2"}, {"n": "Laser Chroma", "a": "", "t": "mm2"}, {"n": "Luger Gun Chroma", "a": "", "t": "mm2"}, {"n": "Sands Gun Chroma", "a": "", "t": "mm2"}, {"n": "Shark Chroma", "a": "", "t": "mm2"}, {"n": "Snow Dagger Chroma", "a": "", "t": "mm2"}, {"n": "Snow Dagger Chroma (2)", "a": "", "t": "mm2"}, {"n": "Snowsnorm Chroma", "a": "", "t": "mm2"}, {"n": "Sunset Knife Chroma", "a": "", "t": "mm2"}, {"n": "Sweet Treat Chroma", "a": "", "t": "mm2"}, {"n": "Swirly Gun Chroma", "a": "", "t": "mm2"}, {"n": "Vampire Gun Chroma", "a": "", "t": "mm2"}, {"n": "MFR Bat Dragon", "a": "", "t": "adoptme"}, {"n": "NFR Bat Dragon", "a": "", "t": "adoptme"}, {"n": "Bat Dragon", "a": "", "t": "adoptme"}, {"n": "Fly Potion", "a": "", "t": "adoptme"}, {"n": "Ride Potion", "a": "", "t": "adoptme"}, {"n": "MFR Turtle", "a": "", "t": "adoptme"}, {"n": "NFR Turtle", "a": "", "t": "adoptme"}, {"n": "Turtle", "a": "", "t": "adoptme"}, {"n": "MFR Toucan", "a": "", "t": "adoptme"}, {"n": "NFR Toucan", "a": "", "t": "adoptme"}, {"n": "Toucan", "a": "", "t": "adoptme"}, {"n": "MFR Unicorn", "a": "", "t": "adoptme"}, {"n": "NFR Unicorn", "a": "", "t": "adoptme"}, {"n": "Unicorn", "a": "", "t": "adoptme"}, {"n": "MFR Frost Dragon", "a": "", "t": "adoptme"}, {"n": "NFR Frost Dragon", "a": "", "t": "adoptme"}, {"n": "Frost Dragon", "a": "", "t": "adoptme"}, {"n": "1000x Baddies Tokens", "a": "Baddies Tokens", "t": "baddies"}, {"n": "2500x Baddies Tokens", "a": "Baddies Tokens", "t": "baddies"}, {"n": "5000x Baddies Tokens", "a": "Baddies Tokens", "t": "baddies"}, {"n": "10000x Baddies Tokens", "a": "Baddies Tokens", "t": "baddies"}, {"n": "25000x Baddies Tokens", "a": "Baddies Tokens", "t": "baddies"}, {"n": "50000x Baddies Tokens", "a": "Baddies Tokens", "t": "baddies"}, {"n": "1T Pet Simulator X Gems", "a": "", "t": "psx"}, {"n": "2.5T Pet Simulator X Gems", "a": "", "t": "psx"}, {"n": "5T Pet Simulator X Gems", "a": "", "t": "psx"}, {"n": "10T Pet Simulator X Gems", "a": "", "t": "psx"}, {"n": "25T Pet Simulator X Gems", "a": "", "t": "psx"}, {"n": "50T Pet Simulator X Gems", "a": "", "t": "psx"}, {"n": "Transfered Titanic Hologram", "a": "", "t": "psx"}, {"n": "Transfered Titanic Lucki", "a": "", "t": "psx"}, {"n": "Transfered Titanic Dominus", "a": "", "t": "psx"}, {"n": "Transfered Titanic Hubert", "a": "", "t": "psx"}, {"n": "Transfered Titanic Mystic Corgi", "a": "", "t": "psx"}, {"n": "Transfered Titanic Capybara", "a": "", "t": "psx"}, {"n": "Transfered Titanic Red Balloon Cat", "a": "", "t": "psx"}, {"n": "Transfered Titanic Tiedye Cat", "a": "", "t": "psx"}, {"n": "Transfered Titanic Blue Cat", "a": "", "t": "psx"}, {"n": "Transfered Titanic Tiedye Dragon", "a": "", "t": "psx"}, {"n": "Transfered Titanic Jolly Cat", "a": "", "t": "psx"}, {"n": "Transfered Titanic Atlan", "a": "", "t": "psx"}, {"n": "Transfered Titanic Cosmic Pegasus", "a": "", "t": "psx"}, {"n": "Transfered Titanic Cat", "a": "", "t": "psx"}, {"n": "Transfered Titanic Neon Agony", "a": "", "t": "psx"}, {"n": "Transfered Titanic Blobfish", "a": "", "t": "psx"}, {"n": "Transfered Titanic Hippomelon", "a": "", "t": "psx"}, {"n": "Transfered Titanic Shadow Griffin", "a": "", "t": "psx"}, {"n": "1000 Tap Sim Tokens", "a": "", "t": "tapsim"}, {"n": "2500 Tap Sim Tokens", "a": "", "t": "tapsim"}, {"n": "5000 Tap Sim Tokens", "a": "", "t": "tapsim"}, {"n": "10000 Tap Sim Tokens", "a": "", "t": "tapsim"}, {"n": "25000 Tap Sim Tokens", "a": "", "t": "tapsim"}, {"n": "50000 Tap Sim Tokens", "a": "", "t": "tapsim"}, {"n": "250M Sheckels", "a": "", "t": "gag"}, {"n": "500M Sheckels", "a": "", "t": "gag"}, {"n": "1B Sheckels", "a": "", "t": "gag"}, {"n": "1.5B Sheckels", "a": "", "t": "gag"}, {"n": "2B Sheckels", "a": "", "t": "gag"}, {"n": "5B Sheckels", "a": "", "t": "gag"}, {"n": "10B Sheckels", "a": "", "t": "gag"}, {"n": "Racoon", "a": "", "t": "gag"}, {"n": "Firefly", "a": "", "t": "gag"}, {"n": "Unicorn", "a": "", "t": "gag"}, {"n": "Bear", "a": "", "t": "gag"}, {"n": "Golden Dragonfly", "a": "", "t": "gag"}, {"n": "Butterfly", "a": "", "t": "gag"}, {"n": "Ice Serpent", "a": "", "t": "gag"}, {"n": "Black Dragon", "a": "", "t": "gag"}, {"n": "Super Watering Can", "a": "", "t": "gag"}, {"n": "Super Sprinkler", "a": "", "t": "gag"}, {"n": "Fire Fern", "a": "", "t": "gag"}, {"n": "Venus Fly Trap Seed", "a": "", "t": "gag"}, {"n": "Pomegranate Seed", "a": "", "t": "gag"}, {"n": "Poison Apple Seed", "a": "", "t": "gag"}, {"n": "Venom Spitter Seed", "a": "", "t": "gag"}, {"n": "Moon Bloom Seed", "a": "", "t": "gag"}, {"n": "Sun Bloom Seed", "a": "", "t": "gag"}, {"n": "Hypno Bloom Seed", "a": "", "t": "gag"}, {"n": "Dragon Breathe's Seed", "a": "", "t": "gag"}, {"n": "Star Fruit Seed", "a": "", "t": "gag"}, {"n": "Rainbow Seed", "a": "", "t": "gag"}, {"n": "Gold Seed", "a": "", "t": "gag"}, {"n": "Mega Seed", "a": "", "t": "gag"}, {"n": "Rocket Pop Seed", "a": "", "t": "gag"}, {"n": "Ghost Pepper Seed", "a": "", "t": "gag"}];
 
@@ -2878,12 +2901,24 @@
         loggedOutEl.style.display = 'none';
         formEl.style.display = 'block';
         alreadyEl.style.display = 'none';
+        prefillReviewName();
       }
     } catch(e) {
       console.warn('Could not check existing review:', e);
       loggedOutEl.style.display = 'none';
       formEl.style.display = 'block';
       alreadyEl.style.display = 'none';
+      prefillReviewName();
+    }
+  }
+
+  async function prefillReviewName(){
+    const { data: profile } = await supabaseClient.from('profiles').select('roblox_username').eq('id', currentUser.id).single();
+    const nameInput = document.getElementById('revName');
+    if(profile && profile.roblox_username){
+      nameInput.value = profile.roblox_username;
+      nameInput.readOnly = true;
+      nameInput.style.background = '#F0F3FA';
     }
   }
   refreshAuthUI();
