@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Choose Your Wheel - $50 Reward</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<style>
+  body{
+    margin:0; min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    background:radial-gradient(circle at 50% 20%, #1a2140, #05070f 70%);
+    font-family:'Segoe UI', sans-serif; color:#fff; gap:8px; padding:30px 20px;
+  }
+  h1{ font-size:22px; margin:0 0 4px; text-align:center; }
+  p{ color:#8b93b3; font-size:13.5px; text-align:center; max-width:360px; margin:0 0 20px; }
+  .choices{ display:flex; gap:24px; flex-wrap:wrap; justify-content:center; }
+  .choice-card{
+    width:180px; background:#12162a; border:1px solid #262c4a; border-radius:18px;
+    padding:26px 18px; text-align:center; cursor:pointer; text-decoration:none; color:#fff;
+    transition:transform 0.15s ease, border-color 0.15s ease; display:block;
+  }
+  .choice-card:hover{ transform:translateY(-4px); border-color:#4f7bff; }
+  .choice-card.disabled{ opacity:0.35; cursor:not-allowed; pointer-events:none; }
+  .choice-emoji{ font-size:44px; margin-bottom:10px; display:block; }
+  .choice-title{ font-weight:800; font-size:16px; margin-bottom:4px; }
+  .choice-sub{ font-size:12px; color:#8b93b3; }
+  .status-note{ font-size:12.5px; color:#f0b94d; font-weight:700; text-align:center; max-width:340px; margin-top:18px; min-height:18px; }
+
+  .confirm-overlay{
+    position:fixed; inset:0; background:rgba(5,7,15,0.75); z-index:9998;
+    display:flex; align-items:center; justify-content:center;
+    opacity:0; pointer-events:none; transition:opacity 0.2s ease;
+  }
+  .confirm-overlay.open{ opacity:1; pointer-events:auto; }
+  .confirm-box{
+    background:#12162a; border:1px solid #262c4a; border-radius:16px; padding:24px 26px;
+    max-width:300px; width:88vw; text-align:center;
+    transform:scale(0.92); transition:transform 0.2s ease;
+  }
+  .confirm-overlay.open .confirm-box{ transform:scale(1); }
+  .confirm-box p{ font-size:14.5px; font-weight:700; margin:0 0 18px; }
+  .confirm-btns{ display:flex; gap:10px; justify-content:center; }
+  .confirm-btns button{
+    font-weight:800; font-size:13px; border:none; border-radius:20px; padding:9px 18px; cursor:pointer;
+  }
+  .confirm-no{ background:#262c4a; color:#fff; }
+  .confirm-yes{ background:#2f5fe0; color:#fff; }
+</style>
+</head>
+<body>
+
+<h1 id="mainHeading">🎉 Checking your eligibility…</h1>
+<p id="introText">One moment…</p>
+
+<div class="choices">
+  <a class="choice-card" id="cardGun" href="#">
+    <span class="choice-emoji">🔫</span>
+    <div class="choice-title">Gun Wheel</div>
+    <div class="choice-sub">Green Luger · Blaster · Luger · Red Luger</div>
+  </a>
+  <a class="choice-card" id="cardKnife" href="#">
+    <span class="choice-emoji">🔪</span>
+    <div class="choice-title">Knife Wheel</div>
+    <div class="choice-sub">Nebula · Eggblade · Clockwork · Saw</div>
+  </a>
+</div>
+
+<div class="status-note" id="statusNote"></div>
+
+<script>
+  let currentUser = null;
+
+  function showConfirm(label, onYes){
+    let overlay = document.getElementById('confirmOverlay');
+    if(!overlay){
+      overlay = document.createElement('div');
+      overlay.id = 'confirmOverlay';
+      overlay.className = 'confirm-overlay';
+      overlay.innerHTML = `
+        <div class="confirm-box">
+          <p id="confirmMsg"></p>
+          <div class="confirm-btns">
+            <button class="confirm-no" onclick="document.getElementById('confirmOverlay').classList.remove('open')">Cancel</button>
+            <button class="confirm-yes" id="confirmYesBtn">Yes, I'm sure</button>
+          </div>
+        </div>`;
+      document.body.appendChild(overlay);
+      overlay.addEventListener('click', (e) => { if(e.target === overlay) overlay.classList.remove('open'); });
+    }
+    document.getElementById('confirmMsg').textContent = `Are you sure? ${label}`;
+    const yesBtn = document.getElementById('confirmYesBtn');
+    const freshYesBtn = yesBtn.cloneNode(true);
+    yesBtn.parentNode.replaceChild(freshYesBtn, yesBtn);
+    freshYesBtn.addEventListener('click', () => { overlay.classList.remove('open'); onYes(); });
+    overlay.classList.add('open');
+  }
+
+  async function pick(category){
+    const label = category === 'gun' ? '🔫 Gun Wheel' : '🔪 Knife Wheel';
+    showConfirm(label, async () => {
+      const { data, error } = await supabaseClient.rpc('pick_spin_category', {
+        p_user_id: currentUser.id,
+        p_category: category
+      });
+      if(error){
+        document.getElementById('statusNote').textContent = 'Something went wrong: ' + error.message;
+        return;
+      }
+      if(!data.ok){
+        document.getElementById('statusNote').textContent =
+          "You already switched once — you're locked in on your current wheel.";
+        return;
+      }
+      window.location.href = category === 'gun' ? 'spin_wheel_gun.html' : 'spin_wheel_knife.html';
+    });
+  }
+
+  document.getElementById('cardGun').addEventListener('click', (e) => { e.preventDefault(); pick('gun'); });
+  document.getElementById('cardKnife').addEventListener('click', (e) => { e.preventDefault(); pick('knife'); });
+
+  async function init(){
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    currentUser = session ? session.user : null;
+    if(!currentUser){
+      document.getElementById('mainHeading').textContent = 'Please log in';
+      document.getElementById('introText').innerHTML = 'You need to be <a href="login.html" style="color:#4f7bff;">logged in</a> to spin.';
+      document.getElementById('cardGun').classList.add('disabled');
+      document.getElementById('cardKnife').classList.add('disabled');
+      return;
+    }
+
+    const { data: status, error } = await supabaseClient.rpc('get_spin_status', { p_user_id: currentUser.id });
+    if(error){
+      document.getElementById('introText').textContent = 'Could not load your spin status: ' + error.message;
+      return;
+    }
+
+    document.getElementById('mainHeading').textContent = '🎉 Spin Wheel';
+
+    if(!status.has_spin_available){
+      document.getElementById('introText').textContent =
+        status.milestones_earned > 0
+          ? "You've used all your spins for now — spend another $50 total to earn the next one."
+          : "You haven't reached $50 spent yet.";
+      document.getElementById('cardGun').classList.add('disabled');
+      document.getElementById('cardKnife').classList.add('disabled');
+      return;
+    }
+
+    document.getElementById('introText').textContent =
+      'Pick which wheel you want to spin — this choice only affects which 4 items you\'re spinning for.';
+
+    if(status.category && status.changes_used >= 1){
+      document.getElementById('introText').textContent =
+        `You're locked in on the ${status.category === 'gun' ? 'Gun' : 'Knife'} Wheel (you've used your one allowed change).`;
+      if(status.category === 'gun') document.getElementById('cardKnife').classList.add('disabled');
+      else document.getElementById('cardGun').classList.add('disabled');
+    } else if(status.category){
+      document.getElementById('introText').textContent =
+        `You picked the ${status.category === 'gun' ? 'Gun' : 'Knife'} Wheel. You can switch once if you want.`;
+    }
+  }
+
+  init();
+</script>
+
+</body>
+</html>

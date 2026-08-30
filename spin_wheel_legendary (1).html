@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Legendary Wheel</title>
+<style>
+  body{
+    margin:0; min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    background:radial-gradient(circle at 50% 20%, #1a2140, #05070f 70%);
+    font-family:'Segoe UI', sans-serif; color:#fff; gap:18px; padding:30px 20px;
+  }
+  h1{ font-size:22px; margin:0; text-align:center; }
+  .wheel-wrap{ position:relative; width:320px; height:320px; }
+  canvas{ display:block; border-radius:50%; box-shadow:0 0 0 6px #10131f, 0 10px 40px rgba(0,0,0,0.6); }
+  .pointer{
+    position:absolute; right:-14px; top:50%; transform:translateY(-50%);
+    width:0; height:0; border-top:16px solid transparent; border-bottom:16px solid transparent;
+    border-left:26px solid #4ade80; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.5)); z-index:5;
+  }
+  button{
+    background:linear-gradient(180deg,#4f7bff,#2f5fe0); color:#fff; border:none; font-weight:800;
+    font-size:15px; padding:13px 34px; border-radius:30px; cursor:pointer; box-shadow:0 6px 18px rgba(47,95,224,0.4);
+  }
+  button:disabled{ opacity:0.5; cursor:default; }
+  .chances{ font-size:14px; font-weight:700; color:#c9d0ea; }
+  #result{ font-size:16px; font-weight:800; min-height:24px; }
+  a.back{ color:#8b93b3; font-size:12.5px; text-decoration:none; margin-top:6px; }
+  a.back:hover{ color:#c9d0ea; }
+</style>
+</head>
+<body>
+
+<h1>👑 Legendary Wheel</h1>
+
+<div class="wheel-wrap">
+  <canvas id="wheel" width="320" height="320"></canvas>
+  <div class="pointer"></div>
+</div>
+
+<button id="spinBtn">🎰 Spin</button>
+<div class="chances" id="chancesLabel"></div>
+<div id="result"></div>
+
+
+<script>
+
+  const SEGMENTS = [{"label": "Icewing", "weight": 50, "color": "#3B6FE0"}, {"label": "Candy", "weight": 20, "color": "#D5342E"}, {"label": "Bat", "weight": 14, "color": "#E0A62F"}, {"label": "Ice Cream", "weight": 10, "color": "#2FA84F"}, {"label": "Icepiercer", "weight": 5, "color": "#3B6FE0"}, {"label": "Harvester", "weight": 1, "color": "#D5342E"}];
+  const DRAW_EQUAL = true;
+  const CHANCES = 1;
+
+  const canvas = document.getElementById('wheel');
+  const ctx = canvas.getContext('2d');
+  const cx = canvas.width / 2, cy = canvas.height / 2, radius = canvas.width / 2 - 4;
+  const btn = document.getElementById('spinBtn');
+  const chancesLabel = document.getElementById('chancesLabel');
+  const resultLabel = document.getElementById('result');
+
+  const sliceCount = SEGMENTS.length;
+  function visualAngleFor(index){
+    if(DRAW_EQUAL){
+      return (2 * Math.PI) / sliceCount;
+    }
+    const total = SEGMENTS.reduce((s, seg) => s + seg.weight, 0);
+    return (SEGMENTS[index].weight / total) * Math.PI * 2;
+  }
+
+  let currentRotation = 0;
+  let spinning = false;
+  let chancesLeft = CHANCES;
+
+  function updateChancesLabel(){
+    if(chancesLeft > 0){
+      chancesLabel.textContent = `Chances left: ${chancesLeft}`;
+      btn.disabled = spinning;
+    } else {
+      chancesLabel.textContent = `No spins left.`;
+      btn.disabled = true;
+    }
+  }
+
+  function drawWheel(rotation){
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    let startAngle = rotation;
+
+    SEGMENTS.forEach((seg, i) => {
+      const sliceAngle = visualAngleFor(i);
+      const endAngle = startAngle + sliceAngle;
+
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.arc(cx, cy, radius, startAngle, endAngle);
+      ctx.closePath();
+      ctx.fillStyle = seg.color;
+      ctx.fill();
+
+      const midAngle = startAngle + sliceAngle / 2;
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate(midAngle);
+      ctx.textAlign = 'right';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = '#111';
+      ctx.font = 'bold ' + (sliceAngle < 0.35 ? 12 : 16) + 'px Segoe UI, sans-serif';
+      ctx.fillText(seg.label, radius - 16, 0);
+      ctx.restore();
+
+      startAngle = endAngle;
+    });
+
+    ctx.beginPath();
+    ctx.arc(cx, cy, 32, 0, Math.PI * 2);
+    ctx.fillStyle = '#fff';
+    ctx.fill();
+  }
+
+  function pickWeightedIndex(){
+    const total = SEGMENTS.reduce((s, seg) => s + seg.weight, 0);
+    let r = Math.random() * total;
+    for(let i = 0; i < SEGMENTS.length; i++){
+      if(r < SEGMENTS[i].weight) return i;
+      r -= SEGMENTS[i].weight;
+    }
+    return SEGMENTS.length - 1;
+  }
+
+  function spin(){
+    if(spinning) return;
+    if(chancesLeft <= 0){
+      resultLabel.textContent = 'No spins left.';
+      return;
+    }
+    spinning = true;
+    chancesLeft -= 1;
+    updateChancesLabel();
+    btn.disabled = true;
+    resultLabel.textContent = '';
+
+    const winnerIndex = pickWeightedIndex();
+
+    let angleBefore = 0;
+    for(let i = 0; i < winnerIndex; i++) angleBefore += visualAngleFor(i);
+    const winnerSliceAngle = visualAngleFor(winnerIndex);
+    const targetMid = angleBefore + winnerSliceAngle / 2;
+
+    const extraSpins = 6 * Math.PI * 2;
+    const finalRotation = extraSpins - targetMid;
+
+    const duration = 3800;
+    const startTime = performance.now();
+    const startRotation = currentRotation;
+    const delta = finalRotation - (startRotation % (Math.PI * 2));
+
+    function easeOutCubic(t){ return 1 - Math.pow(1 - t, 3); }
+
+    function animate(now){
+      const elapsed = now - startTime;
+      const t = Math.min(elapsed / duration, 1);
+      const eased = easeOutCubic(t);
+      currentRotation = startRotation + delta * eased;
+      drawWheel(currentRotation);
+      if(t < 1){
+        requestAnimationFrame(animate);
+      } else {
+        spinning = false;
+        updateChancesLabel();
+        resultLabel.textContent = '\ud83c\udf89 You won: ' + SEGMENTS[winnerIndex].label;
+      }
+    }
+    requestAnimationFrame(animate);
+  }
+
+  btn.addEventListener('click', spin);
+  drawWheel(0);
+  updateChancesLabel();
+
+</script>
+
+</body>
+</html>

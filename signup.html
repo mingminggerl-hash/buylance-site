@@ -37,6 +37,9 @@
     font-family:'Nunito Sans', sans-serif; font-size:14px;
   }
   .hint{ color:var(--muted); font-size:11px; margin-top:4px; }
+  .live-check{ font-size:11.5px; font-weight:700; margin-top:5px; }
+  .live-check.good{ color:#1E8E3E; }
+  .live-check.bad{ color:var(--error); }
   .error{ color:var(--error); font-size:12.5px; font-weight:700; margin-top:10px; display:none; }
   .success{ display:none; text-align:center; padding:10px 0; }
   .success .big{ font-size:34px; margin-bottom:8px; }
@@ -66,11 +69,13 @@
     <input type="email" id="email" placeholder="you@gmail.com">
 
     <label>Password</label>
-    <input type="password" id="password" placeholder="At least 8 characters">
+    <input type="password" id="password" placeholder="At least 8 characters" oninput="checkPasswordLive()">
     <div class="hint">This is NOT your Gmail password — it's a new one just for this site.</div>
+    <div class="live-check" id="passwordLiveCheck" style="display:none;"></div>
 
     <label>Confirm Password</label>
-    <input type="password" id="confirmPassword" placeholder="Re-enter password">
+    <input type="password" id="confirmPassword" placeholder="Re-enter password" oninput="checkPasswordLive()">
+    <div class="live-check" id="confirmLiveCheck" style="display:none;"></div>
 
     <div class="error" id="errorMsg"></div>
 
@@ -88,6 +93,48 @@
 </div>
 
 <script>
+  // If someone's already logged in, don't let them land on signup at all —
+  // send them straight to the homepage instead of creating a second account.
+  (async function redirectIfAlreadyLoggedIn(){
+    try {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if(session){
+        window.location.replace('index.html');
+      }
+    } catch(e){ /* if this check fails for any reason, just let signup load normally */ }
+  })();
+
+  function checkPasswordLive(){
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+    const pwCheck = document.getElementById('passwordLiveCheck');
+    const confCheck = document.getElementById('confirmLiveCheck');
+
+    if(password.length === 0){
+      pwCheck.style.display = 'none';
+    } else if(password.length >= 8){
+      pwCheck.style.display = 'block';
+      pwCheck.className = 'live-check good';
+      pwCheck.textContent = '✅ Looks good!';
+    } else {
+      pwCheck.style.display = 'block';
+      pwCheck.className = 'live-check bad';
+      pwCheck.textContent = `❌ Needs ${8 - password.length} more character${8 - password.length === 1 ? '' : 's'}`;
+    }
+
+    if(confirmPassword.length === 0){
+      confCheck.style.display = 'none';
+    } else if(confirmPassword === password){
+      confCheck.style.display = 'block';
+      confCheck.className = 'live-check good';
+      confCheck.textContent = '✅ Passwords match!';
+    } else {
+      confCheck.style.display = 'block';
+      confCheck.className = 'live-check bad';
+      confCheck.textContent = "❌ Doesn't match yet";
+    }
+  }
+
   function showError(msg){
     const el = document.getElementById('errorMsg');
     el.textContent = msg;

@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seller Dashboard | Buylance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<style>
+  :root{
+    --bg-top:#EEF3FF; --ink:#0F1B3D; --brand-blue:#2F5FE0;
+    --muted:#6B7A99; --card-border:#D7E3FF; --error:#E8412C; --success:#1E8E3E;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background:linear-gradient(180deg, var(--bg-top) 0%, #FFFFFF 320px);
+    color:var(--ink); font-family:'Nunito Sans', sans-serif;
+    min-height:100vh; padding:30px 16px;
+  }
+  .logo{ font-family:'Baloo 2', sans-serif; font-weight:800; font-size:22px; text-decoration:none; color:var(--ink); }
+  .logo span{ color:var(--brand-blue); }
+  .layout{ display:flex; gap:20px; max-width:1100px; margin:20px auto 0; align-items:flex-start; }
+  .col-orders{ width:320px; flex-shrink:0; }
+  .col-detail{ flex:1; min-width:0; }
+  .card{ background:#fff; border:1px solid var(--card-border); border-radius:16px; padding:16px; margin-bottom:14px; }
+  h2{ font-family:'Baloo 2', sans-serif; font-size:16px; margin-bottom:10px; }
+  .sub{ color:var(--muted); font-size:12.5px; font-weight:600; }
+
+  .order-row{ padding:10px; border-radius:10px; cursor:pointer; margin-bottom:6px; border:1px solid var(--card-border); }
+  .order-row:hover{ background:#F7F9FF; }
+  .order-row.active{ background:#EAF3FF; border-color:var(--brand-blue); }
+  .order-row .num{ font-weight:800; font-size:13px; }
+  .order-row .who{ font-size:11.5px; color:var(--muted); font-weight:600; }
+  .status-badge{ display:inline-block; font-size:10px; font-weight:800; padding:3px 8px; border-radius:20px; margin-top:4px; }
+  .status-waiting_for_seller{ background:#FFF4E5; color:#B8720A; }
+  .status-in_progress{ background:#EAF3FF; color:var(--brand-blue); }
+  .status-delivered{ background:#E9F9EE; color:var(--success); }
+  .status-completed{ background:#E9F9EE; color:var(--success); }
+  .status-disputed{ background:#FDEBEA; color:var(--error); }
+  .status-cancelled{ background:#F1F1F1; color:var(--muted); }
+
+  .item-line{ font-size:13px; color:var(--muted); font-weight:600; padding:3px 0; }
+  .total-line{ font-weight:900; font-size:15px; margin-top:8px; border-top:1px solid var(--card-border); padding-top:8px; }
+
+  #chat-box{
+    height:340px; overflow-y:auto; border-radius:12px; padding:14px; margin-bottom:10px;
+    display:flex; flex-direction:column; gap:10px;
+    background-color:#EAF0FB;
+    background-image:
+      radial-gradient(circle at 20% 15%, rgba(47,95,224,0.05) 0, transparent 40%),
+      radial-gradient(circle at 80% 30%, rgba(255,122,41,0.05) 0, transparent 40%),
+      radial-gradient(circle at 40% 80%, rgba(47,95,224,0.04) 0, transparent 45%),
+      radial-gradient(circle at 90% 85%, rgba(47,95,224,0.05) 0, transparent 40%);
+  }
+  .reply-quote{
+    display:block; border-left:3px solid var(--brand-blue); background:rgba(47,95,224,0.08);
+    border-radius:6px; padding:5px 9px; margin-bottom:6px; cursor:pointer;
+  }
+  .msg-row.sent .reply-quote{ border-left-color:rgba(255,255,255,0.85); background:rgba(255,255,255,0.15); }
+  .reply-quote-sender{ display:block; font-size:11px; font-weight:800; color:var(--brand-blue); }
+  .msg-row.sent .reply-quote-sender{ color:#fff; }
+  .reply-quote-text{ display:block; font-size:12px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:220px; }
+  .msg-row.sent .reply-quote-text{ color:rgba(255,255,255,0.85); }
+  .flash-highlight{ animation:flashHighlight 1.2s ease; border-radius:10px; }
+  @keyframes flashHighlight{ 0%{ background:rgba(255,122,41,0.25); } 100%{ background:transparent; } }
+  .img-lightbox{
+    position:fixed; inset:0; background:rgba(10,14,30,0.9); z-index:9999;
+    display:flex; align-items:center; justify-content:center;
+    opacity:0; pointer-events:none; transition:opacity 0.2s ease;
+  }
+  .img-lightbox.open{ opacity:1; pointer-events:auto; }
+  .img-lightbox img{ max-width:92vw; max-height:88vh; border-radius:10px; box-shadow:0 10px 50px rgba(0,0,0,0.5); }
+  .img-lightbox-close{
+    position:absolute; top:18px; right:22px; color:#fff; font-size:26px; font-weight:800;
+    cursor:pointer; opacity:0.85;
+  }
+  .img-lightbox-close:hover{ opacity:1; }
+  .msg-row{ display:flex; flex-direction:column; max-width:78%; }
+  .msg-row.sent{ align-self:flex-end; align-items:flex-end; }
+  .msg-row.received{ align-self:flex-start; align-items:flex-start; }
+  .msg-row.system-row{ align-self:center; align-items:center; max-width:90%; }
+  .bubble{ padding:10px 14px; border-radius:16px; font-size:13.5px; line-height:1.45; word-break:break-word; }
+  .msg-row.sent .bubble{ background:var(--brand-blue); color:#fff; border-bottom-right-radius:4px; }
+  .msg-row.received .bubble{ background:#fff; color:var(--ink); border:1px solid var(--card-border); border-bottom-left-radius:4px; }
+  .msg-row.system-row .bubble{ background:#FFF4E5; color:#8A5B00; border-radius:14px; font-size:12.5px; font-weight:700; text-align:center; }
+  .msg-row.system-row.delivery-row .bubble{ background:#E9F9EE; color:var(--success); border:1px solid #BFE8CC; text-align:left; max-width:320px; }
+  .msg-time{ font-size:10.5px; color:var(--muted); font-weight:600; margin-top:3px; padding:0 4px; }
+  .bubble img.chat-img{ max-width:220px; max-height:220px; border-radius:10px; margin-top:6px; cursor:pointer; display:block; }
+  .delivery-title{ font-weight:800; font-size:12.5px; margin-bottom:6px; }
+
+  .msg-with-avatar{ display:flex; gap:8px; align-items:flex-end; }
+  .msg-with-avatar.sent{ flex-direction:row-reverse; }
+  .msg-avatar{ width:26px; height:26px; border-radius:50%; object-fit:cover; flex-shrink:0; background:#E4EAF7; }
+  .unsend-link{ font-size:10px; color:var(--error); font-weight:700; cursor:pointer; margin-top:2px; opacity:0.75; }
+  .msg-context-menu{ display:none; position:fixed; background:#fff; border:1px solid var(--card-border); border-radius:12px; box-shadow:0 10px 30px rgba(15,27,61,0.25); z-index:200; overflow:hidden; min-width:170px; }
+  .msg-context-menu .menu-item{ padding:11px 16px; font-size:13.5px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:8px; }
+  .msg-context-menu .menu-item:hover{ background:#F0F3FA; }
+  .msg-context-menu .menu-item.danger{ color:var(--error); }
+  .msg-context-menu .menu-divider{ border-top:1px solid var(--card-border); margin:2px 0; }
+  .reply-preview-bar{ display:none; background:#F0F3FA; border-left:3px solid var(--brand-blue); border-radius:8px; padding:7px 10px; margin-bottom:8px; font-size:12px; align-items:center; gap:8px; }
+  .reply-preview-bar .reply-text{ flex:1; color:var(--muted); font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .reply-preview-bar .reply-cancel{ cursor:pointer; font-weight:800; color:var(--muted); }
+  .quoted-reply{ background:rgba(0,0,0,0.06); border-left:2px solid rgba(0,0,0,0.2); border-radius:6px; padding:4px 8px; margin-bottom:5px; font-size:11.5px; opacity:0.85; }
+
+  .unsend-link:hover{ opacity:1; text-decoration:underline; }
+  .header-with-avatar{ display:flex; align-items:center; gap:10px; }
+  .header-avatar{ width:38px; height:38px; border-radius:50%; object-fit:cover; background:#E4EAF7; flex-shrink:0; }
+
+  .send-preview{ display:none; background:#F0F3FA; border:1px solid var(--card-border); border-radius:12px; padding:10px; margin-bottom:10px; align-items:center; gap:10px; }
+  .send-preview img{ width:56px; height:56px; border-radius:8px; object-fit:cover; }
+  .send-preview .preview-actions{ margin-left:auto; display:flex; gap:8px; }
+  .send-preview button{ border:none; padding:8px 14px; border-radius:8px; font-weight:800; font-size:12.5px; cursor:pointer; }
+  .send-preview .confirm-send{ background:var(--brand-blue); color:#fff; }
+  .send-preview .cancel-send{ background:#fff; border:1px solid var(--card-border); color:var(--muted); }
+  .emoji-btn{ background:#F0F3FA; border:1px solid var(--card-border); color:var(--muted); border-radius:10px; width:42px; height:42px; font-size:18px; cursor:pointer; flex-shrink:0; }
+  .emoji-btn:hover{ background:#E4EAF7; }
+  .emoji-picker{ display:none; position:absolute; bottom:56px; background:#fff; border:1px solid var(--card-border); border-radius:12px; box-shadow:0 10px 25px rgba(15,27,61,0.15); padding:10px; z-index:50; width:260px; grid-template-columns:repeat(7,1fr); gap:4px; }
+  .emoji-picker span{ cursor:pointer; font-size:19px; text-align:center; border-radius:6px; padding:4px 0; }
+  .emoji-picker span:hover{ background:#F0F3FA; }
+
+  .reaction-bar{ display:none; position:absolute; bottom:100%; background:#fff; border:1px solid var(--card-border); border-radius:20px; box-shadow:0 6px 16px rgba(15,27,61,0.15); padding:5px 8px; gap:4px; z-index:40; }
+  .reaction-bar span{ cursor:pointer; font-size:17px; padding:2px; }
+  .reaction-bar span:hover{ transform:scale(1.25); }
+  .bubble-wrap{ position:relative; }
+  .react-trigger{ display:none; position:absolute; top:-10px; right:-8px; background:#fff; border:1px solid var(--card-border); border-radius:50%; width:22px; height:22px; font-size:12px; align-items:center; justify-content:center; cursor:pointer; }
+  .bubble-wrap:hover .react-trigger{ display:flex; }
+  .reaction-pills{ display:flex; gap:4px; flex-wrap:wrap; margin-top:3px; }
+  .reaction-pill{ background:#F0F3FA; border:1px solid var(--card-border); border-radius:12px; padding:1px 7px; font-size:11.5px; cursor:pointer; display:flex; align-items:center; gap:3px; }
+  .reaction-pill.mine{ background:#E4EAF7; border-color:var(--brand-blue); }
+
+
+  .chat-row{ display:flex; gap:8px; align-items:center; }
+  .chat-row input[type=text]{ flex:1; padding:11px 12px; border:1px solid var(--card-border); border-radius:10px; font-family:'Nunito Sans', sans-serif; font-size:13px; }
+  .chat-row button.send-btn{ background:var(--brand-blue); color:#fff; border:none; border-radius:10px; padding:0 18px; font-weight:800; font-size:13px; cursor:pointer; height:42px; }
+  .chat-row button.attach-btn{ background:#F0F3FA; border:1px solid var(--card-border); color:var(--muted); border-radius:10px; width:42px; height:42px; font-size:18px; cursor:pointer; flex-shrink:0; }
+  .chat-row button.attach-btn:hover{ background:#E4EAF7; }
+
+  input[type=text], textarea{ width:100%; padding:10px 12px; border:1px solid var(--card-border); border-radius:10px; font-family:'Nunito Sans', sans-serif; font-size:13px; margin-top:6px; }
+  button.action{ background:var(--brand-blue); color:#fff; border:none; padding:11px 16px; border-radius:10px; font-weight:800; font-size:13px; cursor:pointer; margin-top:8px; }
+  button.action.danger{ background:var(--error); }
+  button.action.success{ background:var(--success); }
+  .dispute-box{ background:#FDEBEA; border:1px solid #F5C2BE; border-radius:10px; padding:12px; margin-top:10px; }
+</style>
+</head>
+<body>
+
+<a href="index.html" class="logo">BUY<span>LANCE</span> <span style="color:var(--muted); font-size:14px;">Seller Dashboard</span></a>
+
+<div id="accessGate" class="card" style="max-width:500px; margin:40px auto;">
+  <p class="sub">Checking access…</p>
+</div>
+
+<div class="layout" id="dashboardLayout" style="display:none;">
+  <div class="col-orders">
+    <div class="card">
+      <h2>📦 Orders</h2>
+      <div id="ordersList"><p class="sub">Loading…</p></div>
+    </div>
+  </div>
+  <div class="col-detail">
+    <div class="card" id="orderDetailCard">
+      <p class="sub">Select an order from the list to view details.</p>
+    </div>
+    <div class="card" id="chatCard" style="display:none;">
+      <h2>💬 Chat</h2>
+      <div id="chat-box"></div>
+      <div class="reply-preview-bar" id="replyPreviewBar">
+        <span class="reply-text" id="replyPreviewText"></span>
+        <span class="reply-cancel" onclick="cancelReply()">✕</span>
+      </div>
+      <div class="send-preview" id="sendPreview">
+        <img id="previewImg" src="">
+        <span style="font-size:12.5px; color:var(--muted); font-weight:700;">Send this image?</span>
+        <div class="preview-actions">
+          <button class="cancel-send" onclick="cancelPendingImage()">Cancel</button>
+          <button class="confirm-send" onclick="confirmSendPendingImage()">Send</button>
+        </div>
+      </div>
+      <div class="chat-row">
+        <input type="file" id="chat-file-input" accept="image/*" style="display:none;" onchange="handleFileSelect(event)">
+        <button class="attach-btn" onclick="document.getElementById('chat-file-input').click()" title="Attach screenshot">📎</button>
+        <button class="emoji-btn" onclick="toggleEmojiPicker()" title="Emoji" style="position:relative;">😊
+          <div class="emoji-picker" id="emojiPicker">
+            <span onclick="insertEmoji(&quot;😀&quot;)">😀</span><span onclick="insertEmoji(&quot;😂&quot;)">😂</span><span onclick="insertEmoji(&quot;😍&quot;)">😍</span><span onclick="insertEmoji(&quot;😘&quot;)">😘</span><span onclick="insertEmoji(&quot;😎&quot;)">😎</span><span onclick="insertEmoji(&quot;🤩&quot;)">🤩</span><span onclick="insertEmoji(&quot;🥳&quot;)">🥳</span><span onclick="insertEmoji(&quot;😭&quot;)">😭</span><span onclick="insertEmoji(&quot;😢&quot;)">😢</span><span onclick="insertEmoji(&quot;😡&quot;)">😡</span><span onclick="insertEmoji(&quot;😱&quot;)">😱</span><span onclick="insertEmoji(&quot;🤔&quot;)">🤔</span><span onclick="insertEmoji(&quot;🙄&quot;)">🙄</span><span onclick="insertEmoji(&quot;😴&quot;)">😴</span><span onclick="insertEmoji(&quot;🤗&quot;)">🤗</span><span onclick="insertEmoji(&quot;👍&quot;)">👍</span><span onclick="insertEmoji(&quot;👎&quot;)">👎</span><span onclick="insertEmoji(&quot;👏&quot;)">👏</span><span onclick="insertEmoji(&quot;🙏&quot;)">🙏</span><span onclick="insertEmoji(&quot;💪&quot;)">💪</span><span onclick="insertEmoji(&quot;🤝&quot;)">🤝</span><span onclick="insertEmoji(&quot;✋&quot;)">✋</span><span onclick="insertEmoji(&quot;👋&quot;)">👋</span><span onclick="insertEmoji(&quot;💯&quot;)">💯</span><span onclick="insertEmoji(&quot;🔥&quot;)">🔥</span><span onclick="insertEmoji(&quot;✨&quot;)">✨</span><span onclick="insertEmoji(&quot;💰&quot;)">💰</span><span onclick="insertEmoji(&quot;🎉&quot;)">🎉</span><span onclick="insertEmoji(&quot;❤️&quot;)">❤️</span><span onclick="insertEmoji(&quot;💙&quot;)">💙</span><span onclick="insertEmoji(&quot;💚&quot;)">💚</span><span onclick="insertEmoji(&quot;💛&quot;)">💛</span><span onclick="insertEmoji(&quot;🧡&quot;)">🧡</span><span onclick="insertEmoji(&quot;💜&quot;)">💜</span><span onclick="insertEmoji(&quot;🖤&quot;)">🖤</span><span onclick="insertEmoji(&quot;🤍&quot;)">🤍</span><span onclick="insertEmoji(&quot;💔&quot;)">💔</span><span onclick="insertEmoji(&quot;😊&quot;)">😊</span><span onclick="insertEmoji(&quot;😅&quot;)">😅</span><span onclick="insertEmoji(&quot;😉&quot;)">😉</span><span onclick="insertEmoji(&quot;😇&quot;)">😇</span><span onclick="insertEmoji(&quot;🥺&quot;)">🥺</span><span onclick="insertEmoji(&quot;😏&quot;)">😏</span><span onclick="insertEmoji(&quot;🤨&quot;)">🤨</span><span onclick="insertEmoji(&quot;😬&quot;)">😬</span>
+          </div></button>
+        <input type="text" id="chat-input" placeholder="Type a reply...">
+        <button class="send-btn" onclick="sendMessage()">Send</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const urlParams = new URLSearchParams(window.location.search);
+  const preselectId = urlParams.get('id');
+  let currentUser = null;
+  let activeOrderId = null;
+  let activeOrderData = null;
+  let activeChannel = null;
+  const SELLER_ROBLOX_USERNAME = 'Jethro_poter';
+  let sellerAvatarUrl = '';
+  let pendingImageFile = null;
+
+  async function loadSellerAvatar(){
+    try {
+      const { data } = await supabaseClient.functions.invoke('verify-roblox', { body: { username: SELLER_ROBLOX_USERNAME } });
+      if(data && data.success){ sellerAvatarUrl = data.avatarUrl || ''; }
+    } catch(e){ /* avatar is a nice-to-have, ignore failures */ }
+  }
+
+  const STATUS_LABELS = {
+    waiting_for_seller: '⏳ Waiting for Seller',
+    in_progress: '🔄 In Progress',
+    delivered: '📦 Delivered',
+    completed: '✅ Completed',
+    disputed: '🛑 Disputed',
+    cancelled: '❌ Cancelled'
+  };
+
+  function formatMoney(n){ return '$' + Number(n).toFixed(2); }
+
+  async function init(){
+    loadSellerAvatar();
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    currentUser = session ? session.user : null;
+    if(!currentUser){
+      document.getElementById('accessGate').innerHTML = '<p class="sub">Please <a href="login.html">log in</a> to access the seller dashboard.</p>';
+      return;
+    }
+    const { data: profile } = await supabaseClient.from('profiles').select('is_admin').eq('id', currentUser.id).single();
+    if(!profile || !profile.is_admin){
+      document.getElementById('accessGate').innerHTML = '<p class="sub">You don\'t have access to this page.</p>';
+      return;
+    }
+    document.getElementById('accessGate').style.display = 'none';
+    document.getElementById('dashboardLayout').style.display = 'flex';
+    await loadOrdersList();
+    if(preselectId) selectOrder(preselectId);
+
+    // Live-refresh the order list whenever anything changes
+    supabaseClient
+      .channel('admin_orders_list')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, () => loadOrdersList())
+      .subscribe();
+  }
+
+  async function loadOrdersList(){
+    const { data: orders } = await supabaseClient.from('orders').select('*').order('created_at', { ascending: false });
+    const list = document.getElementById('ordersList');
+    if(!orders || orders.length === 0){
+      list.innerHTML = '<p class="sub">No orders yet.</p>';
+      return;
+    }
+    list.innerHTML = orders.map(o => `
+      <div class="order-row ${o.id === activeOrderId ? 'active' : ''}" onclick="selectOrder('${o.id}')">
+        <div class="num">#${o.order_number} — ${o.roblox_username || 'unknown'}</div>
+        <div class="who">${formatMoney(o.total_amount)} — ${o.user_email || ''}</div>
+        <span class="status-badge status-${o.status}">${STATUS_LABELS[o.status] || o.status}</span>
+      </div>
+    `).join('');
+  }
+
+  window.selectOrder = async function(orderId){
+    activeOrderId = orderId;
+    await loadOrdersList();
+    const { data: order, error } = await supabaseClient.from('orders').select('*').eq('id', orderId).single();
+    if(error || !order){
+      document.getElementById('orderDetailCard').innerHTML = '<p class="sub">Order not found.</p>';
+      return;
+    }
+    activeOrderData = order;
+    renderDetail(order);
+    loadStrikeBadge(order.user_id);
+    document.getElementById('chatCard').style.display = 'block';
+    await loadMessages(orderId);
+    subscribeChat(orderId);
+  };
+
+  async function loadStrikeBadge(userId){
+    const area = document.getElementById('strikeBadgeArea');
+    if(!area || !userId) return;
+    const { data: profile } = await supabaseClient.from('profiles').select('strike_count, frozen_until').eq('id', userId).single();
+    if(!profile) return;
+    const count = profile.strike_count || 0;
+    if(count === 0) return;
+    const ordinal = count === 1 ? '1st' : count === 2 ? '2nd' : `${count}rd+`;
+    const frozenNote = (profile.frozen_until && new Date(profile.frozen_until) > new Date())
+      ? ` · 🧊 Frozen until ${new Date(profile.frozen_until).toLocaleDateString()}`
+      : '';
+    area.innerHTML = `<div style="background:#FFF4E5; color:#8A5B00; font-weight:800; font-size:12px; padding:5px 10px; border-radius:8px; margin-bottom:10px; display:inline-block;">⚠️ ${ordinal} Warning on file${frozenNote}</div>`;
+  }
+
+  let walletHistoryLoadedFor = null;
+
+  window.toggleWalletHistory = async function(userId){
+    const area = document.getElementById('walletHistoryArea');
+    if(!area) return;
+    const isOpen = area.style.display !== 'none';
+    if(isOpen){
+      area.style.display = 'none';
+      return;
+    }
+    area.style.display = 'block';
+    if(walletHistoryLoadedFor === userId) return; // already loaded, just re-showing
+    area.innerHTML = '<p class="sub">Loading wallet history…</p>';
+
+    const { data: profile } = await supabaseClient.from('profiles').select('wallet_balance').eq('id', userId).single();
+    const balance = (profile && profile.wallet_balance) ? Number(profile.wallet_balance) : 0;
+
+    let totalSpent = 0;
+    try {
+      const { data: spentResult } = await supabaseClient.rpc('get_total_spent', { p_user_id: userId });
+      totalSpent = Number(spentResult) || 0;
+    } catch(e){
+      console.warn('Could not load total spent:', e);
+    }
+
+    const { data: txns, error } = await supabaseClient
+      .rpc('get_wallet_transactions', { p_user_id: userId });
+
+    if(error){
+      area.innerHTML = `<p class="sub" style="color:var(--error);">Could not load wallet history: ${escapeHtml(error.message)}</p>`;
+      return;
+    }
+
+    walletHistoryLoadedFor = userId;
+
+    const balanceLine = `
+      <p class="sub" style="margin-bottom:4px;">Total spent (lifetime, delivered/completed orders): <b style="color:var(--ink); font-size:15px;">$${totalSpent.toFixed(2)}</b></p>
+      <p class="sub" style="margin-bottom:8px;">Current wallet balance: <b style="color:var(--brand-blue); font-size:15px;">$${balance.toFixed(2)}</b></p>
+    `;
+
+    if(!txns || txns.length === 0){
+      area.innerHTML = balanceLine + '<p class="sub">No wallet activity for this user yet.</p>';
+      return;
+    }
+
+    const rows = txns.map(t => {
+      const positive = Number(t.amount) >= 0;
+      return `
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--card-border);">
+          <div>
+            <p style="font-weight:800; font-size:12.5px;">${escapeHtml(t.reason || 'Wallet activity')}</p>
+            <p class="sub" style="margin-top:2px; font-size:11px;">${new Date(t.created_at).toLocaleString()}</p>
+          </div>
+          <div style="font-weight:800; font-size:13.5px; color:${positive ? 'var(--success)' : 'var(--error)'}; white-space:nowrap;">
+            ${positive ? '+' : ''}$${Number(t.amount).toFixed(2)}
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    area.innerHTML = balanceLine + `<div style="max-height:280px; overflow-y:auto; background:#F8FAFF; border:1px solid var(--card-border); border-radius:10px; padding:0 12px;">${rows}</div>`;
+  };
+
+  window.openWarningModal = function(userId, robloxUsername){
+    const reason = prompt(`Issuing a warning to ${robloxUsername}. What's the reason?`);
+    if(!reason || !reason.trim()) return;
+    submitWarning(userId, reason.trim());
+  };
+
+  window.submitWarning = async function(userId, reason){
+    const { data, error } = await supabaseClient.rpc('issue_warning', { p_user_id: userId, p_reason: reason });
+    if(error){ alert('Could not issue warning: ' + error.message); return; }
+    alert(`Warning issued — this is their ${data === 1 ? '1st' : data === 2 ? '2nd' : data + 'rd+'} strike.`);
+    loadStrikeBadge(userId);
+  };
+
+  window.convertToCredit = async function(orderId){
+    if(!confirm('Convert this unclaimed order to store credit for the buyer? This cancels the order.')) return;
+    const { error } = await supabaseClient.rpc('convert_order_to_credit', { p_order_id: orderId });
+    if(error){ alert('Could not convert: ' + error.message); return; }
+    alert('Converted to store credit.');
+    selectOrder(orderId);
+  };
+
+  function renderDetail(order){
+    const items = (order.items_json || []).map(i =>
+      `<div class="item-line">• ${i.game}: ${i.item} x${i.qty} ($${Number(i.price).toFixed(2)})</div>`
+    ).join('');
+
+    const paymentBreakdownHtml = (order.wallet_amount_used > 0)
+      ? `<div class="sub" style="margin-top:4px;">💰 ${formatMoney(order.wallet_amount_used)} from Wallet + 💳 ${formatMoney(order.paypal_amount_charged || 0)} via PayPal</div>`
+      : '';
+
+    const daysSinceActivity = order.last_buyer_activity_at
+      ? (Date.now() - new Date(order.last_buyer_activity_at).getTime()) / (1000*60*60*24)
+      : 0;
+    const isStale = daysSinceActivity >= 14 && ['waiting_for_seller','in_progress','delivered'].includes(order.status);
+    const convertHtml = isStale
+      ? `<button class="action danger" onclick="convertToCredit('${order.id}')">💤 Convert Unclaimed Order to Credit (${Math.floor(daysSinceActivity)}d inactive)</button>`
+      : '';
+
+    let actionsHtml = '';
+    if(order.status === 'waiting_for_seller'){
+      actionsHtml = `<button class="action" onclick="acceptOrder('${order.id}')">✅ Accept Order</button>`;
+    } else if(order.status === 'in_progress'){
+      const cooldownMs = order.last_reminded_at ? (30 * 60 * 1000) - (Date.now() - new Date(order.last_reminded_at).getTime()) : 0;
+      const onCooldown = cooldownMs > 0;
+      actionsHtml = `
+        <button class="action" id="reminderBtn" onclick="sendReminder('${order.id}')" ${onCooldown ? 'disabled' : ''}>🔔 <span id="reminderBtnLabel">${onCooldown ? 'On cooldown' : 'Remind Buyer'}</span></button>
+        <input type="file" id="deliverFileInput" accept="image/*" style="display:none;" onchange="handleDeliverFileSelect(event, '${order.id}')">
+        <button class="action success" onclick="document.getElementById('deliverFileInput').click()">📦 Mark Delivered (attach proof)</button>
+      `;
+    } else if(order.status === 'disputed'){
+      actionsHtml = `
+        <div class="dispute-box">
+          <b>Buyer's reported reason:</b>
+          <p>${order.dispute_reason || 'No reason given'}</p>
+          ${order.proof_image_url ? `<p style="margin-top:8px;"><a href="${order.proof_image_url}" target="_blank">View your delivery proof →</a></p>` : ''}
+        </div>
+        <button class="action danger" onclick="resolveDispute('${order.id}', 'completed')">Reject Dispute / Force Complete</button>
+        <button class="action" onclick="resolveDispute('${order.id}', 'in_progress')">Resend Item / Reopen</button>
+      `;
+    } else if(order.status === 'delivered'){
+      actionsHtml = `<p class="sub">Waiting on the buyer to confirm or report an issue.</p>`;
+      if(order.proof_image_url){
+        actionsHtml += `<p style="margin-top:6px;"><a href="${order.proof_image_url}" target="_blank">View your delivery proof →</a></p>`;
+      }
+    }
+
+    document.getElementById('orderDetailCard').innerHTML = `
+      <span class="status-badge status-${order.status}">${STATUS_LABELS[order.status] || order.status}</span>
+      <h2>Order #${order.order_number}</h2>
+      <p class="sub header-with-avatar">
+        ${order.roblox_avatar_url ? `<img class="header-avatar" src="${order.roblox_avatar_url}">` : ''}
+        <span>Roblox: <b>${order.roblox_username}</b> &nbsp;|&nbsp; Email: <b>${order.user_email}</b></span>
+      </p>
+      <div id="strikeBadgeArea"></div>
+      <div style="margin-bottom:10px;">
+        <button class="action" style="background:#2F5FE0; width:auto; padding:8px 14px; font-size:12.5px;" onclick="toggleWalletHistory('${order.user_id}')">💰 View Wallet History</button>
+        <div id="walletHistoryArea" style="display:none; margin-top:10px;"></div>
+      </div>
+      ${items}
+      <div class="total-line">Total: ${formatMoney(order.total_amount)}</div>
+      ${paymentBreakdownHtml}
+      ${actionsHtml}
+      ${convertHtml}
+      <button class="action" style="background:#8A5B00;" onclick="openWarningModal('${order.user_id}', '${escapeHtml(order.roblox_username)}')">⚠️ Issue Warning</button>
+    `;
+  }
+
+  async function loadMessages(orderId){
+    const { data: messages } = await supabaseClient
+      .from('order_messages')
+      .select('*')
+      .eq('order_id', orderId)
+      .order('created_at', { ascending: true });
+    const box = document.getElementById('chat-box');
+    box.innerHTML = '';
+    (messages || []).forEach(renderMessage);
+  }
+
+  function escapeHtml(str){
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  function formatTime(ts){
+    if(!ts) return '';
+    return new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+
+
+  const QUICK_REACTIONS = ['👍','❤️','😂','😮','😢','🙏'];
+
+  function renderReactionPills(reactions, msgId, mySenderType){
+    if(!reactions) return '';
+    const entries = Object.entries(reactions).filter(([emoji, list]) => list && list.length > 0);
+    if(entries.length === 0) return '';
+    return `<div class="reaction-pills">${entries.map(([emoji, list]) => {
+      const mine = list.includes(mySenderType);
+      // Clicking YOUR OWN reaction removes it. Clicking a reaction that's
+      // only from the other person shows who reacted, instead of silently
+      // stacking your own reaction onto it.
+      const action = mine
+        ? `sendReaction('${msgId}','${emoji}',event)`
+        : `showWhoReacted('${list.join(",")}','${emoji}',event)`;
+      return `<span class="reaction-pill ${mine ? 'mine' : ''}" onclick="${action}">${emoji} ${list.length}</span>`;
+    }).join('')}</div>`;
+  }
+
+  window.showWhoReacted = function(whoList, emoji, event){
+    if(event) event.stopPropagation();
+    const names = whoList.split(',').map(s => s === 'buyer' ? 'Buyer' : s === 'seller' ? 'Seller' : s);
+    alert(names.join(', ') + ' reacted ' + emoji);
+  };
+
+  function reactionBarHtml(msgId){
+    return `<div class="reaction-bar" id="reactbar-${msgId}">${QUICK_REACTIONS.map(e => `<span onclick="sendReaction('${msgId}','${e}',event)">${e}</span>`).join('')}</div>`;
+  }
+
+  window.toggleReactionBar = function(msgId, event){
+    event.stopPropagation();
+    document.querySelectorAll('.reaction-bar').forEach(b => { if(b.id !== 'reactbar-' + msgId) b.style.display = 'none'; });
+    const bar = document.getElementById('reactbar-' + msgId);
+    if(bar) bar.style.display = bar.style.display === 'flex' ? 'none' : 'flex';
+  };
+
+  document.addEventListener('click', function(){
+    document.querySelectorAll('.reaction-bar').forEach(b => b.style.display = 'none');
+  });
+
+  window.toggleEmojiPicker = function(){
+    const picker = document.getElementById('emojiPicker');
+    picker.style.display = picker.style.display === 'grid' ? 'none' : 'grid';
+  };
+
+  window.insertEmoji = function(emoji){
+    const input = document.getElementById('chat-input');
+    input.value += emoji;
+    input.focus();
+    document.getElementById('emojiPicker').style.display = 'none';
+  };
+
+  document.addEventListener('click', function(e){
+    const picker = document.getElementById('emojiPicker');
+    if(picker && picker.style.display === 'grid' && !e.target.closest('.emoji-btn') && !e.target.closest('.emoji-picker')){
+      picker.style.display = 'none';
+    }
+  });
+
+  function updateMessageReactions(msg, mySenderType){
+    const wrap = document.querySelector(`[data-msg-id="${msg.id}"] .reaction-pills`);
+    const html = renderReactionPills(msg.reactions, msg.id, mySenderType);
+    if(wrap){
+      wrap.outerHTML = html || '<div class="reaction-pills"></div>';
+    }
+  }
+
+  function renderMessage(msg){
+    const box = document.getElementById('chat-box');
+    const row = document.createElement('div');
+    row.setAttribute('data-msg-id', msg.id);
+
+    const buyerName = (activeOrderData && activeOrderData.roblox_username) || 'Buyer';
+    const buyerAvatar = (activeOrderData && activeOrderData.roblox_avatar_url) || '';
+
+    if(msg.is_delivery){
+      row.className = 'msg-row system-row delivery-row';
+      row.innerHTML = `
+        <div class="bubble">
+          <div class="delivery-title">📦 Order Delivered</div>
+          ${msg.image_url ? `<img class="chat-img" src="${msg.image_url}" onclick="openImageLightbox('${msg.image_url}')" style="max-width:260px; max-height:260px;">` : ''}
+        </div>
+        <div class="msg-time">${formatTime(msg.created_at)}</div>
+      `;
+    } else if(msg.sender_type === 'system' || msg.is_reminder){
+      row.className = 'msg-row system-row';
+      row.innerHTML = `
+        <div class="bubble">${msg.is_reminder ? '🔔 ' : ''}${escapeHtml(msg.message || '')}</div>
+        <div class="msg-time">${formatTime(msg.created_at)}</div>
+      `;
+    } else {
+      const isMine = msg.sender_type === 'seller';
+      row.className = 'msg-row ' + (isMine ? 'sent' : 'received');
+      const imgHtml = msg.image_url ? `<img class="chat-img" src="${msg.image_url}" onclick="openImageLightbox('${msg.image_url}')">` : '';
+      const rawText = msg.message || '';
+      const textHtml = rawText ? escapeHtml(rawText) : '';
+      const avatarUrl = isMine ? sellerAvatarUrl : buyerAvatar;
+      const nameLabel = isMine ? `You · ${SELLER_ROBLOX_USERNAME}` : buyerName;
+      const pillsHtml = renderReactionPills(msg.reactions, msg.id, 'seller');
+      const replyHtml = msg.reply_to_text ? `
+        <div class="reply-quote" onclick="jumpToMessage('${msg.reply_to_id || ''}')">
+          <span class="reply-quote-sender">${escapeHtml(msg.reply_to_sender || '')}</span>
+          <span class="reply-quote-text">${escapeHtml(msg.reply_to_text)}</span>
+        </div>` : '';
+      row.setAttribute('data-msg-text', rawText);
+      row.setAttribute('data-msg-mine', isMine ? '1' : '0');
+      row.setAttribute('data-msg-sender-label', isMine ? SELLER_ROBLOX_USERNAME : buyerName);
+
+      row.innerHTML = `
+        <div class="msg-with-avatar ${isMine ? 'sent' : ''}">
+          ${avatarUrl ? `<img class="msg-avatar" src="${avatarUrl}">` : '<span class="msg-avatar"></span>'}
+          <div class="msg-row ${isMine ? 'sent' : 'received'}" style="max-width:100%;">
+            <div class="bubble-wrap">
+              <div class="bubble">${replyHtml}${textHtml}${imgHtml}</div>
+              <span class="react-trigger" onclick="toggleReactionBar('${msg.id}', event)">🙂</span>
+              ${reactionBarHtml(msg.id)}
+            </div>
+            ${pillsHtml || '<div class="reaction-pills"></div>'}
+            <div class="msg-time">${nameLabel} · ${formatTime(msg.created_at)}</div>
+          </div>
+        </div>
+      `;
+      row.className = '';
+    }
+
+    box.appendChild(row);
+    box.scrollTop = box.scrollHeight;
+  }
+
+  window.unsendMessage = async function(msgId){
+    if(!confirm('Unsend this message for everyone? This cannot be undone.')) return;
+    const { error } = await supabaseClient.from('order_messages').delete().eq('id', msgId);
+    if(error){ alert('Could not unsend: ' + error.message); return; }
+    const el = document.querySelector(`[data-msg-id="${msgId}"]`);
+    if(el) el.remove();
+  };
+
+  window.sendReaction = async function(msgId, emoji, event){
+    if(event) event.stopPropagation();
+    const bar = document.getElementById('reactbar-' + msgId);
+    if(bar) bar.style.display = 'none';
+    const { error } = await supabaseClient.rpc('toggle_message_reaction', { p_message_id: msgId, p_emoji: emoji, p_sender_type: 'seller' });
+    if(error) console.error('Reaction failed:', error);
+  };
+
+  function subscribeChat(orderId){
+    if(activeChannel) supabaseClient.removeChannel(activeChannel);
+    activeChannel = supabaseClient
+      .channel('admin_order_' + orderId)
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'order_messages', filter: `order_id=eq.${orderId}` }, (payload) => {
+        renderMessage(payload.new);
+      })
+      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'order_messages', filter: `order_id=eq.${orderId}` }, (payload) => {
+        const el = document.querySelector(`[data-msg-id="${payload.old.id}"]`);
+        if(el) el.remove();
+      })
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'order_messages', filter: `order_id=eq.${orderId}` }, (payload) => {
+        updateMessageReactions(payload.new, 'seller');
+      })
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'orders', filter: `id=eq.${orderId}` }, (payload) => {
+        activeOrderData = payload.new;
+        renderDetail(payload.new);
+      })
+      .subscribe();
+  }
+
+  const REPORT_WEBHOOK_URL = 'https://discord.com/api/webhooks/1539854974580822026/_SL4w2rIYCKFj8Ryic4CyNifCbWI7usn92_JqArjibsp4yWlPQYcE1VC9BQ-pGDs44TF';
+  let pendingReplyTo = null;
+
+  window.startReply = function(msgId){
+    const row = document.querySelector(`[data-msg-id="${msgId}"]`);
+    if(!row) return;
+    const text = row.getAttribute('data-msg-text') || '📷 Image';
+    const senderLabel = row.getAttribute('data-msg-sender-label') || '';
+    pendingReplyTo = { id: msgId, text, senderLabel };
+    document.getElementById('replyPreviewText').textContent = `Replying to ${senderLabel}: ${text}`;
+    document.getElementById('replyPreviewBar').style.display = 'flex';
+    document.getElementById('chat-input').focus();
+    hideMessageMenu();
+  };
+
+  window.cancelReply = function(){
+    pendingReplyTo = null;
+    document.getElementById('replyPreviewBar').style.display = 'none';
+  };
+
+  window.copyMessageText = function(msgId){
+    const row = document.querySelector(`[data-msg-id="${msgId}"]`);
+    const text = row ? (row.getAttribute('data-msg-text') || '') : '';
+    if(navigator.clipboard && text){ navigator.clipboard.writeText(text); }
+    hideMessageMenu();
+  };
+
+  window.reportMessageFromMenu = async function(msgId){
+    hideMessageMenu();
+    if(!confirm('Report this message?')) return;
+    const row = document.querySelector(`[data-msg-id="${msgId}"]`);
+    const text = row ? (row.getAttribute('data-msg-text') || '(image)') : '(unknown)';
+    try {
+      await supabaseClient.from('message_reports').insert([{
+        message_id: msgId, order_id: activeOrderId, reported_by: currentUser.id, reported_message_text: text
+      }]);
+    } catch(e){ console.warn('Report insert failed:', e); }
+    try {
+      await fetch(REPORT_WEBHOOK_URL, {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ content: `🚩 **Message reported** on Order #${activeOrderData ? activeOrderData.order_number : '?'}\n> ${text}\nhttps://buylance.gg/admin-order.html?id=${activeOrderId}` })
+      });
+    } catch(e){ console.warn('Report webhook failed:', e); }
+    alert('Reported.');
+  };
+
+  function hideMessageMenu(){
+    document.getElementById('msgContextMenu').style.display = 'none';
+  }
+
+  function showMessageMenu(msgId, x, y){
+    const row = document.querySelector(`[data-msg-id="${msgId}"]`);
+    if(!row) return;
+    const isMine = row.getAttribute('data-msg-mine') === '1';
+    const menu = document.getElementById('msgContextMenu');
+    let html = `<div class="menu-item" onclick="startReply('${msgId}')">↩️ Reply</div>`;
+    html += `<div class="menu-item" onclick="copyMessageText('${msgId}')">📋 Copy</div>`;
+    html += `<div class="menu-divider"></div>`;
+    if(isMine){
+      html += `<div class="menu-item danger" onclick="unsendMessage('${msgId}'); hideMenuNow();">🗑 Delete / Unsend</div>`;
+    } else {
+      html += `<div class="menu-item danger" onclick="reportMessageFromMenu('${msgId}')">🚩 Report</div>`;
+    }
+    menu.innerHTML = html;
+    menu.style.display = 'block';
+    const menuWidth = 190;
+    const left = Math.min(x, window.innerWidth - menuWidth - 10);
+    const top = Math.min(y, window.innerHeight - 160);
+    menu.style.left = left + 'px';
+    menu.style.top = top + 'px';
+  }
+
+  window.hideMenuNow = hideMessageMenu;
+
+  document.addEventListener('click', (e) => {
+    if(!e.target.closest('.msg-context-menu')) hideMessageMenu();
+  });
+
+  (function setupLongPress(){
+    let pressTimer = null;
+    let startX = 0, startY = 0;
+    const box = document.getElementById('chat-box');
+
+    function begin(e){
+      const wrap = e.target.closest('.bubble-wrap') || e.target.closest('.bubble');
+      if(!wrap) return;
+      const row = e.target.closest('[data-msg-id]');
+      if(!row) return;
+      const point = e.touches ? e.touches[0] : e;
+      startX = point.clientX; startY = point.clientY;
+      pressTimer = setTimeout(() => {
+        showMessageMenu(row.getAttribute('data-msg-id'), point.clientX, point.clientY);
+      }, 480);
+    }
+    function cancel(){ if(pressTimer){ clearTimeout(pressTimer); pressTimer = null; } }
+    function move(e){
+      const point = e.touches ? e.touches[0] : e;
+      if(Math.abs(point.clientX - startX) > 10 || Math.abs(point.clientY - startY) > 10) cancel();
+    }
+
+    box.addEventListener('mousedown', begin);
+    box.addEventListener('mouseup', cancel);
+    box.addEventListener('mouseleave', cancel);
+    box.addEventListener('mousemove', move);
+    box.addEventListener('touchstart', begin, {passive:true});
+    box.addEventListener('touchend', cancel);
+    box.addEventListener('touchmove', move, {passive:true});
+
+    box.addEventListener('contextmenu', (e) => {
+      const row = e.target.closest('[data-msg-id]');
+      if(row){ e.preventDefault(); showMessageMenu(row.getAttribute('data-msg-id'), e.clientX, e.clientY); }
+    });
+  })();
+
+  window.sendMessage = async function(){
+    const input = document.getElementById('chat-input');
+    let text = input.value.trim();
+    if(!text || !activeOrderId) return;
+    const replySnapshot = pendingReplyTo;
+    if(pendingReplyTo){
+      pendingReplyTo = null;
+      document.getElementById('replyPreviewBar').style.display = 'none';
+    }
+    input.value = '';
+    await supabaseClient.from('order_messages').insert([{
+      order_id: activeOrderId,
+      sender_type: 'seller',
+      sender_name: currentUser.email,
+      message: text,
+      reply_to_id: replySnapshot ? replySnapshot.id : null,
+      reply_to_text: replySnapshot ? replySnapshot.text.slice(0,120) : null,
+      reply_to_sender: replySnapshot ? replySnapshot.senderLabel : null
+    }]);
+  };
+
+  window.openImageLightbox = function(url){
+    let overlay = document.getElementById('imgLightbox');
+    if(!overlay){
+      overlay = document.createElement('div');
+      overlay.id = 'imgLightbox';
+      overlay.className = 'img-lightbox';
+      overlay.innerHTML = `<span class="img-lightbox-close" onclick="closeImageLightbox()">✕</span><img id="imgLightboxPic">`;
+      overlay.addEventListener('click', (e) => { if(e.target === overlay) closeImageLightbox(); });
+      document.body.appendChild(overlay);
+    }
+    document.getElementById('imgLightboxPic').src = url;
+    overlay.classList.add('open');
+  };
+
+  window.closeImageLightbox = function(){
+    const overlay = document.getElementById('imgLightbox');
+    if(overlay) overlay.classList.remove('open');
+  };
+
+  window.jumpToMessage = function(msgId){
+    if(!msgId) return;
+    const el = document.querySelector(`[data-msg-id="${msgId}"]`);
+    if(!el) return;
+    el.scrollIntoView({behavior:'smooth', block:'center'});
+    el.classList.add('flash-highlight');
+    setTimeout(() => el.classList.remove('flash-highlight'), 1200);
+  };
+
+  async function uploadChatImage(file, orderId){
+    try {
+      const ext = file.name.split('.').pop() || 'png';
+      const path = `${orderId}/${Date.now()}.${ext}`;
+      const { error: uploadError } = await supabaseClient.storage.from('chat-uploads').upload(path, file);
+      if(uploadError){
+        console.error('Upload error:', uploadError);
+        alert('Image upload failed: ' + (uploadError.message || JSON.stringify(uploadError)));
+        return null;
+      }
+      const { data } = supabaseClient.storage.from('chat-uploads').getPublicUrl(path);
+      return data.publicUrl;
+    } catch(e){
+      console.error('Upload exception:', e);
+      alert('Image upload crashed: ' + e.message);
+      return null;
+    }
+  }
+
+  // Selecting or pasting an image no longer sends it right away — it shows
+  // a small preview with Send/Cancel first, so an accidental wrong photo
+  // never gets sent by mistake.
+  function showImagePreview(file){
+    pendingImageFile = file;
+    document.getElementById('previewImg').src = URL.createObjectURL(file);
+    document.getElementById('sendPreview').style.display = 'flex';
+  }
+
+  window.cancelPendingImage = function(){
+    pendingImageFile = null;
+    document.getElementById('sendPreview').style.display = 'none';
+  };
+
+  window.confirmSendPendingImage = async function(){
+    if(!pendingImageFile || !activeOrderId) return;
+    const file = pendingImageFile;
+    pendingImageFile = null;
+    document.getElementById('sendPreview').style.display = 'none';
+
+    const url = await uploadChatImage(file, activeOrderId);
+    if(!url) return;
+    const { error: insertError } = await supabaseClient.from('order_messages').insert([{
+      order_id: activeOrderId,
+      sender_type: 'seller',
+      sender_name: currentUser.email,
+      message: '',
+      image_url: url
+    }]);
+    if(insertError){
+      console.error('Message insert error:', insertError);
+      alert('Image uploaded but failed to post to chat: ' + insertError.message);
+    }
+  };
+
+  window.handleFileSelect = function(event){
+    const file = event.target.files[0];
+    event.target.value = '';
+    if(!file){ return; }
+    if(!activeOrderId){ alert('Select an order first.'); return; }
+    showImagePreview(file);
+  };
+
+  document.getElementById('chat-input') && document.getElementById('chat-input').addEventListener('paste', function(e){
+    const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+    for(const item of items){
+      if(item.type.indexOf('image') !== -1){
+        const file = item.getAsFile();
+        if(!activeOrderId){ alert('Select an order first.'); return; }
+        showImagePreview(file);
+      }
+    }
+  });
+
+  // Reminder now goes through a database function (seller_send_reminder) so
+  // the 30-minute cooldown is stored on the order itself — it survives page
+  // reloads and works even if you check from a different device later.
+  window.sendReminder = async function(orderId){
+    const btn = document.getElementById('reminderBtn');
+    const label = document.getElementById('reminderBtnLabel');
+    if(btn) btn.disabled = true;
+
+    const { error } = await supabaseClient.rpc('seller_send_reminder', { p_order_id: orderId });
+
+    if(error){
+      if(error.message && error.message.includes('cooldown_active')){
+        if(label) label.textContent = 'Please wait ~30 min';
+      } else {
+        alert('Something went wrong sending the reminder.');
+        if(btn) btn.disabled = false;
+      }
+      return;
+    }
+    if(label) label.textContent = 'Reminder sent';
+    // selectOrder re-fetches the order, which recomputes the cooldown display
+    setTimeout(() => selectOrder(orderId), 600);
+  };
+
+  window.acceptOrder = async function(orderId){
+    const { error } = await supabaseClient.rpc('seller_accept_order', { p_order_id: orderId });
+    if(error){ alert('Something went wrong.'); return; }
+    selectOrder(orderId);
+  };
+
+  // Mark Delivered now uploads an actual image file (instead of pasting a
+  // URL) and the resulting proof card is posted directly into the chat by
+  // the seller_mark_delivered database function.
+  window.handleDeliverFileSelect = async function(event, orderId){
+    const file = event.target.files[0];
+    event.target.value = '';
+    if(!file) return;
+    const url = await uploadChatImage(file, orderId);
+    if(!url) return;
+    const { error } = await supabaseClient.rpc('seller_mark_delivered', { p_order_id: orderId, p_proof_url: url });
+    if(error){ alert('Something went wrong.'); return; }
+    selectOrder(orderId);
+  };
+
+  window.resolveDispute = async function(orderId, newStatus){
+    if(!confirm('Are you sure?')) return;
+    const { error } = await supabaseClient.rpc('seller_resolve_dispute', { p_order_id: orderId, p_new_status: newStatus });
+    if(error){ alert('Something went wrong.'); return; }
+    selectOrder(orderId);
+  };
+
+  document.getElementById('chat-input') && document.getElementById('chat-input').addEventListener('keydown', (e) => {
+    if(e.key === 'Enter') sendMessage();
+  });
+
+  init();
+</script>
+
+<div class="msg-context-menu" id="msgContextMenu"></div>
+</body>
+</html>

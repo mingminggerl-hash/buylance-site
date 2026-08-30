@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gun Wheel - $50</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<style>
+  body{
+    margin:0; min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    background:radial-gradient(circle at 50% 20%, #1a2140, #05070f 70%);
+    font-family:'Segoe UI', sans-serif; color:#fff; gap:18px; padding:30px 20px;
+  }
+  h1{ font-size:22px; margin:0; text-align:center; }
+  .wheel-wrap{ position:relative; width:320px; height:320px; }
+  canvas{ display:block; border-radius:50%; box-shadow:0 0 0 6px #10131f, 0 10px 40px rgba(0,0,0,0.6); }
+  .pointer{
+    position:absolute; right:-14px; top:50%; transform:translateY(-50%);
+    width:0; height:0; border-top:16px solid transparent; border-bottom:16px solid transparent;
+    border-left:26px solid #4ade80; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.5)); z-index:5;
+  }
+  button{
+    background:linear-gradient(180deg,#4f7bff,#2f5fe0); color:#fff; border:none; font-weight:800;
+    font-size:15px; padding:13px 34px; border-radius:30px; cursor:pointer; box-shadow:0 6px 18px rgba(47,95,224,0.4);
+  }
+  button:disabled{ opacity:0.5; cursor:default; }
+  .chances{ font-size:14px; font-weight:700; color:#c9d0ea; }
+  #result{ font-size:16px; font-weight:800; min-height:24px; text-align:center; }
+  a.back{ color:#8b93b3; font-size:12.5px; text-decoration:none; margin-top:6px; }
+  a.back:hover{ color:#c9d0ea; }
+  .win-overlay{
+    position:fixed; inset:0; background:rgba(5,7,15,0.85); z-index:9999;
+    display:flex; align-items:center; justify-content:center;
+    opacity:0; pointer-events:none; transition:opacity 0.25s ease;
+  }
+  .win-overlay.open{ opacity:1; pointer-events:auto; }
+  .win-box{
+    background:linear-gradient(180deg,#1a2140,#12162a); border:1px solid #FF7A29;
+    border-radius:20px; padding:36px 30px; max-width:320px; width:88vw; text-align:center;
+    box-shadow:0 0 60px rgba(255,122,41,0.35);
+    transform:scale(0.9); transition:transform 0.25s ease;
+  }
+  .win-overlay.open .win-box{ transform:scale(1); }
+  .win-emoji{ font-size:52px; margin-bottom:6px; }
+  .win-box h2{ font-size:24px; margin:0 0 10px; color:#fff; }
+  .win-item-name{ font-size:19px; font-weight:800; color:#FF9A52; margin:0 0 6px; }
+  .win-sub{ font-size:13px; color:#8b93b3; margin:0 0 22px; }
+  .win-claim-btn{
+    background:linear-gradient(180deg,#FF9A52,#FF7A29); color:#fff; border:none; font-weight:800;
+    font-size:15px; padding:12px 34px; border-radius:26px; cursor:pointer; box-shadow:0 6px 18px rgba(255,122,41,0.4);
+  }
+</style>
+</head>
+<body>
+
+<h1>🔫 Gun Wheel ($50)</h1>
+
+<div class="wheel-wrap">
+  <canvas id="wheel" width="320" height="320"></canvas>
+  <div class="pointer"></div>
+</div>
+
+<button id="spinBtn" disabled>Checking eligibility…</button>
+<div class="chances" id="chancesLabel"></div>
+<div id="result"></div>
+<a class="back" id="backLink" href="spin_wheel_choose.html">← Back to Gun / Knife choice</a>
+
+<script>
+  // These are ONLY used to draw the wheel and animate to a landing spot.
+  // The actual winner is decided by the spin_wheel() function in Supabase —
+  // this page never picks the outcome itself.
+  const SEGMENTS = [{"label": "Green Luger", "color": "#3B6FE0"}, {"label": "Blaster", "color": "#2FA84F"}, {"label": "Luger", "color": "#E0A62F"}, {"label": "Red Luger", "color": "#D5342E"}];
+  const THIS_CATEGORY = 'gun';
+
+  const canvas = document.getElementById('wheel');
+  const ctx = canvas.getContext('2d');
+  const cx = canvas.width / 2, cy = canvas.height / 2, radius = canvas.width / 2 - 4;
+  const btn = document.getElementById('spinBtn');
+  const chancesLabel = document.getElementById('chancesLabel');
+  const resultLabel = document.getElementById('result');
+
+  let currentUser = null;
+  let currentRotation = 0;
+  let spinning = false;
+
+  function drawWheel(rotation){
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const sliceAngle = (2 * Math.PI) / SEGMENTS.length;
+    let startAngle = rotation;
+
+    SEGMENTS.forEach(seg => {
+      const endAngle = startAngle + sliceAngle;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.arc(cx, cy, radius, startAngle, endAngle);
+      ctx.closePath();
+      ctx.fillStyle = seg.color;
+      ctx.fill();
+
+      const midAngle = startAngle + sliceAngle / 2;
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate(midAngle);
+      ctx.textAlign = 'right';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = '#111';
+      ctx.font = 'bold 16px Segoe UI, sans-serif';
+      ctx.fillText(seg.label, radius - 16, 0);
+      ctx.restore();
+
+      startAngle = endAngle;
+    });
+
+    ctx.beginPath();
+    ctx.arc(cx, cy, 32, 0, Math.PI * 2);
+    ctx.fillStyle = '#fff';
+    ctx.fill();
+  }
+
+  function animateToWinner(winnerLabel, onDone){
+    const winnerIndex = SEGMENTS.findIndex(s => s.label === winnerLabel);
+    const sliceAngle = (2 * Math.PI) / SEGMENTS.length;
+    const targetMid = winnerIndex * sliceAngle + sliceAngle / 2;
+    const extraSpins = 6 * Math.PI * 2;
+    const finalRotation = extraSpins - targetMid;
+
+    const duration = 3800;
+    const startTime = performance.now();
+    const startRotation = currentRotation;
+    const delta = finalRotation - (startRotation % (Math.PI * 2));
+
+    function easeOutCubic(t){ return 1 - Math.pow(1 - t, 3); }
+
+    function animate(now){
+      const elapsed = now - startTime;
+      const t = Math.min(elapsed / duration, 1);
+      const eased = easeOutCubic(t);
+      currentRotation = startRotation + delta * eased;
+      drawWheel(currentRotation);
+      if(t < 1){
+        requestAnimationFrame(animate);
+      } else {
+        onDone();
+      }
+    }
+    requestAnimationFrame(animate);
+  }
+
+  async function spin(){
+    if(spinning) return;
+    spinning = true;
+    btn.disabled = true;
+    resultLabel.textContent = 'Spinning…';
+
+    const { data, error } = await supabaseClient.rpc('spin_wheel', { p_user_id: currentUser.id });
+
+    if(error || !data.ok){
+      spinning = false;
+      resultLabel.textContent = (data && data.error === 'no_spin_available')
+        ? "You don't have a spin available right now."
+        : 'Could not spin: ' + (error ? error.message : (data ? data.error : 'unknown error'));
+      updateChancesLabel(false);
+      return;
+    }
+
+    animateToWinner(data.won_item, () => {
+      spinning = false;
+      updateChancesLabel(false);
+      const backLink = document.getElementById('backLink');
+      if(backLink) backLink.remove();
+      showWinPopup(data.won_item);
+    });
+  }
+
+  function updateChancesLabel(hasSpinAvailable){
+    if(hasSpinAvailable){
+      chancesLabel.textContent = 'You have a spin available!';
+      btn.disabled = false;
+      btn.textContent = '🎰 Spin';
+    } else {
+      chancesLabel.textContent = 'No spins available.';
+      btn.disabled = true;
+      btn.textContent = '🎰 Spin';
+    }
+  }
+
+  function showWinPopup(itemName){
+    document.getElementById('winItemName').textContent = itemName;
+    document.getElementById('winOverlay').classList.add('open');
+  }
+
+  function claimPrize(){
+    // No separate "claim" API call needed — the prize already exists in
+    // Supabase the moment they won. Claiming just takes them to the
+    // homepage, where it's automatically waiting in their cart.
+    window.location.href = 'index.html?prize=1';
+  }
+
+    async function init(){
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    currentUser = session ? session.user : null;
+    if(!currentUser){
+      resultLabel.textContent = 'Please log in to spin.';
+      return;
+    }
+
+    const { data: status, error } = await supabaseClient.rpc('get_spin_status', { p_user_id: currentUser.id });
+    if(error){
+      resultLabel.textContent = 'Could not load status: ' + error.message;
+      return;
+    }
+
+    if(status.category !== THIS_CATEGORY){
+      resultLabel.textContent = 'This wheel is not your currently selected category.';
+      document.getElementById('backLink').remove();
+      btn.disabled = true;
+      return;
+    }
+
+    if(!status.has_spin_available){
+      const backLink = document.getElementById('backLink');
+      if(status.last_won_item){
+        resultLabel.textContent = 'You already spun — you won: ' + status.last_won_item;
+      } else {
+        resultLabel.textContent = 'No spin available right now.';
+      }
+      if(backLink) backLink.remove();
+    }
+
+    updateChancesLabel(status.has_spin_available);
+    drawWheel(0);
+  }
+
+  btn.addEventListener('click', spin);
+  init();
+</script>
+
+
+<div class="win-overlay" id="winOverlay">
+  <div class="win-box">
+    <div class="win-emoji">🎉</div>
+    <h2>You Win!</h2>
+    <p class="win-item-name" id="winItemName"></p>
+    <p class="win-sub">Congrats! Your prize is waiting for you.</p>
+    <button class="win-claim-btn" onclick="claimPrize()">Claim →</button>
+  </div>
+</div>
+
+</body>
+</html>
