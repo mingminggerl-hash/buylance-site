@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Support | Buylance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<style>
+  :root{
+    --bg-top:#EEF3FF; --ink:#0F1B3D; --brand-blue:#2F5FE0;
+    --muted:#6B7A99; --card-border:#D7E3FF; --error:#E8412C; --success:#1E8E3E;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background:linear-gradient(180deg, var(--bg-top) 0%, #FFFFFF 320px);
+    color:var(--ink); font-family:'Nunito Sans', sans-serif;
+    min-height:100vh; padding:40px 16px; display:flex; flex-direction:column; align-items:center;
+  }
+  .logo{ font-family:'Baloo 2', sans-serif; font-weight:800; font-size:24px; text-decoration:none; color:var(--ink); margin-bottom:26px; }
+  .logo span{ color:var(--brand-blue); }
+  .wrap{ width:100%; max-width:480px; }
+  .card{ background:#fff; border:1px solid var(--card-border); border-radius:18px; padding:26px; margin-bottom:16px; }
+  h1{ font-family:'Baloo 2', sans-serif; font-size:20px; margin-bottom:4px; }
+  h2{ font-family:'Baloo 2', sans-serif; font-size:16px; margin-bottom:10px; }
+  .sub{ color:var(--muted); font-size:13px; font-weight:600; margin-bottom:16px; }
+  label{ font-weight:700; font-size:12.5px; display:block; margin:12px 0 6px; }
+  input, select, textarea{ width:100%; padding:11px 12px; border:1px solid var(--card-border); border-radius:10px; font-family:'Nunito Sans', sans-serif; font-size:14px; }
+  textarea{ resize:vertical; }
+  button.submit{ margin-top:16px; width:100%; background:var(--brand-blue); color:#fff; border:none; font-family:'Baloo 2', sans-serif; font-weight:700; font-size:14px; padding:13px; border-radius:10px; cursor:pointer; }
+  button.submit:disabled{ opacity:0.6; cursor:default; }
+  .error{ color:var(--error); font-size:12.5px; font-weight:700; margin-top:10px; display:none; }
+
+  .ticket{ border:1px solid var(--card-border); border-radius:12px; padding:14px; margin-bottom:10px; }
+  .ticket .subj{ font-weight:800; font-size:13.5px; }
+  .ticket .status{ display:inline-block; font-size:10px; font-weight:800; padding:3px 8px; border-radius:20px; margin-left:6px; }
+  .status-open{ background:#FFF4E5; color:#B8720A; }
+  .status-replied{ background:#E9F9EE; color:var(--success); }
+  .status-closed{ background:#F1F1F1; color:var(--muted); }
+  .ticket .msg{ font-size:13px; color:var(--muted); margin-top:6px; }
+  .ticket .reply{ background:#F7F9FF; border-radius:8px; padding:10px; margin-top:8px; font-size:13px; }
+  .ticket .reply b{ color:var(--brand-blue); }
+  .flag-urgent-btn{
+    margin-top:10px; background:#FDEDEC; color:#C0392B; border:1px solid #F5C6C0;
+    font-weight:800; font-size:11.5px; padding:6px 12px; border-radius:20px; cursor:pointer;
+  }
+  .faq-bot-header{ display:flex; align-items:center; gap:12px; margin-bottom:16px; }
+  .faq-bot-avatar{
+    width:44px; height:44px; border-radius:50%; background:var(--brand-blue); color:#fff;
+    display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0;
+  }
+  #faqConversation{
+    background:#F0F3FA; border-radius:14px; padding:16px; margin-bottom:14px;
+    display:flex; flex-direction:column; gap:10px; min-height:120px;
+  }
+  .faq-chat-row{ display:flex; }
+  .faq-chat-row.mine{ justify-content:flex-end; }
+  .faq-chat-row.bot{ justify-content:flex-start; align-items:flex-end; gap:8px; }
+  .faq-bot-mini-avatar{
+    width:26px; height:26px; border-radius:50%; background:var(--brand-blue); color:#fff;
+    display:flex; align-items:center; justify-content:center; font-size:13px; flex-shrink:0;
+  }
+  .faq-bubble{
+    max-width:78%; padding:10px 14px; border-radius:16px; font-size:13.5px; line-height:1.6;
+  }
+  .faq-chat-row.mine .faq-bubble{
+    background:var(--brand-blue); color:#fff; border-bottom-right-radius:4px;
+  }
+  .faq-chat-row.bot .faq-bubble{
+    background:#fff; color:var(--ink); border:1px solid var(--card-border); border-bottom-left-radius:4px;
+  }
+  .faq-typing-row{ display:flex; align-items:flex-end; gap:8px; }
+  .faq-typing-bubble{
+    display:flex; align-items:center; gap:5px; padding:12px 16px; width:fit-content;
+    background:#fff; border:1px solid var(--card-border); border-radius:16px; border-bottom-left-radius:4px;
+  }
+  .faq-typing-dot{
+    width:7px; height:7px; border-radius:50%; background:var(--muted);
+    animation:faqTypingBounce 1.2s infinite ease-in-out;
+  }
+  .faq-typing-dot:nth-child(2){ animation-delay:0.15s; }
+  .faq-typing-dot:nth-child(3){ animation-delay:0.3s; }
+  @keyframes faqTypingBounce{
+    0%, 60%, 100%{ transform:translateY(0); opacity:0.5; }
+    30%{ transform:translateY(-4px); opacity:1; }
+  }
+  .faq-bubble-in{ animation:faqBubbleIn 0.2s ease; }
+  @keyframes faqBubbleIn{ from{ opacity:0; transform:translateY(6px) scale(0.98); } to{ opacity:1; transform:translateY(0) scale(1); } }
+  .faq-options{ display:flex; flex-direction:column; gap:8px; margin-bottom:16px; }
+  .faq-option-btn{
+    text-align:left; background:#fff; border:1.5px solid var(--card-border); border-radius:12px;
+    padding:11px 14px; font-family:'Nunito Sans', sans-serif; font-weight:700; font-size:13px;
+    color:var(--ink); cursor:pointer; transition:border-color 0.15s ease, background 0.15s ease;
+  }
+  .faq-option-btn:hover{ border-color:var(--brand-blue); background:#F7F9FF; }
+  .faq-escalate-btn{
+    background:var(--brand-blue); color:#fff; border:none; border-radius:12px;
+    padding:11px 14px; font-family:'Baloo 2', sans-serif; font-weight:700; font-size:13px;
+    cursor:pointer; width:100%; margin-top:4px;
+  }
+  .faq-end-btn{
+    background:transparent; color:var(--muted); border:1px solid var(--card-border); border-radius:12px;
+    padding:9px 14px; font-family:'Nunito Sans', sans-serif; font-weight:700; font-size:12.5px;
+    cursor:pointer; width:100%; margin-top:8px;
+  }
+</style>
+</head>
+<body>
+
+<a href="index.html" class="logo">BUY<span>LANCE</span></a>
+
+<div class="wrap">
+  <div class="card" id="faqCard">
+    <div class="faq-bot-header">
+      <div class="faq-bot-avatar">🤖</div>
+      <div>
+        <h1 style="margin:0;">Bot BuyLanceGg</h1>
+        <p class="sub" style="margin:0;">Ask a common question, get an instant answer</p>
+      </div>
+    </div>
+    <div id="faqConversation"></div>
+  </div>
+
+  <div class="card" id="formCard" style="display:none;">
+    <h1>Still need help?</h1>
+    <p class="sub">Send us a message and a real person will reply here.</p>
+
+    <label>Subject</label>
+    <select id="subject">
+      <option>Payment methods</option>
+      <option>Is this legit?</option>
+      <option>Restock question</option>
+      <option>Account issue</option>
+      <option>Other</option>
+    </select>
+
+    <label>Your Message</label>
+    <textarea id="message" rows="4" placeholder="Type your question here..."></textarea>
+
+    <div class="error" id="errorMsg"></div>
+    <button class="submit" id="submitBtn" onclick="submitTicket()">Send Message</button>
+  </div>
+
+  <div class="card" id="ticketsCard" style="display:none;">
+    <h2>💬 Your Messages</h2>
+    <div id="ticketsList"></div>
+  </div>
+</div>
+
+<script>
+  let currentUser = null;
+
+  async function init(){
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    currentUser = session ? session.user : null;
+    if(currentUser){
+      loadTickets();
+    } else {
+      document.getElementById('formCard').innerHTML = '<h1>Need help?</h1><p class="sub">Please <a href="login.html">log in</a> to send us a message.</p>';
+    }
+    renderFaqRoot();
+  }
+
+  // ============================================================
+  // FAQ TREE — a scripted set of common questions, not live AI.
+  // Pick a question, get a full answer, see related follow-ups.
+  // ============================================================
+  const FAQ_TREE = {
+    // ---- Getting Started ----
+    'signup': {
+      q: 'How do I create an account?',
+      a: `Signing up only takes a Gmail address — head to the Sign Up page, enter your Gmail, and choose a password (this is a brand new password just for our site, not your actual Gmail password). We'll send a verification link to your inbox — click it, then come back and log in.<br><br>
+        If you already have an account, you'll never be shown the signup page again while logged in — you'll just be sent straight to the homepage.`,
+      related: ['legit', 'payment']
+    },
+    'legit': {
+      q: 'Is this legit? Can I trust this site?',
+      a: `Totally fair question to ask before spending money anywhere. A few things that back it up: real public reviews from past buyers are shown right on our homepage, orders are hand-delivered by an actual person (not a bot promising something automated), and every order has its own delivery proof and chat log tied to it.<br><br>
+        Pricing is straightforward with no hidden markups, and if something ever goes wrong with your order, you can report it directly from your order page and we'll sort it out.`,
+      related: ['refund', 'how-receive', 'account-warnings']
+    },
+    'payment': {
+      q: 'What payment methods do you accept?',
+      a: `We accept <b>PayPal</b>, <b>Visa</b>, <b>GCash</b>, <b>Maribank</b>, and <b>Apple Pay</b>.<br><br>
+        Whichever one you use, your order gets created automatically the instant that payment is confirmed.`,
+      related: ['processing-fee', 'legit']
+    },
+    'processing-fee': {
+      q: 'Why is there a processing fee?',
+      a: `Here's exactly what it's covering: every one of our payment methods (PayPal, Visa, GCash, Maribank, Apple Pay) takes their own small cut for safely processing the payment — usually a small percentage of the order plus a tiny fixed amount, which is just how payment processing works industry-wide, not something specific to us. It's capped at $1.50 no matter how big your order gets.`,
+      related: ['payment', 'tip']
+    },
+    'tip': {
+      q: 'Can I tip the seller?',
+      a: `Yes — there's an optional tip box in your cart, right under the processing fee. You can type in any amount you'd like (minimum $0.10 if you choose to tip anything at all), or just leave it blank. It's completely optional and goes on top of your order total.`,
+      related: ['processing-fee', 'payment']
+    },
+
+    // ---- Ordering & Delivery ----
+    'how-receive': {
+      q: 'How do I receive my item?',
+      a: `Once your payment goes through, your order shows up in your account with a "⏳ Waiting for Seller" status. A real person on our end picks it up shortly after — you'll see the status change to "🔄 In Progress" once they've accepted it.<br><br>
+        From there, head to your Order Chat. We'll message you there with clear instructions — usually something like adding a specific Roblox username as a friend, then trading in-game. Your Roblox username is already on file from checkout, so you don't need to type it anywhere.<br><br>
+        Delivery typically takes 5-15 minutes after payment, though it's not a hard guarantee — occasional delays can happen from Roblox trade cooldowns or account restrictions that are outside our control. Once you've received your item, you'll be asked to confirm you got it (or report an issue if something's wrong).`,
+      related: ['waiting-status', 'order-chat', 'delivery-proof']
+    },
+    'waiting-status': {
+      q: 'My order says "Waiting for Seller" — is that normal?',
+      a: `Yes, that's completely normal and expected right after you pay. It just means a real person hasn't picked up your order yet — it's not stuck or lost. Once someone accepts it, the status changes to "🔄 In Progress," and you'll typically hear from them shortly after in your Order Chat.<br><br>
+        If it's been sitting on "Waiting for Seller" for an unusually long time, feel free to send us a message and we'll take a look.`,
+      related: ['how-receive', 'refund']
+    },
+    'order-chat': {
+      q: 'How does Order Chat work?',
+      a: `Every order gets its own private chat between you and whoever's handling your delivery. You can send text messages, attach screenshots, and reply directly to a specific earlier message (tap and hold, or long-press it) — just like a normal messaging app.<br><br>
+        You'll also see your own Roblox avatar and username right in the chat, so there's never any confusion about who's who.`,
+      related: ['how-receive', 'delivery-proof']
+    },
+    'delivery-proof': {
+      q: 'What is "delivery proof"?',
+      a: `When your order is marked delivered, a screenshot is attached showing the item was actually handed over — this protects both you and us if there's ever a disagreement about whether delivery happened. You'll see it right on your order page once it's available.`,
+      related: ['order-chat', 'refund']
+    },
+    'which-games': {
+      q: 'Which games do you support?',
+      a: `We currently cover Blade Ball, PS99, Grow a Garden 1 & 2, Escape Tsunami, Murder Mystery 2, Adopt Me, Baddies, Pet Simulator X, Tap Sim, and Steal a Brainrot. You can browse any of them from the "Select Game" menu or the game tabs on our homepage, and search across all of them at once using the search bar.`,
+      related: ['mutations', 'prices-change']
+    },
+    'mutations': {
+      q: 'What are "mutations" on Steal a Brainrot items?',
+      a: `Mutations are different visual/rarity variants of the same character — things like Gold, Crystal, Cyber, Phantom, Yin Yang, Cursed, ✨ Divine, and 🌈 Rainbow, plus the plain Normal version. Each mutation of a character is priced and listed separately, so you can pick exactly the variant you're after. You can filter by mutation on the Steal a Brainrot page instead of scrolling through everything.`,
+      related: ['which-games', 'prices-change']
+    },
+    'prices-change': {
+      q: 'Why do prices change?',
+      a: `Prices are based on the current market for these items, so they can move up or down over time — we don't set them arbitrarily, and we don't control which direction the market goes. The price you see at checkout is the price you pay, though, so there's never a surprise change after you've already committed to an order.`,
+      related: ['which-games', 'mutations']
+    },
+
+    // ---- Money & Rewards ----
+    'wallet-cashback': {
+      q: 'How does the wallet / cashback balance work?',
+      a: `You automatically earn a small percentage of cashback on every order, which lands in your Store Credit balance (shown in the header). That balance is automatically available to apply toward future purchases at checkout — no code needed, it just shows up when you have some to use.`,
+      related: ['spin-wheel', 'promo-code']
+    },
+    'spin-wheel': {
+      q: 'How does the $50 / $20 spin wheel work?',
+      a: `Every time your total spending crosses a new $50 milestone ($50, $100, $150, and so on), you unlock a free spin — pick between a Gun wheel or a Knife wheel, then spin for a random prize. You can switch your pick once if you change your mind, but after that you're locked in for that spin.<br><br>
+        There's also a one-time $20 milestone gift the first time you cross $20 total spent — no spinning needed, it's a guaranteed free item.<br><br>
+        Whatever you win goes straight into your cart as a free item that never expires — it'll sit there until you're ready to check out (you'll just need at least one paid item alongside it, since a completely free order can't go through checkout on its own).`,
+      related: ['wallet-cashback', 'promo-code']
+    },
+    'promo-code': {
+      q: 'How does the promo code work?',
+      a: `The BUYLANCE code gives 10% off your order, and it's limited to one use per account — it only actually gets "used up" once you complete a real order with it applied, so an abandoned or failed checkout never burns your one-time use.<br><br>
+        You can apply it right in your cart before checking out.`,
+      related: ['spin-wheel', 'wallet-cashback']
+    },
+
+    // ---- After Your Order ----
+    'reviews': {
+      q: 'How do I leave a review?',
+      a: `The easiest way: once an order is marked "✅ Completed," you'll see a quick prompt right on that order page asking how many stars you'd give — just tap a star, no typing required, and it posts straight to our homepage reviews.<br><br>
+        You can also leave a full written review from the homepage review section — just note that each completed order can only be reviewed once, though you're welcome to review every separate order you make.`,
+      related: ['how-receive', 'refund']
+    },
+    'refund': {
+      q: 'How do refunds and disputes work?',
+      a: `If something's wrong with your order — you didn't receive it, got the wrong item, or anything like that — go to your order page and use the "⚠️ Report an Issue" option once your order shows as delivered. Pick the reason that fits best and add any extra details.<br><br>
+        Once reported, your order status changes to "🛑 Disputed" and a real person reviews it — we'll either finish the delivery properly or sort out a refund, depending on what happened. Since these are digital goods, refunds are handled case-by-case rather than automatically, but we do want to make it right if something genuinely went wrong on our end.`,
+      related: ['how-receive', 'account-warnings']
+    },
+    'cancel-order': {
+      q: 'Can I cancel my order?',
+      a: `Once payment goes through, orders move quickly into our delivery queue, so we can't guarantee a cancellation once it's been placed. If you need to cancel, message us as soon as possible from your Order Chat or Support — if it hasn't been picked up yet, we'll do our best to stop it.`,
+      related: ['refund', 'how-receive']
+    },
+
+    // ---- Account ----
+    'account-warnings': {
+      q: 'What happens if I break the rules?',
+      a: `We use a simple 3-strike system for things like fraud, chargeback abuse, or harassment toward support. A 1st warning is just a reminder with no real effect. A 2nd warning removes access to the $50 spin feature until it clears. A 3rd warning freezes your account for 1 month (no new orders, withdrawals, or deposits during that time — it lifts automatically after).<br><br>
+        Warnings expire automatically after 90 days of clean behavior. If you think a warning was issued unfairly, message Support and explain — your balance stays untouched while we review it.`,
+      related: ['why-warning', 'legit', 'refund']
+    },
+    'why-warning': {
+      q: 'Why did I get a warning?',
+      a: `Most warnings come down to simply breaking the rules — things like using bad language, being rude or disrespectful toward support, or harassing someone. Beyond that, it also covers more serious stuff like chargeback fraud, abusing the spin wheel or promo codes, or giving false info to block a legitimate delivery.<br><br>
+        Getting one doesn't mean you're locked out — the first warning is just a heads-up with zero effect on your account. If you genuinely think yours was a mistake, message Support with your side of it and we'll take a real look — your balance and access stay exactly as they are while we review it.`,
+      related: ['account-warnings', 'refund']
+    },
+    'notifications': {
+      q: 'What is the notification bell for?',
+      a: `The 🔔 icon in the header lets you know about anything relevant to your account — your order status changing (delivered, completed, disputed), or a reply on a support ticket. Click it to see your recent notifications; opening it marks them as read.`,
+      related: ['order-chat', 'reviews']
+    },
+    'currency': {
+      q: 'Can I see prices in my local currency?',
+      a: `Yes — use the currency selector in the header (next to the cart) to switch the displayed currency. Just know that USD is what actually gets charged through PayPal behind the scenes — the other currencies are just a helpful conversion so you know roughly what to expect.`,
+      related: ['payment', 'prices-change']
+    }
+  };
+
+  // Types out HTML content letter-by-letter, treating tags like <br> and
+  // <b> as instant (so formatting doesn't flicker/break mid-type) while
+  // the actual visible text appears one character at a time.
+  function typingRow(){
+    return `<div class="faq-typing-row" id="faqTypingRow">
+      <div class="faq-bot-mini-avatar">🤖</div>
+      <div class="faq-typing-bubble">
+        <span class="faq-typing-dot"></span><span class="faq-typing-dot"></span><span class="faq-typing-dot"></span>
+      </div>
+    </div>`;
+  }
+
+  function botBubble(html){
+    return `<div class="faq-chat-row bot faq-bubble-in">
+      <div class="faq-bot-mini-avatar">🤖</div>
+      <div class="faq-bubble">${html}</div>
+    </div>`;
+  }
+
+  function myBubble(text){
+    return `<div class="faq-chat-row mine faq-bubble-in"><div class="faq-bubble">${text}</div></div>`;
+  }
+
+  const FAQ_REPLY_DELAY = 2400; // fixed 2.4s "typing" pause before the bot replies
+
+  const FAQ_CATEGORIES = [
+    { label: 'Getting Started', opener: "Awesome, let's get you set up! What would you like to know?", ids: ['signup', 'legit', 'payment', 'processing-fee', 'tip'] },
+    { label: 'Ordering & Delivery', opener: "Got it — what seems to be the problem, or what do you want to know?", ids: ['how-receive', 'waiting-status', 'order-chat', 'delivery-proof', 'which-games', 'mutations', 'prices-change'] },
+    { label: 'Money & Rewards', opener: "Let's talk rewards! What do you want to know?", ids: ['wallet-cashback', 'spin-wheel', 'promo-code'] },
+    { label: 'After Your Order', opener: "Sure thing — what's going on with your order?", ids: ['reviews', 'refund', 'cancel-order'] },
+    { label: 'Account', opener: "Okay — what's up with your account?", ids: ['account-warnings', 'why-warning', 'notifications', 'currency'] },
+  ];
+
+  // Tracks which questions have already been answered this conversation,
+  // so the same one never gets offered twice.
+  const faqAskedQuestions = new Set();
+
+  function renderFaqRoot(){
+    const box = document.getElementById('faqConversation');
+    box.innerHTML = typingRow();
+    box.scrollTop = box.scrollHeight;
+
+    setTimeout(() => {
+      const remainingCategories = FAQ_CATEGORIES.filter(cat => cat.ids.some(id => !faqAskedQuestions.has(id)));
+
+      box.innerHTML = botBubble("👋 Hi! I hope you're having an amazing day. What brings you here today?");
+
+      if(remainingCategories.length === 0){
+        renderFaqOptionsBelow(`
+          <p class="sub" style="margin:8px 0;">Looks like you've already been through everything I know! 🙂</p>
+          <button class="faq-escalate-btn" onclick="escalateToTicket()">💬 Talk to our Support</button>
+        `);
+        return;
+      }
+
+      const categoryBtns = remainingCategories.map((cat, i) => {
+        const realIndex = FAQ_CATEGORIES.indexOf(cat);
+        return `<button class="faq-option-btn" onclick="askCategory(${realIndex})">${cat.label}</button>`;
+      }).join('');
+
+      renderFaqOptionsBelow(`
+        <div class="faq-options">${categoryBtns}</div>
+        <button class="faq-escalate-btn" onclick="escalateToTicket()">💬 Talk to our Support</button>
+      `);
+    }, FAQ_REPLY_DELAY);
+  }
+
+  window.askCategory = function(catIndex){
+    const cat = FAQ_CATEGORIES[catIndex];
+    if(!cat) return;
+    const box = document.getElementById('faqConversation');
+    renderFaqOptionsBelow('');
+
+    box.insertAdjacentHTML('beforeend', myBubble(cat.label));
+    box.insertAdjacentHTML('beforeend', typingRow());
+    box.scrollTop = box.scrollHeight;
+
+    setTimeout(() => {
+      const typingRowEl = document.getElementById('faqTypingRow');
+      if(typingRowEl) typingRowEl.remove();
+      box.insertAdjacentHTML('beforeend', botBubble(cat.opener));
+      box.scrollTop = box.scrollHeight;
+
+      const remaining = cat.ids.filter(id => !faqAskedQuestions.has(id));
+      const questionBtns = remaining.map(id =>
+        `<button class="faq-option-btn" onclick="askFaq('${id}')">${FAQ_TREE[id].q}</button>`
+      ).join('');
+      renderFaqOptionsBelow(`
+        <div class="faq-options">${questionBtns}</div>
+        <button class="faq-option-btn" onclick="renderFaqRoot()">← Back to categories</button>
+        <button class="faq-escalate-btn" onclick="escalateToTicket()">💬 Talk to our Support</button>
+      `);
+    }, FAQ_REPLY_DELAY);
+  };
+
+  function renderFaqOptionsBelow(html){
+    let host = document.getElementById('faqOptionsHost');
+    if(!host){
+      host = document.createElement('div');
+      host.id = 'faqOptionsHost';
+      document.getElementById('faqConversation').insertAdjacentElement('afterend', host);
+    }
+    host.innerHTML = html;
+  }
+
+  function findCategoryIndexForQuestion(id){
+    return FAQ_CATEGORIES.findIndex(cat => cat.ids.includes(id));
+  }
+
+  window.askFaq = function(id){
+    const node = FAQ_TREE[id];
+    if(!node) return;
+    const box = document.getElementById('faqConversation');
+    renderFaqOptionsBelow(''); // clear old buttons immediately
+    faqAskedQuestions.add(id);
+    const catIndex = findCategoryIndexForQuestion(id);
+
+    // Step 1: your question appears right away as a real chat bubble.
+    box.insertAdjacentHTML('beforeend', myBubble(node.q));
+    box.insertAdjacentHTML('beforeend', typingRow());
+    box.scrollTop = box.scrollHeight;
+
+    // Step 2: fixed pause, like someone actually reading and typing a reply,
+    // then the bot's bubble appears with the full answer.
+    setTimeout(() => {
+      const typingRowEl = document.getElementById('faqTypingRow');
+      if(typingRowEl) typingRowEl.remove();
+      box.insertAdjacentHTML('beforeend', botBubble(node.a));
+      box.scrollTop = box.scrollHeight;
+
+      // Only offer related questions that are (a) genuinely related to
+      // THIS answer and (b) not already asked. If that leaves fewer than
+      // 2 options, a lone dangling button feels off — so instead just
+      // offer the two clear next steps: keep going, or wrap up.
+      const remainingRelated = (node.related || []).filter(rid => !faqAskedQuestions.has(rid));
+
+      let optionsHtml;
+      if(remainingRelated.length >= 2){
+        const relatedBtns = remainingRelated.map(rid =>
+          `<button class="faq-option-btn" onclick="askFaq('${rid}')">${FAQ_TREE[rid].q}</button>`
+        ).join('');
+        optionsHtml = `
+          <p class="sub" style="margin:2px 0 8px;">Related to what you just asked:</p>
+          <div class="faq-options">${relatedBtns}</div>
+          <button class="faq-option-btn" onclick="askCategory(${catIndex})">← Back to ${FAQ_CATEGORIES[catIndex] ? FAQ_CATEGORIES[catIndex].label : 'questions'}</button>
+          <button class="faq-option-btn" onclick="renderFaqRoot()">← Back to categories</button>
+          <button class="faq-escalate-btn" onclick="escalateToTicket()">💬 Talk to our Support</button>
+          <button class="faq-end-btn" onclick="endFaqConversation()">End conversation</button>
+        `;
+      } else {
+        optionsHtml = `
+          <button class="faq-option-btn" onclick="askCategory(${catIndex})">← Back to ${FAQ_CATEGORIES[catIndex] ? FAQ_CATEGORIES[catIndex].label : 'questions'}</button>
+          <button class="faq-option-btn" onclick="renderFaqRoot()">← Back to categories</button>
+          <button class="faq-escalate-btn" onclick="escalateToTicket()">💬 Talk to our Support</button>
+          <button class="faq-end-btn" onclick="endFaqConversation()">End conversation</button>
+        `;
+      }
+      renderFaqOptionsBelow(optionsHtml);
+    }, FAQ_REPLY_DELAY);
+  };
+
+  window.endFaqConversation = function(){
+    document.getElementById('faqConversation').innerHTML = botBubble("😊 Glad I could help! Come back anytime.");
+    renderFaqOptionsBelow(`<button class="faq-option-btn" onclick="renderFaqRoot()">Ask another question</button>`);
+  };
+
+  window.escalateToTicket = function(){
+    document.getElementById('formCard').style.display = 'block';
+    document.getElementById('formCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  function showError(msg){
+    const el = document.getElementById('errorMsg');
+    el.textContent = msg;
+    el.style.display = 'block';
+  }
+
+  const NEW_TICKET_WEBHOOK_URL = 'https://discord.com/api/webhooks/1539854970923262013/9Now_qIUyF5kjvE5mgydiRG3d1SUHEc5r4rMmHG5OsZx1HgmR3xIprgA31xPl16n6pw0';
+  const URGENT_FLAG_WEBHOOK_URL = 'https://discord.com/api/webhooks/1543453792215896136/o8oa3m8pVaWpcto1kGDhh3kZ3Gckf3efk8R1vrC6GlPMz2dmoIj4V6U0z1Sf9F9lhqds';
+
+  window.submitTicket = async function(){
+    document.getElementById('errorMsg').style.display = 'none';
+    const subject = document.getElementById('subject').value;
+    const message = document.getElementById('message').value.trim();
+    if(!message){ showError('Please enter a message.'); return; }
+
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.textContent = 'Sending...';
+
+    const { data: ticketId, error } = await supabaseClient.rpc('submit_support_ticket', {
+      p_subject: subject,
+      p_message: message
+    });
+
+    btn.disabled = false;
+    btn.textContent = 'Send Message';
+
+    if(error){
+      showError('Something went wrong — please try again.');
+      return;
+    }
+
+    // Auto-creates a Discord thread for this ticket, same pattern as orders.
+    try {
+      const res = await fetch(NEW_TICKET_WEBHOOK_URL + '?wait=true', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          content: '🎫 **NEW SUPPORT TICKET**',
+          thread_name: `${subject} — ${currentUser.email}`,
+          embeds: [{
+            title: subject,
+            color: 3092790,
+            fields: [
+              { name: '👤 From', value: currentUser.email },
+              { name: '💬 Message', value: message },
+              { name: '🔗 Open in Admin', value: `https://buylance.gg/admin-support.html` }
+            ]
+          }]
+        })
+      });
+      const data = await res.json();
+      if(data && data.channel_id){
+        await supabaseClient.rpc('set_ticket_discord_thread', { p_ticket_id: ticketId, p_thread_id: data.channel_id });
+      }
+    } catch(e){
+      console.warn('Discord ticket webhook failed (ticket is still saved fine):', e);
+    }
+
+    document.getElementById('message').value = '';
+    loadTickets();
+  };
+
+  window.flagTicketUrgent = async function(subject, message){
+    try {
+      await fetch(URGENT_FLAG_WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          content: `🚩 **Ticket flagged as urgent** by \`${currentUser.email}\`\n**${subject}**\n> ${message}\nhttps://buylance.gg/admin-support.html`
+        })
+      });
+      alert("Got it — we've flagged this as urgent.");
+    } catch(e){
+      console.warn('Urgent flag failed:', e);
+    }
+  };
+
+  async function loadTickets(){
+    const { data: tickets } = await supabaseClient
+      .from('support_tickets')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if(!tickets || tickets.length === 0) return;
+
+    document.getElementById('ticketsCard').style.display = 'block';
+    document.getElementById('ticketsList').innerHTML = tickets.map(t => `
+      <div class="ticket">
+        <span class="subj">${t.subject}</span><span class="status status-${t.status}">${t.status}</span>
+        <div class="msg">${t.message}</div>
+        ${t.admin_reply ? `<div class="reply"><b>Reply:</b> ${t.admin_reply}</div>` : ''}
+        ${t.status === 'open' ? `<button class="flag-urgent-btn" onclick="flagTicketUrgent('${t.subject.replace(/'/g, "\\'")}', '${t.message.replace(/'/g, "\\'").replace(/\n/g, ' ')}')">🚩 Flag as Urgent</button>` : ''}
+      </div>
+    `).join('');
+  }
+
+  init();
+</script>
+
+</body>
+</html>

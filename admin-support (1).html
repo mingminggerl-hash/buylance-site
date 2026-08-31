@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Support Tickets | Buylance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<style>
+  :root{
+    --bg-top:#EEF3FF; --ink:#0F1B3D; --brand-blue:#2F5FE0;
+    --muted:#6B7A99; --card-border:#D7E3FF; --error:#E8412C; --success:#1E8E3E;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background:linear-gradient(180deg, var(--bg-top) 0%, #FFFFFF 320px);
+    color:var(--ink); font-family:'Nunito Sans', sans-serif;
+    min-height:100vh; padding:30px 16px;
+  }
+  .logo{ font-family:'Baloo 2', sans-serif; font-weight:800; font-size:22px; text-decoration:none; color:var(--ink); }
+  .logo span{ color:var(--brand-blue); }
+  .layout{ display:flex; gap:20px; max-width:900px; margin:20px auto 0; align-items:flex-start; }
+  .col-list{ width:300px; flex-shrink:0; }
+  .col-detail{ flex:1; min-width:0; }
+  .card{ background:#fff; border:1px solid var(--card-border); border-radius:16px; padding:16px; }
+  h2{ font-family:'Baloo 2', sans-serif; font-size:16px; margin-bottom:10px; }
+  .sub{ color:var(--muted); font-size:12.5px; font-weight:600; }
+
+  .ticket-row{ padding:10px; border-radius:10px; cursor:pointer; margin-bottom:6px; border:1px solid var(--card-border); }
+  .ticket-row:hover{ background:#F7F9FF; }
+  .ticket-row.active{ background:#EAF3FF; border-color:var(--brand-blue); }
+  .ticket-row .subj{ font-weight:800; font-size:13px; }
+  .ticket-row .who{ font-size:11.5px; color:var(--muted); font-weight:600; }
+  .status-badge{ display:inline-block; font-size:10px; font-weight:800; padding:3px 8px; border-radius:20px; margin-top:4px; }
+  .status-open{ background:#FFF4E5; color:#B8720A; }
+  .status-replied{ background:#E9F9EE; color:var(--success); }
+  .status-closed{ background:#F1F1F1; color:var(--muted); }
+
+  textarea{ width:100%; padding:10px 12px; border:1px solid var(--card-border); border-radius:10px; font-family:'Nunito Sans', sans-serif; font-size:13px; margin-top:8px; resize:vertical; }
+  button.action{ background:var(--brand-blue); color:#fff; border:none; padding:11px 16px; border-radius:10px; font-weight:800; font-size:13px; cursor:pointer; margin-top:8px; }
+  .msg-box{ background:#F7F9FF; border-radius:10px; padding:12px; font-size:13px; margin:10px 0; }
+  .reply-box{ background:#E9F9EE; border-radius:10px; padding:12px; font-size:13px; margin:10px 0; }
+</style>
+</head>
+<body>
+
+<a href="index.html" class="logo">BUY<span>LANCE</span> <span style="color:var(--muted); font-size:14px;">Support Tickets</span></a>
+
+<div id="accessGate" class="card" style="max-width:500px; margin:40px auto;">
+  <p class="sub">Checking access…</p>
+</div>
+
+<div class="layout" id="dashboardLayout" style="display:none;">
+  <div class="col-list">
+    <div class="card">
+      <h2>💬 Tickets</h2>
+      <div id="ticketsList"><p class="sub">Loading…</p></div>
+    </div>
+  </div>
+  <div class="col-detail">
+    <div class="card" id="ticketDetailCard">
+      <p class="sub">Select a ticket to view it.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  let currentUser = null;
+  let activeTicketId = null;
+
+  async function init(){
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    currentUser = session ? session.user : null;
+    if(!currentUser){
+      document.getElementById('accessGate').innerHTML = '<p class="sub">Please <a href="login.html">log in</a> to access this page.</p>';
+      return;
+    }
+    const { data: profile } = await supabaseClient.from('profiles').select('is_admin').eq('id', currentUser.id).single();
+    if(!profile || !profile.is_admin){
+      document.getElementById('accessGate').innerHTML = '<p class="sub">You don\'t have access to this page.</p>';
+      return;
+    }
+    document.getElementById('accessGate').style.display = 'none';
+    document.getElementById('dashboardLayout').style.display = 'flex';
+    await loadTicketsList();
+
+    supabaseClient
+      .channel('admin_tickets_list')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'support_tickets' }, () => loadTicketsList())
+      .subscribe();
+  }
+
+  async function loadTicketsList(){
+    const { data: tickets } = await supabaseClient.from('support_tickets').select('*').order('created_at', { ascending: false });
+    const list = document.getElementById('ticketsList');
+    if(!tickets || tickets.length === 0){
+      list.innerHTML = '<p class="sub">No tickets yet.</p>';
+      return;
+    }
+    list.innerHTML = tickets.map(t => `
+      <div class="ticket-row ${t.id === activeTicketId ? 'active' : ''}" onclick="selectTicket('${t.id}')">
+        <div class="subj">${t.subject}</div>
+        <div class="who">${t.email}</div>
+        <span class="status-badge status-${t.status}">${t.status}</span>
+      </div>
+    `).join('');
+  }
+
+  window.selectTicket = async function(ticketId){
+    activeTicketId = ticketId;
+    await loadTicketsList();
+    const { data: ticket, error } = await supabaseClient.from('support_tickets').select('*').eq('id', ticketId).single();
+    if(error || !ticket){
+      document.getElementById('ticketDetailCard').innerHTML = '<p class="sub">Ticket not found.</p>';
+      return;
+    }
+    document.getElementById('ticketDetailCard').innerHTML = `
+      <span class="status-badge status-${ticket.status}">${ticket.status}</span>
+      <h2>${ticket.subject}</h2>
+      <p class="sub">From: ${ticket.email}</p>
+      <div class="msg-box">${ticket.message}</div>
+      ${ticket.admin_reply ? `<div class="reply-box"><b>Your reply:</b><br>${ticket.admin_reply}</div>` : ''}
+      <textarea id="replyText" rows="4" placeholder="Type your reply...">${ticket.admin_reply || ''}</textarea>
+      <button class="action" onclick="sendReply('${ticket.id}')">Send Reply</button>
+      ${ticket.status !== 'closed' ? `<button class="action" style="background:#1E8E3E; margin-left:8px;" onclick="markTicketClosed('${ticket.id}')">✅ Mark Resolved</button>` : `<p class="sub" style="margin-top:8px;">✅ Closed — this thread will auto-archive on Discord 24 hours after closing.</p>`}
+    `;
+  };
+
+  window.sendReply = async function(ticketId){
+    const reply = document.getElementById('replyText').value.trim();
+    if(!reply){ alert('Please type a reply first.'); return; }
+    const { error } = await supabaseClient.rpc('seller_reply_ticket', { p_ticket_id: ticketId, p_reply: reply });
+    if(error){ alert('Something went wrong.'); return; }
+    selectTicket(ticketId);
+  };
+
+  window.markTicketClosed = async function(ticketId){
+    const { error } = await supabaseClient.rpc('close_ticket', { p_ticket_id: ticketId });
+    if(error){ alert('Something went wrong.'); return; }
+    selectTicket(ticketId);
+  };
+
+  init();
+</script>
+
+</body>
+</html>

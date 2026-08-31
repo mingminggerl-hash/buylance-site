@@ -52,14 +52,13 @@
   #reminder-banner{ display:none; background:var(--error); color:#fff; padding:12px; border-radius:10px; margin-bottom:12px; text-align:center; font-weight:800; font-size:13px; }
 
   #chat-box{
-    height:340px; overflow-y:auto; border-radius:12px; padding:14px; margin-bottom:10px;
+    height:340px; overflow-y:auto; border-radius:16px; padding:16px; margin-bottom:10px;
     display:flex; flex-direction:column; gap:10px;
-    background-color:#EAF0FB;
-    background-image:
-      radial-gradient(circle at 20% 15%, rgba(47,95,224,0.05) 0, transparent 40%),
-      radial-gradient(circle at 80% 30%, rgba(255,122,41,0.05) 0, transparent 40%),
-      radial-gradient(circle at 40% 80%, rgba(47,95,224,0.04) 0, transparent 45%),
-      radial-gradient(circle at 90% 85%, rgba(47,95,224,0.05) 0, transparent 40%);
+    background-color:#E9EFFC;
+    border:2px solid #D7E3FF;
+    box-shadow:inset 0 2px 8px rgba(47,95,224,0.06);
+    background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20width%3D%2764%27%20height%3D%2764%27%3E%0A%20%20%3Cg%20fill%3D%27none%27%20stroke%3D%27rgba%2847%2C95%2C224%2C0.16%29%27%20stroke-width%3D%271.6%27%3E%0A%20%20%20%20%3Cpath%20d%3D%27M10%2010h16a3%203%200%200%201%203%203v7a3%203%200%200%201-3%203h-10l-5.5%204.5v-4.5a3%203%200%200%201-3-3v-7a3%203%200%200%201%203-3z%27/%3E%0A%20%20%3C/g%3E%0A%20%20%3Cg%20fill%3D%27rgba%28255%2C122%2C41%2C0.18%29%27%3E%0A%20%20%20%20%3Cpath%20d%3D%27M46%2034%20l1.9%203.9%204.3.6-3.1%203%20.7%204.3-3.8-2-3.8%202%20.7-4.3-3.1-3%204.3-.6z%27/%3E%0A%20%20%3C/g%3E%0A%3C/svg%3E");
+    background-size: 64px 64px;
   }
   .chat-helper-tip{
     background:linear-gradient(90deg, #EAF3FF, #F7F9FF);
@@ -352,18 +351,27 @@
 
   async function loadOrder(){
     if(!orderId){
-      document.getElementById('orderSummaryCard').innerHTML = '<p class="sub">No order specified.</p>';
+      document.getElementById('orderSummaryCard').innerHTML = `
+        <a href="index.html" class="back-home-link">← Back to Home</a>
+        <p class="sub">No order specified.</p>
+      `;
       return;
     }
     const { data: { session } } = await supabaseClient.auth.getSession();
     currentUser = session ? session.user : null;
     if(!currentUser){
-      document.getElementById('orderSummaryCard').innerHTML = '<p class="sub">Please <a href="login.html">log in</a> to view this order.</p>';
+      document.getElementById('orderSummaryCard').innerHTML = `
+        <a href="index.html" class="back-home-link">← Back to Home</a>
+        <p class="sub">Please <a href="login.html">log in</a> to view this order.</p>
+      `;
       return;
     }
     const { data: order, error } = await supabaseClient.from('orders').select('*').eq('id', orderId).single();
     if(error || !order){
-      document.getElementById('orderSummaryCard').innerHTML = '<p class="sub">Order not found, or you don\'t have access to it.</p>';
+      document.getElementById('orderSummaryCard').innerHTML = `
+        <a href="index.html" class="back-home-link">← Back to Home</a>
+        <p class="sub">Order not found, or you don't have access to it.</p>
+      `;
       return;
     }
     renderSummary(order);
