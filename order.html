@@ -25,6 +25,21 @@
   .card{ background:#fff; border:1px solid var(--card-border); border-radius:16px; padding:20px; margin-bottom:14px; }
   h2{ font-family:'Baloo 2', sans-serif; font-size:18px; margin-bottom:10px; }
   .status-badge{ display:inline-block; font-size:11px; font-weight:800; padding:4px 10px; border-radius:20px; margin-bottom:10px; }
+  .status-badge-big{
+    display:inline-flex; align-items:center; gap:10px; font-size:17px; font-weight:800;
+    padding:14px 22px; border-radius:16px; margin-bottom:14px; width:100%;
+    box-sizing:border-box;
+  }
+  .status-badge-big .status-icon{ font-size:26px; }
+  .hourglass-spin{ display:inline-block; animation:hourglassFlip 2.2s ease-in-out infinite; }
+  @keyframes hourglassFlip{ 0%,45%{transform:rotate(0deg);} 55%,100%{transform:rotate(180deg);} }
+  .progress-pulse{ display:inline-block; animation:progressPulse 1.3s ease-in-out infinite; }
+  @keyframes progressPulse{ 0%,100%{opacity:1; transform:scale(1);} 50%{opacity:0.55; transform:scale(0.92);} }
+  .back-home-link{
+    display:inline-flex; align-items:center; gap:6px; margin-bottom:16px;
+    color:var(--muted); font-weight:700; font-size:13px; text-decoration:none;
+  }
+  .back-home-link:hover{ color:var(--brand-blue); }
   .status-waiting_for_seller{ background:#FFF4E5; color:#B8720A; }
   .status-in_progress{ background:#EAF3FF; color:var(--brand-blue); }
   .status-delivered{ background:#E9F9EE; color:var(--success); }
@@ -37,15 +52,22 @@
   #reminder-banner{ display:none; background:var(--error); color:#fff; padding:12px; border-radius:10px; margin-bottom:12px; text-align:center; font-weight:800; font-size:13px; }
 
   #chat-box{
-    height:340px; overflow-y:auto; border-radius:12px; padding:14px; margin-bottom:10px;
+    height:340px; overflow-y:auto; border-radius:16px; padding:16px; margin-bottom:10px;
     display:flex; flex-direction:column; gap:10px;
-    background-color:#EAF0FB;
-    background-image:
-      radial-gradient(circle at 20% 15%, rgba(47,95,224,0.05) 0, transparent 40%),
-      radial-gradient(circle at 80% 30%, rgba(255,122,41,0.05) 0, transparent 40%),
-      radial-gradient(circle at 40% 80%, rgba(47,95,224,0.04) 0, transparent 45%),
-      radial-gradient(circle at 90% 85%, rgba(47,95,224,0.05) 0, transparent 40%);
+    background-color:#E9EFFC;
+    border:2px solid #D7E3FF;
+    box-shadow:inset 0 2px 8px rgba(47,95,224,0.06);
+    background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20width%3D%2764%27%20height%3D%2764%27%3E%0A%20%20%3Cg%20fill%3D%27none%27%20stroke%3D%27rgba%2847%2C95%2C224%2C0.16%29%27%20stroke-width%3D%271.6%27%3E%0A%20%20%20%20%3Cpath%20d%3D%27M10%2010h16a3%203%200%200%201%203%203v7a3%203%200%200%201-3%203h-10l-5.5%204.5v-4.5a3%203%200%200%201-3-3v-7a3%203%200%200%201%203-3z%27/%3E%0A%20%20%3C/g%3E%0A%20%20%3Cg%20fill%3D%27rgba%28255%2C122%2C41%2C0.18%29%27%3E%0A%20%20%20%20%3Cpath%20d%3D%27M46%2034%20l1.9%203.9%204.3.6-3.1%203%20.7%204.3-3.8-2-3.8%202%20.7-4.3-3.1-3%204.3-.6z%27/%3E%0A%20%20%3C/g%3E%0A%3C/svg%3E");
+    background-size: 64px 64px;
   }
+  .chat-helper-tip{
+    background:linear-gradient(90deg, #EAF3FF, #F7F9FF);
+    border:1px solid var(--card-border); border-radius:12px;
+    padding:10px 14px; font-size:12.5px; color:var(--muted); font-weight:600;
+    margin-bottom:12px; line-height:1.5;
+  }
+  .chat-helper-tip b{ color:var(--ink); }
+  .chat-helper-tip a{ color:var(--brand-blue); font-weight:800; text-decoration:none; }
   .reply-quote{
     display:block; border-left:3px solid var(--brand-blue); background:rgba(47,95,224,0.08);
     border-radius:6px; padding:5px 9px; margin-bottom:6px; cursor:pointer;
@@ -154,6 +176,9 @@
 
   <div class="card">
     <h2>💬 Order Chat</h2>
+    <div class="chat-helper-tip">
+      💡 <b>Have a question about receiving your item?</b> Just ask below — we'll walk you through it. Need something outside this order? <a href="support.html">Visit Support</a>.
+    </div>
     <div id="chat-box"></div>
     <div class="reply-preview-bar" id="replyPreviewBar">
       <span class="reply-text" id="replyPreviewText"></span>
@@ -246,16 +271,49 @@
 
   function formatMoney(n){ return '$' + Number(n).toFixed(2); }
 
-  function renderSummary(order){
+  function bigStatusBadge(status){
+    const configs = {
+      waiting_for_seller: { bg:'#FFF4E5', color:'#B8720A', icon:'<span class="hourglass-spin">⏳</span>', text:'Waiting for Seller to Accept' },
+      in_progress: { bg:'#EAF3FF', color:'#2F5FE0', icon:'<span class="progress-pulse">🔄</span>', text:'In Progress' },
+      delivered: { bg:'#E9F9EE', color:'#1E8E3E', icon:'📦', text:'Delivered' },
+      completed: { bg:'#E9F9EE', color:'#1E8E3E', icon:'✅', text:'Completed' },
+      disputed: { bg:'#FDEDEC', color:'#C0392B', icon:'🛑', text:'Disputed' },
+      cancelled: { bg:'#F1F1F1', color:'#6B7A99', icon:'❌', text:'Cancelled' },
+    };
+    const c = configs[status] || { bg:'#F1F1F1', color:'#6B7A99', icon:'•', text: status };
+    return `<div class="status-badge-big" style="background:${c.bg}; color:${c.color};"><span class="status-icon">${c.icon}</span><span>${c.text}</span></div>`;
+  }
+
+  async function renderSummary(order){
     currentOrder = order;
     const items = (order.items_json || []).map(i =>
       `<div class="item-line">• ${i.game}: ${i.item} x${i.qty} ($${Number(i.price).toFixed(2)})</div>`
     ).join('');
+
+    let reviewPromptHtml = '';
+    if(order.status === 'completed'){
+      try {
+        const { data: needsReview } = await supabaseClient.rpc('order_needs_review', { p_order_id: order.id });
+        if(needsReview){
+          reviewPromptHtml = `
+            <div id="starReviewPrompt" style="margin-top:16px; padding:16px; background:#F7F9FF; border:1px solid var(--card-border); border-radius:14px; text-align:center;">
+              <p style="font-weight:800; font-size:14px; margin-bottom:10px;">If it's okay with you, we'd love to hear your thoughts about us 🙂</p>
+              <div id="quickStars" style="font-size:30px; letter-spacing:4px; cursor:pointer;">
+                ${[1,2,3,4,5].map(n => `<span data-star="${n}" onclick="submitQuickStarReview(${n})">☆</span>`).join('')}
+              </div>
+            </div>
+          `;
+        }
+      } catch(e){ console.warn('Could not check review status:', e); }
+    }
+
     document.getElementById('orderSummaryCard').innerHTML = `
-      <div class="status-badge status-${order.status}">${STATUS_LABELS[order.status] || order.status}</div>
+      <a href="index.html" class="back-home-link">← Back to Home</a>
+      ${bigStatusBadge(order.status)}
       <h2>Order #${order.order_number}</h2>
       ${items}
       <div class="total-line">Total: ${formatMoney(order.total_amount)}</div>
+      ${reviewPromptHtml}
     `;
 
     const actionsCard = document.getElementById('deliveryActionsCard');
@@ -293,18 +351,27 @@
 
   async function loadOrder(){
     if(!orderId){
-      document.getElementById('orderSummaryCard').innerHTML = '<p class="sub">No order specified.</p>';
+      document.getElementById('orderSummaryCard').innerHTML = `
+        <a href="index.html" class="back-home-link">← Back to Home</a>
+        <p class="sub">No order specified.</p>
+      `;
       return;
     }
     const { data: { session } } = await supabaseClient.auth.getSession();
     currentUser = session ? session.user : null;
     if(!currentUser){
-      document.getElementById('orderSummaryCard').innerHTML = '<p class="sub">Please <a href="login.html">log in</a> to view this order.</p>';
+      document.getElementById('orderSummaryCard').innerHTML = `
+        <a href="index.html" class="back-home-link">← Back to Home</a>
+        <p class="sub">Please <a href="login.html">log in</a> to view this order.</p>
+      `;
       return;
     }
     const { data: order, error } = await supabaseClient.from('orders').select('*').eq('id', orderId).single();
     if(error || !order){
-      document.getElementById('orderSummaryCard').innerHTML = '<p class="sub">Order not found, or you don\'t have access to it.</p>';
+      document.getElementById('orderSummaryCard').innerHTML = `
+        <a href="index.html" class="back-home-link">← Back to Home</a>
+        <p class="sub">Order not found, or you don't have access to it.</p>
+      `;
       return;
     }
     renderSummary(order);
@@ -811,6 +878,29 @@
       if(order) renderSummary(order);
       sendDiscordSimplePing(`✅ **Order #${order.order_number}** was confirmed as received by \`${order.roblox_username}\`.`);
     }, "Yes, I got it");
+  };
+
+  window.submitQuickStarReview = async function(stars){
+    // Fill stars visually right away, before the network call finishes
+    document.querySelectorAll('#quickStars span').forEach(s => {
+      s.textContent = Number(s.dataset.star) <= stars ? '★' : '☆';
+      s.style.color = Number(s.dataset.star) <= stars ? '#F2B705' : '';
+    });
+    try {
+      const { data, error } = await supabaseClient.rpc('submit_review', {
+        p_order_id: currentOrder.id,
+        p_name: currentOrder.roblox_username || 'Buyer',
+        p_stars: stars,
+        p_review_text: ''
+      });
+      if(error) throw error;
+      const prompt = document.getElementById('starReviewPrompt');
+      if(prompt){
+        prompt.innerHTML = '<p style="font-weight:800; font-size:14px; color:var(--success);">🙏 Thanks so much for the feedback!</p>';
+      }
+    } catch(e){
+      console.warn('Quick star review failed:', e);
+    }
   };
 
   window.submitReport = async function(){
