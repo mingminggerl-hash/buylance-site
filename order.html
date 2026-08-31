@@ -377,6 +377,8 @@
     renderSummary(order);
     await loadMessages();
     subscribeRealtime();
+    // They've opened the order — clear "seller is waiting for you" if it was set.
+    try { await supabaseClient.rpc('clear_seller_waiting_flag', { p_order_id: order.id }); } catch(e){}
   }
 
   async function loadMessages(){

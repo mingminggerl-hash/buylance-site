@@ -51,6 +51,26 @@
     margin-top:10px; background:#FDEDEC; color:#C0392B; border:1px solid #F5C6C0;
     font-weight:800; font-size:11.5px; padding:6px 12px; border-radius:20px; cursor:pointer;
   }
+  .unread-dot{
+    display:inline-block; width:8px; height:8px; border-radius:50%; background:#E8412C; margin-left:6px;
+  }
+  .back-tickets-link-btn{
+    background:none; border:none; color:var(--muted); font-weight:700; font-size:13px;
+    cursor:pointer; padding:0; margin-bottom:12px; display:inline-flex; align-items:center; gap:4px;
+  }
+  .back-tickets-link-btn:hover{ color:var(--brand-blue); }
+  .ticket-thread{
+    display:flex; flex-direction:column; gap:10px; max-height:340px; overflow-y:auto;
+    background:#F0F3FA; border-radius:12px; padding:14px; margin-top:10px;
+  }
+  .ticket-msg-row{ display:flex; }
+  .ticket-msg-row.mine{ justify-content:flex-end; }
+  .ticket-msg-row.theirs{ justify-content:flex-start; }
+  .ticket-msg-bubble{
+    max-width:78%; padding:10px 14px; border-radius:16px; font-size:13.5px; line-height:1.55;
+  }
+  .ticket-msg-row.mine .ticket-msg-bubble{ background:var(--brand-blue); color:#fff; border-bottom-right-radius:4px; }
+  .ticket-msg-row.theirs .ticket-msg-bubble{ background:#fff; border:1px solid var(--card-border); border-bottom-left-radius:4px; }
   .faq-bot-header{ display:flex; align-items:center; gap:12px; margin-bottom:16px; }
   .faq-bot-avatar{
     width:44px; height:44px; border-radius:50%; background:var(--brand-blue); color:#fff;
@@ -499,7 +519,7 @@
     btn.disabled = true;
     btn.textContent = 'Sending...';
 
-    const { data: ticketId, error } = await supabaseClient.rpc('submit_support_ticket', {
+    const { data, error } = await supabaseClient.rpc('submit_support_ticket', {
       p_subject: subject,
       p_message: message
     });
@@ -511,6 +531,18 @@
       showError('Something went wrong — please try again.');
       return;
     }
+
+    if(!data.ok){
+      if(data.error === 'rate_limited'){
+        const retryDate = new Date(data.retry_after);
+        showError(`You can send one message every 24 hours — try again after ${retryDate.toLocaleString()}.`);
+      } else {
+        showError('Something went wrong — please try again.');
+      }
+      return;
+    }
+
+    const ticketId = data.ticket_id;
 
     // Auto-creates a Discord thread for this ticket, same pattern as orders.
     try {
@@ -531,17 +563,31 @@
           }]
         })
       });
-      const data = await res.json();
-      if(data && data.channel_id){
-        await supabaseClient.rpc('set_ticket_discord_thread', { p_ticket_id: ticketId, p_thread_id: data.channel_id });
+      const webhookData = await res.json();
+      if(webhookData && webhookData.channel_id){
+        await supabaseClient.rpc('set_ticket_discord_thread', { p_ticket_id: ticketId, p_thread_id: webhookData.channel_id });
       }
     } catch(e){
       console.warn('Discord ticket webhook failed (ticket is still saved fine):', e);
     }
 
     document.getElementById('message').value = '';
+    showTicketSentMessage();
     loadTickets();
   };
+
+  function showTicketSentMessage(){
+    let el = document.getElementById('ticketSentMsg');
+    if(!el){
+      el = document.createElement('div');
+      el.id = 'ticketSentMsg';
+      el.style.cssText = 'background:#E9F9EE; color:var(--success); border:1px solid #B9EBC9; border-radius:10px; padding:10px 14px; font-weight:700; font-size:13px; margin-top:12px;';
+      document.getElementById('submitBtn').insertAdjacentElement('afterend', el);
+    }
+    el.textContent = "✅ Sent! We'll reply as soon as possible.";
+    el.style.display = 'block';
+    setTimeout(() => { el.style.display = 'none'; }, 6000);
+  }
 
   window.flagTicketUrgent = async function(subject, message){
     try {
@@ -559,23 +605,88 @@
   };
 
   async function loadTickets(){
-    const { data: tickets } = await supabaseClient
-      .from('support_tickets')
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    if(!tickets || tickets.length === 0) return;
+    const { data: tickets, error } = await supabaseClient.rpc('get_my_tickets');
+    if(error || !tickets || tickets.length === 0) return;
 
     document.getElementById('ticketsCard').style.display = 'block';
     document.getElementById('ticketsList').innerHTML = tickets.map(t => `
-      <div class="ticket">
-        <span class="subj">${t.subject}</span><span class="status status-${t.status}">${t.status}</span>
+      <div class="ticket" style="cursor:pointer;" onclick="openTicketConversation('${t.id}')">
+        <span class="subj">${t.subject}</span>
+        <span class="status status-${t.status}">${t.status}</span>
+        ${t.buyer_has_unread ? '<span class="unread-dot"></span>' : ''}
         <div class="msg">${t.message}</div>
-        ${t.admin_reply ? `<div class="reply"><b>Reply:</b> ${t.admin_reply}</div>` : ''}
-        ${t.status === 'open' ? `<button class="flag-urgent-btn" onclick="flagTicketUrgent('${t.subject.replace(/'/g, "\\'")}', '${t.message.replace(/'/g, "\\'").replace(/\n/g, ' ')}')">🚩 Flag as Urgent</button>` : ''}
+        ${t.status === 'open' ? `<button class="flag-urgent-btn" onclick="event.stopPropagation(); flagTicketUrgent('${t.subject.replace(/'/g, "\\'")}', '${t.message.replace(/'/g, "\\'").replace(/\n/g, ' ')}')">🚩 Flag as Urgent</button>` : ''}
       </div>
     `).join('');
   }
+
+  window.openTicketConversation = async function(ticketId){
+    await supabaseClient.rpc('mark_ticket_read', { p_ticket_id: ticketId });
+
+    const { data: tickets } = await supabaseClient.rpc('get_my_tickets');
+    const ticket = (tickets || []).find(t => t.id === ticketId);
+    if(!ticket) return;
+
+    const { data: msgs } = await supabaseClient.rpc('get_ticket_messages', { p_ticket_id: ticketId });
+
+    document.getElementById('faqCard').style.display = 'none';
+    document.getElementById('formCard').style.display = 'none';
+    document.getElementById('ticketsCard').style.display = 'none';
+
+    let convoCard = document.getElementById('ticketConvoCard');
+    if(!convoCard){
+      convoCard = document.createElement('div');
+      convoCard.id = 'ticketConvoCard';
+      convoCard.className = 'card';
+      document.querySelector('.wrap').appendChild(convoCard);
+    }
+    convoCard.style.display = 'block';
+
+    const allMsgs = [
+      { sender_type: 'buyer', message: ticket.message, created_at: ticket.created_at },
+      ...(msgs || [])
+    ];
+
+    convoCard.innerHTML = `
+      <button class="back-tickets-link-btn" onclick="closeTicketConversation()">← Back to Messages</button>
+      <h2>${ticket.subject}</h2>
+      <span class="status status-${ticket.status}">${ticket.status}</span>
+      <div id="ticketConvoThread" class="ticket-thread">
+        ${allMsgs.map(m => `
+          <div class="ticket-msg-row ${m.sender_type === 'buyer' ? 'mine' : 'theirs'}">
+            <div class="ticket-msg-bubble">${m.message}</div>
+          </div>
+        `).join('')}
+      </div>
+      ${ticket.status !== 'closed' ? `
+        <div style="display:flex; gap:8px; margin-top:10px;">
+          <input type="text" id="ticketReplyInput" placeholder="Type a reply..." style="flex:1; padding:11px 12px; border:1px solid var(--card-border); border-radius:10px; font-family:'Nunito Sans', sans-serif; font-size:13px;">
+          <button class="submit" style="width:auto; margin:0; padding:11px 18px;" onclick="sendTicketReply('${ticketId}')">Send</button>
+        </div>
+      ` : `<p class="sub" style="margin-top:10px;">This ticket has been closed.</p>`}
+    `;
+  };
+
+  window.closeTicketConversation = function(){
+    const convoCard = document.getElementById('ticketConvoCard');
+    if(convoCard) convoCard.style.display = 'none';
+    document.getElementById('faqCard').style.display = 'block';
+    document.getElementById('ticketsCard').style.display = 'block';
+  };
+
+  window.sendTicketReply = async function(ticketId){
+    const input = document.getElementById('ticketReplyInput');
+    const message = input.value.trim();
+    if(!message) return;
+    input.value = '';
+    const { error } = await supabaseClient.rpc('send_ticket_message', {
+      p_ticket_id: ticketId,
+      p_sender_type: 'buyer',
+      p_message: message
+    });
+    if(error){ alert('Something went wrong sending that.'); return; }
+    openTicketConversation(ticketId);
+  };
 
   init();
 </script>

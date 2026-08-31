@@ -51,6 +51,18 @@
   button.action{ background:var(--brand-blue); color:#fff; border:none; padding:11px 16px; border-radius:10px; font-weight:800; font-size:13px; cursor:pointer; margin-top:8px; }
   .msg-box{ background:#F7F9FF; border-radius:10px; padding:12px; font-size:13px; margin:10px 0; }
   .reply-box{ background:#E9F9EE; border-radius:10px; padding:12px; font-size:13px; margin:10px 0; }
+  .ticket-thread{
+    display:flex; flex-direction:column; gap:10px; max-height:340px; overflow-y:auto;
+    background:#F7F9FF; border-radius:12px; padding:14px; margin:10px 0;
+  }
+  .ticket-msg-row{ display:flex; }
+  .ticket-msg-row.mine{ justify-content:flex-end; }
+  .ticket-msg-row.theirs{ justify-content:flex-start; }
+  .ticket-msg-bubble{
+    max-width:78%; padding:10px 14px; border-radius:16px; font-size:13.5px; line-height:1.55;
+  }
+  .ticket-msg-row.mine .ticket-msg-bubble{ background:var(--brand-blue); color:#fff; border-bottom-right-radius:4px; }
+  .ticket-msg-row.theirs .ticket-msg-bubble{ background:#fff; border:1px solid var(--card-border); border-bottom-left-radius:4px; }
 </style>
 </head>
 <body>
@@ -126,16 +138,29 @@
       document.getElementById('ticketDetailCard').innerHTML = '<p class="sub">Ticket not found.</p>';
       return;
     }
+    const { data: msgs } = await supabaseClient.rpc('get_ticket_messages', { p_ticket_id: ticketId });
+    const allMsgs = [
+      { sender_type: 'buyer', message: ticket.message, created_at: ticket.created_at },
+      ...(msgs || [])
+    ];
+
     document.getElementById('ticketDetailCard').innerHTML = `
       <a href="#" class="back-tickets-link" onclick="clearTicketSelection(); return false;">← Back to Tickets</a>
       <span class="status-badge status-${ticket.status}">${ticket.status}</span>
       <h2>${ticket.subject}</h2>
       <p class="sub">From: ${ticket.email}</p>
-      <div class="msg-box">${ticket.message}</div>
-      ${ticket.admin_reply ? `<div class="reply-box"><b>Your reply:</b><br>${ticket.admin_reply}</div>` : ''}
-      <textarea id="replyText" rows="4" placeholder="Type your reply...">${ticket.admin_reply || ''}</textarea>
-      <button class="action" onclick="sendReply('${ticket.id}')">Send Reply</button>
-      ${ticket.status !== 'closed' ? `<button class="action" style="background:#1E8E3E; margin-left:8px;" onclick="markTicketClosed('${ticket.id}')">✅ Mark Resolved</button>` : `<p class="sub" style="margin-top:8px;">✅ Closed — this thread will auto-archive on Discord 24 hours after closing.</p>`}
+      <div class="ticket-thread">
+        ${allMsgs.map(m => `
+          <div class="ticket-msg-row ${m.sender_type === 'admin' ? 'mine' : 'theirs'}">
+            <div class="ticket-msg-bubble">${m.message}</div>
+          </div>
+        `).join('')}
+      </div>
+      ${ticket.status !== 'closed' ? `
+        <textarea id="replyText" rows="3" placeholder="Type your reply..."></textarea>
+        <button class="action" onclick="sendReply('${ticket.id}')">Send Reply</button>
+        <button class="action" style="background:#1E8E3E; margin-left:8px;" onclick="markTicketClosed('${ticket.id}')">✅ Mark Resolved</button>
+      ` : `<p class="sub" style="margin-top:8px;">✅ Closed — this thread will auto-archive on Discord 24 hours after closing.</p>`}
     `;
   };
 
@@ -148,7 +173,11 @@
   window.sendReply = async function(ticketId){
     const reply = document.getElementById('replyText').value.trim();
     if(!reply){ alert('Please type a reply first.'); return; }
-    const { error } = await supabaseClient.rpc('seller_reply_ticket', { p_ticket_id: ticketId, p_reply: reply });
+    const { error } = await supabaseClient.rpc('send_ticket_message', {
+      p_ticket_id: ticketId,
+      p_sender_type: 'admin',
+      p_message: reply
+    });
     if(error){ alert('Something went wrong.'); return; }
     selectTicket(ticketId);
   };
