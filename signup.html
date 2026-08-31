@@ -60,17 +60,17 @@
 <div class="card">
   <div id="signupForm">
     <h1>Create your account</h1>
-    <p class="sub">Gmail only for now — you'll set a separate password just for Buylance.</p>
+    <p class="sub">You'll set a separate password just for Buylance.</p>
 
     <label>What should we call you?</label>
     <input type="text" id="displayName" placeholder="Your name">
 
-    <label>Gmail Address</label>
-    <input type="email" id="email" placeholder="you@gmail.com">
+    <label>Email Address</label>
+    <input type="email" id="email" placeholder="you@example.com">
 
     <label>Password</label>
     <input type="password" id="password" placeholder="At least 8 characters" oninput="checkPasswordLive()">
-    <div class="hint">This is NOT your Gmail password — it's a new one just for this site.</div>
+    <div class="hint">This is NOT your email's own password — it's a new one just for this site.</div>
     <div class="live-check" id="passwordLiveCheck" style="display:none;"></div>
 
     <label>Confirm Password</label>
@@ -87,7 +87,7 @@
   <div class="success" id="successMsg">
     <div class="big">📬</div>
     <h1>Check your inbox</h1>
-    <p class="sub">We've sent a verification link to your Gmail. Click it to activate your account, then come back and log in.</p>
+    <p class="sub">We've sent a verification link to your email. Click it to activate your account, then come back and log in.</p>
     <div class="foot"><a href="login.html">Go to Log In</a></div>
   </div>
 </div>
@@ -99,7 +99,8 @@
     try {
       const { data: { session } } = await supabaseClient.auth.getSession();
       if(session){
-        window.location.replace('index.html');
+        document.getElementById('signupForm').innerHTML = '<p class="sub" style="text-align:center; padding:20px 0;">✅ You already have an account — redirecting you home...</p>';
+        setTimeout(() => { window.location.replace('index.html'); }, 900);
       }
     } catch(e){ /* if this check fails for any reason, just let signup load normally */ }
   })();
@@ -153,7 +154,7 @@
     const btn = document.getElementById('signupBtn');
 
     if(!displayName){ showError('Please tell us what to call you.'); return; }
-    if(!email.endsWith('@gmail.com')){ showError('Only @gmail.com addresses are allowed.'); return; }
+    if(!email.includes('@') || !email.includes('.')){ showError('Please enter a valid email address.'); return; }
     if(password.length < 8){ showError('Password must be at least 8 characters.'); return; }
     if(password !== confirmPassword){ showError('Passwords do not match.'); return; }
 
@@ -173,7 +174,7 @@
 
     if(error){
       if(error.message.toLowerCase().includes('already registered') || error.message.toLowerCase().includes('already exists')){
-        showError('That Gmail address is already registered. Try logging in instead.');
+        showError('That email address is already registered. Try logging in instead.');
       } else {
         showError(error.message);
       }

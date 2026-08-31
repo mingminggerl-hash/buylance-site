@@ -54,10 +54,10 @@
 
 <div class="card">
   <h1>Log in</h1>
-  <p class="sub">Welcome back — use the password you made for Buylance, not your Gmail one.</p>
+  <p class="sub">Welcome back — use the password you made for Buylance, not your email's own password.</p>
 
-  <label>Gmail Address</label>
-  <input type="email" id="email" placeholder="you@gmail.com">
+  <label>Email Address</label>
+  <input type="email" id="email" placeholder="you@example.com">
 
   <label>Password</label>
   <input type="password" id="password" placeholder="Your Buylance password">
@@ -90,6 +90,25 @@
     btn.disabled = true;
     btn.textContent = 'Logging in...';
 
+    // Check lock + any active countdown BEFORE attempting the real
+    // password check, so a locked/waiting account never gets a chance
+    // to try guessing further during that window.
+    try {
+      const { data: status } = await supabaseClient.rpc('check_login_attempt_status', { p_email: email });
+      if(status && status.locked){
+        btn.disabled = false;
+        btn.textContent = 'Log In';
+        showError('This account is temporarily locked after several failed attempts. Check your email for a "Was this you?" link, or reset your password.');
+        return;
+      }
+      if(status && status.wait_seconds_remaining > 0){
+        btn.disabled = false;
+        btn.textContent = 'Log In';
+        startLoginCountdown(status.wait_seconds_remaining);
+        return;
+      }
+    } catch(e){ /* if the check itself fails, fall through to a normal login attempt */ }
+
     const { data, error } = await supabaseClient.auth.signInWithPassword({
       email: email,
       password: password
@@ -100,16 +119,50 @@
 
     if(error){
       if(error.message.toLowerCase().includes('email not confirmed')){
-        showError('Please verify your Gmail first — check your inbox for the link.');
+        showError('Please verify your email first — check your inbox for the link.');
       } else {
-        showError('Incorrect email or password.');
+        try {
+          const { data: result } = await supabaseClient.rpc('record_failed_login', { p_email: email });
+          if(result && result.locked){
+            showError('Too many failed attempts — this account is now locked. Check your email for a "Was this you?" link.');
+          } else if(result && result.wait_seconds > 0){
+            showError('Incorrect email or password.');
+            startLoginCountdown(result.wait_seconds);
+          } else {
+            showError('Incorrect email or password.');
+          }
+        } catch(e){
+          showError('Incorrect email or password.');
+        }
       }
       return;
     }
 
+    try { await supabaseClient.rpc('record_successful_login', { p_email: email }); } catch(e){}
+
     window.location.href = 'index.html';
   }
+
+  function startLoginCountdown(seconds){
+    const btn = document.getElementById('loginBtn');
+    btn.disabled = true;
+    let remaining = seconds;
+    const tick = () => {
+      if(remaining <= 0){
+        btn.disabled = false;
+        btn.textContent = 'Log In';
+        showError('You can try again now.');
+        return;
+      }
+      btn.textContent = `Wait ${remaining}s...`;
+      showError(`Too many attempts — please wait ${remaining} second${remaining === 1 ? '' : 's'} before trying again.`);
+      remaining--;
+      setTimeout(tick, 1000);
+    };
+    tick();
+  }
 </script>
+
 
 </body>
 </html>

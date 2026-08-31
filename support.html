@@ -59,9 +59,21 @@
     cursor:pointer; padding:0; margin-bottom:12px; display:inline-flex; align-items:center; gap:4px;
   }
   .back-tickets-link-btn:hover{ color:var(--brand-blue); }
+  .ticket-status-banner{
+    background:#FFF4E5; color:#8A5B00; font-weight:700; font-size:12.5px;
+    padding:10px 14px; border-radius:10px; margin:10px 0;
+  }
+  .ticket-status-banner.closed{ background:#E9F9EE; color:var(--success); }
   .ticket-thread{
     display:flex; flex-direction:column; gap:10px; max-height:340px; overflow-y:auto;
     background:#F0F3FA; border-radius:12px; padding:14px; margin-top:10px;
+  }
+  .ticket-thread-big{
+    max-height:480px; min-height:320px; padding:18px;
+    background-color:#E9EFFC;
+    border:2px solid #D7E3FF;
+    background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20width%3D%2764%27%20height%3D%2764%27%3E%0A%20%20%3Cg%20fill%3D%27none%27%20stroke%3D%27rgba%2847%2C95%2C224%2C0.16%29%27%20stroke-width%3D%271.6%27%3E%0A%20%20%20%20%3Cpath%20d%3D%27M10%2010h16a3%203%200%200%201%203%203v7a3%203%200%200%201-3%203h-10l-5.5%204.5v-4.5a3%203%200%200%201-3-3v-7a3%203%200%200%201%203-3z%27/%3E%0A%20%20%3C/g%3E%0A%20%20%3Cg%20fill%3D%27rgba%28255%2C122%2C41%2C0.18%29%27%3E%0A%20%20%20%20%3Cpath%20d%3D%27M46%2034%20l1.9%203.9%204.3.6-3.1%203%20.7%204.3-3.8-2-3.8%202%20.7-4.3-3.1-3%204.3-.6z%27/%3E%0A%20%20%3C/g%3E%0A%3C/svg%3E");
+    background-size: 64px 64px;
   }
   .ticket-msg-row{ display:flex; }
   .ticket-msg-row.mine{ justify-content:flex-end; }
@@ -71,6 +83,29 @@
   }
   .ticket-msg-row.mine .ticket-msg-bubble{ background:var(--brand-blue); color:#fff; border-bottom-right-radius:4px; }
   .ticket-msg-row.theirs .ticket-msg-bubble{ background:#fff; border:1px solid var(--card-border); border-bottom-left-radius:4px; }
+  .ticket-msg-time{ font-size:10px; opacity:0.7; margin-top:4px; }
+  .ticket-msg-img{ max-width:200px; border-radius:10px; margin-top:6px; display:block; cursor:pointer; }
+  .ticket-reply-row{ display:flex; align-items:center; gap:6px; margin-top:10px; position:relative; }
+  .ticket-reply-row input[type="text"]{
+    flex:1; padding:11px 12px; border:1px solid var(--card-border); border-radius:10px;
+    font-family:'Nunito Sans', sans-serif; font-size:13px;
+  }
+  .ticket-icon-btn{
+    background:#F0F3FA; border:none; border-radius:10px; width:40px; height:40px;
+    font-size:17px; cursor:pointer; flex-shrink:0;
+  }
+  .ticket-emoji-picker{
+    display:none; position:absolute; bottom:48px; left:0; background:#fff;
+    border:1px solid var(--card-border); border-radius:12px; padding:8px;
+    box-shadow:0 8px 24px rgba(0,0,0,0.12); gap:4px; z-index:10;
+  }
+  .ticket-emoji-picker.open{ display:flex; }
+  .ticket-emoji-picker span{ font-size:20px; cursor:pointer; padding:4px; }
+  .ticket-urgent{ border-color:#F5C6C0 !important; background:#FFF9F8; }
+  .urgent-badge{
+    display:inline-block; background:#E8412C; color:#fff; font-size:10px; font-weight:800;
+    padding:3px 8px; border-radius:12px; margin-bottom:6px;
+  }
   .faq-bot-header{ display:flex; align-items:center; gap:12px; margin-bottom:16px; }
   .faq-bot-avatar{
     width:44px; height:44px; border-radius:50%; background:var(--brand-blue); color:#fff;
@@ -589,8 +624,9 @@
     setTimeout(() => { el.style.display = 'none'; }, 6000);
   }
 
-  window.flagTicketUrgent = async function(subject, message){
+  window.flagTicketUrgent = async function(ticketId, subject, message){
     try {
+      await supabaseClient.rpc('flag_ticket_urgent', { p_ticket_id: ticketId });
       await fetch(URGENT_FLAG_WEBHOOK_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -598,7 +634,8 @@
           content: `🚩 **Ticket flagged as urgent** by \`${currentUser.email}\`\n**${subject}**\n> ${message}\nhttps://buylance.gg/admin-support.html`
         })
       });
-      alert("Got it — we've flagged this as urgent.");
+      alert("Got it — we've flagged this as urgent, it'll show at the top of our list.");
+      loadTickets();
     } catch(e){
       console.warn('Urgent flag failed:', e);
     }
@@ -610,12 +647,13 @@
 
     document.getElementById('ticketsCard').style.display = 'block';
     document.getElementById('ticketsList').innerHTML = tickets.map(t => `
-      <div class="ticket" style="cursor:pointer;" onclick="openTicketConversation('${t.id}')">
+      <div class="ticket ${t.is_urgent ? 'ticket-urgent' : ''}" style="cursor:pointer;" onclick="openTicketConversation('${t.id}')">
+        ${t.is_urgent ? '<span class="urgent-badge">🚩 Urgent</span>' : ''}
         <span class="subj">${t.subject}</span>
         <span class="status status-${t.status}">${t.status}</span>
         ${t.buyer_has_unread ? '<span class="unread-dot"></span>' : ''}
         <div class="msg">${t.message}</div>
-        ${t.status === 'open' ? `<button class="flag-urgent-btn" onclick="event.stopPropagation(); flagTicketUrgent('${t.subject.replace(/'/g, "\\'")}', '${t.message.replace(/'/g, "\\'").replace(/\n/g, ' ')}')">🚩 Flag as Urgent</button>` : ''}
+        ${t.status === 'open' && !t.is_urgent ? `<button class="flag-urgent-btn" onclick="event.stopPropagation(); flagTicketUrgent('${t.id}', '${t.subject.replace(/'/g, "\\'")}', '${t.message.replace(/'/g, "\\'").replace(/\n/g, ' ')}')">🚩 Flag as Urgent</button>` : ''}
       </div>
     `).join('');
   }
@@ -643,28 +681,82 @@
     convoCard.style.display = 'block';
 
     const allMsgs = [
-      { sender_type: 'buyer', message: ticket.message, created_at: ticket.created_at },
+      { sender_type: 'buyer', message: ticket.message, image_url: null, created_at: ticket.created_at },
       ...(msgs || [])
     ];
+
+    const statusBanner = ticket.status === 'closed'
+      ? `<div class="ticket-status-banner closed">✅ This ticket has been resolved and closed.</div>`
+      : `<div class="ticket-status-banner">⏳ Waiting for support to look into your issue — this can take a little while, thanks for your patience!</div>`;
 
     convoCard.innerHTML = `
       <button class="back-tickets-link-btn" onclick="closeTicketConversation()">← Back to Messages</button>
       <h2>${ticket.subject}</h2>
       <span class="status status-${ticket.status}">${ticket.status}</span>
-      <div id="ticketConvoThread" class="ticket-thread">
-        ${allMsgs.map(m => `
-          <div class="ticket-msg-row ${m.sender_type === 'buyer' ? 'mine' : 'theirs'}">
-            <div class="ticket-msg-bubble">${m.message}</div>
-          </div>
-        `).join('')}
+      ${statusBanner}
+      <div id="ticketConvoThread" class="ticket-thread ticket-thread-big">
+        ${allMsgs.map(renderTicketMsgBubble).join('')}
       </div>
       ${ticket.status !== 'closed' ? `
-        <div style="display:flex; gap:8px; margin-top:10px;">
-          <input type="text" id="ticketReplyInput" placeholder="Type a reply..." style="flex:1; padding:11px 12px; border:1px solid var(--card-border); border-radius:10px; font-family:'Nunito Sans', sans-serif; font-size:13px;">
+        <div class="ticket-reply-row">
+          <button class="ticket-icon-btn" onclick="document.getElementById('ticketEmojiPicker').classList.toggle('open')" title="Emoji">😊</button>
+          <div id="ticketEmojiPicker" class="ticket-emoji-picker">
+            ${['😀','😅','😢','😡','👍','🙏','❤️','🎉'].map(e => `<span onclick="insertTicketEmoji('${e}')">${e}</span>`).join('')}
+          </div>
+          <button class="ticket-icon-btn" onclick="document.getElementById('ticketImageInput').click()" title="Attach photo">📎</button>
+          <input type="file" id="ticketImageInput" accept="image/*" style="display:none;" onchange="handleTicketImageSelect(event, '${ticketId}')">
+          <input type="text" id="ticketReplyInput" placeholder="Type a reply..." onkeydown="if(event.key==='Enter') sendTicketReply('${ticketId}')">
           <button class="submit" style="width:auto; margin:0; padding:11px 18px;" onclick="sendTicketReply('${ticketId}')">Send</button>
         </div>
-      ` : `<p class="sub" style="margin-top:10px;">This ticket has been closed.</p>`}
+      ` : ''}
     `;
+
+    const thread = document.getElementById('ticketConvoThread');
+    thread.scrollTop = thread.scrollHeight;
+  };
+
+  function renderTicketMsgBubble(m){
+    const time = new Date(m.created_at).toLocaleString([], { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
+    const imgHtml = m.image_url ? `<img src="${m.image_url}" class="ticket-msg-img" onclick="window.open('${m.image_url}','_blank')">` : '';
+    const textHtml = m.message ? `<div>${m.message}</div>` : '';
+    return `
+      <div class="ticket-msg-row ${m.sender_type === 'buyer' ? 'mine' : 'theirs'}">
+        <div class="ticket-msg-bubble">
+          ${textHtml}${imgHtml}
+          <div class="ticket-msg-time">${time}</div>
+        </div>
+      </div>
+    `;
+  }
+
+  window.insertTicketEmoji = function(emoji){
+    const input = document.getElementById('ticketReplyInput');
+    input.value += emoji;
+    input.focus();
+    document.getElementById('ticketEmojiPicker').classList.remove('open');
+  };
+
+  window.handleTicketImageSelect = async function(event, ticketId){
+    const file = event.target.files[0];
+    event.target.value = '';
+    if(!file) return;
+    try {
+      const path = `${Date.now()}_${file.name}`;
+      const { error: uploadError } = await supabaseClient.storage.from('chat-uploads').upload(path, file);
+      if(uploadError) throw uploadError;
+      const { data } = supabaseClient.storage.from('chat-uploads').getPublicUrl(path);
+      const { error } = await supabaseClient.rpc('send_ticket_message', {
+        p_ticket_id: ticketId,
+        p_sender_type: 'buyer',
+        p_message: '',
+        p_image_url: data.publicUrl
+      });
+      if(error) throw error;
+      openTicketConversation(ticketId);
+    } catch(e){
+      console.warn('Image upload failed:', e);
+      alert('Could not send that image — please try again.');
+    }
   };
 
   window.closeTicketConversation = function(){
