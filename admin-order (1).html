@@ -34,6 +34,22 @@
   .order-row .num{ font-weight:800; font-size:13px; }
   .order-row .who{ font-size:11.5px; color:var(--muted); font-weight:600; }
   .status-badge{ display:inline-block; font-size:10px; font-weight:800; padding:3px 8px; border-radius:20px; margin-top:4px; }
+  .status-badge-big{
+    display:inline-flex; align-items:center; gap:10px; font-size:16px; font-weight:800;
+    padding:12px 18px; border-radius:14px; margin-bottom:12px; width:100%; box-sizing:border-box;
+  }
+  .status-badge-big .status-icon{ font-size:22px; }
+  .hourglass-spin{ display:inline-block; animation:hourglassFlip 2.2s ease-in-out infinite; }
+  @keyframes hourglassFlip{ 0%,45%{transform:rotate(0deg);} 55%,100%{transform:rotate(180deg);} }
+  .progress-pulse{ display:inline-block; animation:progressPulse 1.3s ease-in-out infinite; }
+  @keyframes progressPulse{ 0%,100%{opacity:1; transform:scale(1);} 50%{opacity:0.55; transform:scale(0.92);} }
+  .seller-reminder-tip{
+    background:linear-gradient(90deg, #FFF4E5, #FFF9F0);
+    border:1px solid #F0D9A8; border-radius:12px;
+    padding:10px 14px; font-size:12px; color:#8A5B00; font-weight:600;
+    margin-bottom:12px; line-height:1.5;
+  }
+  .seller-reminder-tip b{ color:#6B4400; }
   .status-waiting_for_seller{ background:#FFF4E5; color:#B8720A; }
   .status-in_progress{ background:#EAF3FF; color:var(--brand-blue); }
   .status-delivered{ background:#E9F9EE; color:var(--success); }
@@ -45,14 +61,13 @@
   .total-line{ font-weight:900; font-size:15px; margin-top:8px; border-top:1px solid var(--card-border); padding-top:8px; }
 
   #chat-box{
-    height:340px; overflow-y:auto; border-radius:12px; padding:14px; margin-bottom:10px;
+    height:340px; overflow-y:auto; border-radius:16px; padding:16px; margin-bottom:10px;
     display:flex; flex-direction:column; gap:10px;
-    background-color:#EAF0FB;
-    background-image:
-      radial-gradient(circle at 20% 15%, rgba(47,95,224,0.05) 0, transparent 40%),
-      radial-gradient(circle at 80% 30%, rgba(255,122,41,0.05) 0, transparent 40%),
-      radial-gradient(circle at 40% 80%, rgba(47,95,224,0.04) 0, transparent 45%),
-      radial-gradient(circle at 90% 85%, rgba(47,95,224,0.05) 0, transparent 40%);
+    background-color:#E9EFFC;
+    border:2px solid #D7E3FF;
+    box-shadow:inset 0 2px 8px rgba(47,95,224,0.06);
+    background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20width%3D%2764%27%20height%3D%2764%27%3E%0A%20%20%3Cg%20fill%3D%27none%27%20stroke%3D%27rgba%2847%2C95%2C224%2C0.16%29%27%20stroke-width%3D%271.6%27%3E%0A%20%20%20%20%3Cpath%20d%3D%27M10%2010h16a3%203%200%200%201%203%203v7a3%203%200%200%201-3%203h-10l-5.5%204.5v-4.5a3%203%200%200%201-3-3v-7a3%203%200%200%201%203-3z%27/%3E%0A%20%20%3C/g%3E%0A%20%20%3Cg%20fill%3D%27rgba%28255%2C122%2C41%2C0.18%29%27%3E%0A%20%20%20%20%3Cpath%20d%3D%27M46%2034%20l1.9%203.9%204.3.6-3.1%203%20.7%204.3-3.8-2-3.8%202%20.7-4.3-3.1-3%204.3-.6z%27/%3E%0A%20%20%3C/g%3E%0A%3C/svg%3E");
+    background-size: 64px 64px;
   }
   .reply-quote{
     display:block; border-left:3px solid var(--brand-blue); background:rgba(47,95,224,0.08);
@@ -165,6 +180,9 @@
     </div>
     <div class="card" id="chatCard" style="display:none;">
       <h2>💬 Chat</h2>
+      <div class="seller-reminder-tip">
+        💡 <b>Reminder:</b> Let the buyer know exactly how to receive their item (e.g. "Add me on Roblox: username") — clear first messages mean faster, smoother deliveries.
+      </div>
       <div id="chat-box"></div>
       <div class="reply-preview-bar" id="replyPreviewBar">
         <span class="reply-text" id="replyPreviewText"></span>
@@ -218,6 +236,19 @@
     disputed: '🛑 Disputed',
     cancelled: '❌ Cancelled'
   };
+
+  function bigStatusBadge(status){
+    const configs = {
+      waiting_for_seller: { bg:'#FFF4E5', color:'#B8720A', icon:'<span class="hourglass-spin">🔔</span>', text:'New Order — Needs Your Acceptance' },
+      in_progress: { bg:'#EAF3FF', color:'#2F5FE0', icon:'<span class="progress-pulse">🔄</span>', text:'In Progress' },
+      delivered: { bg:'#E9F9EE', color:'#1E8E3E', icon:'📦', text:'Delivered' },
+      completed: { bg:'#E9F9EE', color:'#1E8E3E', icon:'✅', text:'Completed' },
+      disputed: { bg:'#FDEDEC', color:'#C0392B', icon:'🛑', text:'Disputed' },
+      cancelled: { bg:'#F1F1F1', color:'#6B7A99', icon:'❌', text:'Cancelled' },
+    };
+    const c = configs[status] || { bg:'#F1F1F1', color:'#6B7A99', icon:'•', text: status };
+    return `<div class="status-badge-big" style="background:${c.bg}; color:${c.color};"><span class="status-icon">${c.icon}</span><span>${c.text}</span></div>`;
+  }
 
   function formatMoney(n){ return '$' + Number(n).toFixed(2); }
 
@@ -422,7 +453,7 @@
     }
 
     document.getElementById('orderDetailCard').innerHTML = `
-      <span class="status-badge status-${order.status}">${STATUS_LABELS[order.status] || order.status}</span>
+      ${bigStatusBadge(order.status)}
       <h2>Order #${order.order_number}</h2>
       <p class="sub header-with-avatar">
         ${order.roblox_avatar_url ? `<img class="header-avatar" src="${order.roblox_avatar_url}">` : ''}

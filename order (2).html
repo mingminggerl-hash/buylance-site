@@ -25,6 +25,21 @@
   .card{ background:#fff; border:1px solid var(--card-border); border-radius:16px; padding:20px; margin-bottom:14px; }
   h2{ font-family:'Baloo 2', sans-serif; font-size:18px; margin-bottom:10px; }
   .status-badge{ display:inline-block; font-size:11px; font-weight:800; padding:4px 10px; border-radius:20px; margin-bottom:10px; }
+  .status-badge-big{
+    display:inline-flex; align-items:center; gap:10px; font-size:17px; font-weight:800;
+    padding:14px 22px; border-radius:16px; margin-bottom:14px; width:100%;
+    box-sizing:border-box;
+  }
+  .status-badge-big .status-icon{ font-size:26px; }
+  .hourglass-spin{ display:inline-block; animation:hourglassFlip 2.2s ease-in-out infinite; }
+  @keyframes hourglassFlip{ 0%,45%{transform:rotate(0deg);} 55%,100%{transform:rotate(180deg);} }
+  .progress-pulse{ display:inline-block; animation:progressPulse 1.3s ease-in-out infinite; }
+  @keyframes progressPulse{ 0%,100%{opacity:1; transform:scale(1);} 50%{opacity:0.55; transform:scale(0.92);} }
+  .back-home-link{
+    display:inline-flex; align-items:center; gap:6px; margin-bottom:16px;
+    color:var(--muted); font-weight:700; font-size:13px; text-decoration:none;
+  }
+  .back-home-link:hover{ color:var(--brand-blue); }
   .status-waiting_for_seller{ background:#FFF4E5; color:#B8720A; }
   .status-in_progress{ background:#EAF3FF; color:var(--brand-blue); }
   .status-delivered{ background:#E9F9EE; color:var(--success); }
@@ -36,15 +51,103 @@
 
   #reminder-banner{ display:none; background:var(--error); color:#fff; padding:12px; border-radius:10px; margin-bottom:12px; text-align:center; font-weight:800; font-size:13px; }
 
-  #chat-box{ height:280px; overflow-y:auto; background:#F7F9FF; border-radius:12px; padding:12px; margin-bottom:10px; }
-  .msg{ margin-bottom:10px; font-size:13px; }
-  .msg .who{ font-weight:800; font-size:11.5px; }
-  .msg.buyer .who{ color:var(--brand-blue); }
-  .msg.seller .who{ color:var(--success); }
-  .msg.system .who{ color:var(--muted); }
-  .chat-row{ display:flex; gap:8px; }
-  .chat-row input{ flex:1; padding:11px 12px; border:1px solid var(--card-border); border-radius:10px; font-family:'Nunito Sans', sans-serif; font-size:13px; }
-  .chat-row button{ background:var(--brand-blue); color:#fff; border:none; border-radius:10px; padding:0 18px; font-weight:800; font-size:13px; cursor:pointer; }
+  #chat-box{
+    height:340px; overflow-y:auto; border-radius:16px; padding:16px; margin-bottom:10px;
+    display:flex; flex-direction:column; gap:10px;
+    background-color:#E9EFFC;
+    border:2px solid #D7E3FF;
+    box-shadow:inset 0 2px 8px rgba(47,95,224,0.06);
+    background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20width%3D%2764%27%20height%3D%2764%27%3E%0A%20%20%3Cg%20fill%3D%27none%27%20stroke%3D%27rgba%2847%2C95%2C224%2C0.16%29%27%20stroke-width%3D%271.6%27%3E%0A%20%20%20%20%3Cpath%20d%3D%27M10%2010h16a3%203%200%200%201%203%203v7a3%203%200%200%201-3%203h-10l-5.5%204.5v-4.5a3%203%200%200%201-3-3v-7a3%203%200%200%201%203-3z%27/%3E%0A%20%20%3C/g%3E%0A%20%20%3Cg%20fill%3D%27rgba%28255%2C122%2C41%2C0.18%29%27%3E%0A%20%20%20%20%3Cpath%20d%3D%27M46%2034%20l1.9%203.9%204.3.6-3.1%203%20.7%204.3-3.8-2-3.8%202%20.7-4.3-3.1-3%204.3-.6z%27/%3E%0A%20%20%3C/g%3E%0A%3C/svg%3E");
+    background-size: 64px 64px;
+  }
+  .chat-helper-tip{
+    background:linear-gradient(90deg, #EAF3FF, #F7F9FF);
+    border:1px solid var(--card-border); border-radius:12px;
+    padding:10px 14px; font-size:12.5px; color:var(--muted); font-weight:600;
+    margin-bottom:12px; line-height:1.5;
+  }
+  .chat-helper-tip b{ color:var(--ink); }
+  .chat-helper-tip a{ color:var(--brand-blue); font-weight:800; text-decoration:none; }
+  .reply-quote{
+    display:block; border-left:3px solid var(--brand-blue); background:rgba(47,95,224,0.08);
+    border-radius:6px; padding:5px 9px; margin-bottom:6px; cursor:pointer;
+  }
+  .msg-row.sent .reply-quote{ border-left-color:rgba(255,255,255,0.85); background:rgba(255,255,255,0.15); }
+  .reply-quote-sender{ display:block; font-size:11px; font-weight:800; color:var(--brand-blue); }
+  .msg-row.sent .reply-quote-sender{ color:#fff; }
+  .reply-quote-text{ display:block; font-size:12px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:220px; }
+  .msg-row.sent .reply-quote-text{ color:rgba(255,255,255,0.85); }
+  .flash-highlight{ animation:flashHighlight 1.2s ease; border-radius:10px; }
+  @keyframes flashHighlight{ 0%{ background:rgba(255,122,41,0.25); } 100%{ background:transparent; } }
+  .img-lightbox{
+    position:fixed; inset:0; background:rgba(10,14,30,0.9); z-index:9999;
+    display:flex; align-items:center; justify-content:center;
+    opacity:0; pointer-events:none; transition:opacity 0.2s ease;
+  }
+  .img-lightbox.open{ opacity:1; pointer-events:auto; }
+  .img-lightbox img{ max-width:92vw; max-height:88vh; border-radius:10px; box-shadow:0 10px 50px rgba(0,0,0,0.5); }
+  .img-lightbox-close{
+    position:absolute; top:18px; right:22px; color:#fff; font-size:26px; font-weight:800;
+    cursor:pointer; opacity:0.85;
+  }
+  .img-lightbox-close:hover{ opacity:1; }
+  .msg-row{ display:flex; flex-direction:column; max-width:78%; }
+  .msg-row.sent{ align-self:flex-end; align-items:flex-end; }
+  .msg-row.received{ align-self:flex-start; align-items:flex-start; }
+  .msg-row.system-row{ align-self:center; align-items:center; max-width:90%; }
+  .bubble{ padding:10px 14px; border-radius:16px; font-size:13.5px; line-height:1.45; word-break:break-word; }
+  .msg-row.sent .bubble{ background:var(--brand-blue); color:#fff; border-bottom-right-radius:4px; }
+  .msg-row.received .bubble{ background:#fff; color:var(--ink); border:1px solid var(--card-border); border-bottom-left-radius:4px; }
+  .msg-row.system-row .bubble{ background:#FFF4E5; color:#8A5B00; border-radius:14px; font-size:12.5px; font-weight:700; text-align:center; }
+  .msg-row.system-row.delivery-row .bubble{ background:#E9F9EE; color:var(--success); border:1px solid #BFE8CC; text-align:left; max-width:320px; }
+  .msg-time{ font-size:10.5px; color:var(--muted); font-weight:600; margin-top:3px; padding:0 4px; }
+  .bubble img.chat-img{ max-width:220px; max-height:220px; border-radius:10px; margin-top:6px; cursor:pointer; display:block; }
+
+  .msg-with-avatar{ display:flex; gap:8px; align-items:flex-end; }
+  .msg-with-avatar.sent{ flex-direction:row-reverse; }
+  .msg-avatar{ width:26px; height:26px; border-radius:50%; object-fit:cover; flex-shrink:0; background:#E4EAF7; }
+  .unsend-link{ font-size:10px; color:var(--error); font-weight:700; cursor:pointer; margin-top:2px; opacity:0.75; }
+  .msg-context-menu{ display:none; position:fixed; background:#fff; border:1px solid var(--card-border); border-radius:12px; box-shadow:0 10px 30px rgba(15,27,61,0.25); z-index:200; overflow:hidden; min-width:170px; }
+  .msg-context-menu .menu-item{ padding:11px 16px; font-size:13.5px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:8px; }
+  .msg-context-menu .menu-item:hover{ background:#F0F3FA; }
+  .msg-context-menu .menu-item.danger{ color:var(--error); }
+  .msg-context-menu .menu-divider{ border-top:1px solid var(--card-border); margin:2px 0; }
+  .reply-preview-bar{ display:none; background:#F0F3FA; border-left:3px solid var(--brand-blue); border-radius:8px; padding:7px 10px; margin-bottom:8px; font-size:12px; align-items:center; gap:8px; }
+  .reply-preview-bar .reply-text{ flex:1; color:var(--muted); font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .reply-preview-bar .reply-cancel{ cursor:pointer; font-weight:800; color:var(--muted); }
+  .quoted-reply{ background:rgba(0,0,0,0.06); border-left:2px solid rgba(0,0,0,0.2); border-radius:6px; padding:4px 8px; margin-bottom:5px; font-size:11.5px; opacity:0.85; }
+
+  .unsend-link:hover{ opacity:1; text-decoration:underline; }
+
+  .send-preview{ display:none; background:#F0F3FA; border:1px solid var(--card-border); border-radius:12px; padding:10px; margin-bottom:10px; align-items:center; gap:10px; }
+  .send-preview img{ width:56px; height:56px; border-radius:8px; object-fit:cover; }
+  .send-preview .preview-actions{ margin-left:auto; display:flex; gap:8px; }
+  .send-preview button{ border:none; padding:8px 14px; border-radius:8px; font-weight:800; font-size:12.5px; cursor:pointer; }
+  .send-preview .confirm-send{ background:var(--brand-blue); color:#fff; }
+  .send-preview .cancel-send{ background:#fff; border:1px solid var(--card-border); color:var(--muted); }
+  .emoji-btn{ background:#F0F3FA; border:1px solid var(--card-border); color:var(--muted); border-radius:10px; width:42px; height:42px; font-size:18px; cursor:pointer; flex-shrink:0; }
+  .emoji-btn:hover{ background:#E4EAF7; }
+  .emoji-picker{ display:none; position:absolute; bottom:56px; background:#fff; border:1px solid var(--card-border); border-radius:12px; box-shadow:0 10px 25px rgba(15,27,61,0.15); padding:10px; z-index:50; width:260px; grid-template-columns:repeat(7,1fr); gap:4px; }
+  .emoji-picker span{ cursor:pointer; font-size:19px; text-align:center; border-radius:6px; padding:4px 0; }
+  .emoji-picker span:hover{ background:#F0F3FA; }
+
+  .reaction-bar{ display:none; position:absolute; bottom:100%; background:#fff; border:1px solid var(--card-border); border-radius:20px; box-shadow:0 6px 16px rgba(15,27,61,0.15); padding:5px 8px; gap:4px; z-index:40; }
+  .reaction-bar span{ cursor:pointer; font-size:17px; padding:2px; }
+  .reaction-bar span:hover{ transform:scale(1.25); }
+  .bubble-wrap{ position:relative; }
+  .react-trigger{ display:none; position:absolute; top:-10px; right:-8px; background:#fff; border:1px solid var(--card-border); border-radius:50%; width:22px; height:22px; font-size:12px; align-items:center; justify-content:center; cursor:pointer; }
+  .bubble-wrap:hover .react-trigger{ display:flex; }
+  .reaction-pills{ display:flex; gap:4px; flex-wrap:wrap; margin-top:3px; }
+  .reaction-pill{ background:#F0F3FA; border:1px solid var(--card-border); border-radius:12px; padding:1px 7px; font-size:11.5px; cursor:pointer; display:flex; align-items:center; gap:3px; }
+  .reaction-pill.mine{ background:#E4EAF7; border-color:var(--brand-blue); }
+
+  .delivery-title{ font-weight:800; font-size:12.5px; margin-bottom:6px; }
+
+  .chat-row{ display:flex; gap:8px; align-items:center; }
+  .chat-row input[type=text]{ flex:1; padding:11px 12px; border:1px solid var(--card-border); border-radius:10px; font-family:'Nunito Sans', sans-serif; font-size:13px; }
+  .chat-row button.send-btn{ background:var(--brand-blue); color:#fff; border:none; border-radius:10px; padding:0 18px; font-weight:800; font-size:13px; cursor:pointer; height:42px; }
+  .chat-row button.attach-btn{ background:#F0F3FA; border:1px solid var(--card-border); color:var(--muted); border-radius:10px; width:42px; height:42px; font-size:18px; cursor:pointer; flex-shrink:0; }
+  .chat-row button.attach-btn:hover{ background:#E4EAF7; }
 
   .proof-box{ margin-top:10px; }
   .proof-box img{ max-width:100%; border-radius:10px; border:1px solid var(--card-border); }
@@ -73,10 +176,31 @@
 
   <div class="card">
     <h2>💬 Order Chat</h2>
+    <div class="chat-helper-tip">
+      💡 <b>Have a question about receiving your item?</b> Just ask below — we'll walk you through it. Need something outside this order? <a href="support.html">Visit Support</a>.
+    </div>
     <div id="chat-box"></div>
+    <div class="reply-preview-bar" id="replyPreviewBar">
+      <span class="reply-text" id="replyPreviewText"></span>
+      <span class="reply-cancel" onclick="cancelReply()">✕</span>
+    </div>
+    <div class="send-preview" id="sendPreview">
+      <img id="previewImg" src="">
+      <span style="font-size:12.5px; color:var(--muted); font-weight:700;">Send this image?</span>
+      <div class="preview-actions">
+        <button class="cancel-send" onclick="cancelPendingImage()">Cancel</button>
+        <button class="confirm-send" onclick="confirmSendPendingImage()">Send</button>
+      </div>
+    </div>
     <div class="chat-row">
+      <input type="file" id="chat-file-input" accept="image/*" style="display:none;" onchange="handleFileSelect(event)">
+      <button class="attach-btn" onclick="document.getElementById('chat-file-input').click()" title="Attach screenshot">📎</button>
+      <button class="emoji-btn" onclick="toggleEmojiPicker()" title="Emoji" style="position:relative;">😊
+      <div class="emoji-picker" id="emojiPicker">
+        <span onclick="insertEmoji(&quot;😀&quot;)">😀</span><span onclick="insertEmoji(&quot;😂&quot;)">😂</span><span onclick="insertEmoji(&quot;😍&quot;)">😍</span><span onclick="insertEmoji(&quot;😘&quot;)">😘</span><span onclick="insertEmoji(&quot;😎&quot;)">😎</span><span onclick="insertEmoji(&quot;🤩&quot;)">🤩</span><span onclick="insertEmoji(&quot;🥳&quot;)">🥳</span><span onclick="insertEmoji(&quot;😭&quot;)">😭</span><span onclick="insertEmoji(&quot;😢&quot;)">😢</span><span onclick="insertEmoji(&quot;😡&quot;)">😡</span><span onclick="insertEmoji(&quot;😱&quot;)">😱</span><span onclick="insertEmoji(&quot;🤔&quot;)">🤔</span><span onclick="insertEmoji(&quot;🙄&quot;)">🙄</span><span onclick="insertEmoji(&quot;😴&quot;)">😴</span><span onclick="insertEmoji(&quot;🤗&quot;)">🤗</span><span onclick="insertEmoji(&quot;👍&quot;)">👍</span><span onclick="insertEmoji(&quot;👎&quot;)">👎</span><span onclick="insertEmoji(&quot;👏&quot;)">👏</span><span onclick="insertEmoji(&quot;🙏&quot;)">🙏</span><span onclick="insertEmoji(&quot;💪&quot;)">💪</span><span onclick="insertEmoji(&quot;🤝&quot;)">🤝</span><span onclick="insertEmoji(&quot;✋&quot;)">✋</span><span onclick="insertEmoji(&quot;👋&quot;)">👋</span><span onclick="insertEmoji(&quot;💯&quot;)">💯</span><span onclick="insertEmoji(&quot;🔥&quot;)">🔥</span><span onclick="insertEmoji(&quot;✨&quot;)">✨</span><span onclick="insertEmoji(&quot;💰&quot;)">💰</span><span onclick="insertEmoji(&quot;🎉&quot;)">🎉</span><span onclick="insertEmoji(&quot;❤️&quot;)">❤️</span><span onclick="insertEmoji(&quot;💙&quot;)">💙</span><span onclick="insertEmoji(&quot;💚&quot;)">💚</span><span onclick="insertEmoji(&quot;💛&quot;)">💛</span><span onclick="insertEmoji(&quot;🧡&quot;)">🧡</span><span onclick="insertEmoji(&quot;💜&quot;)">💜</span><span onclick="insertEmoji(&quot;🖤&quot;)">🖤</span><span onclick="insertEmoji(&quot;🤍&quot;)">🤍</span><span onclick="insertEmoji(&quot;💔&quot;)">💔</span><span onclick="insertEmoji(&quot;😊&quot;)">😊</span><span onclick="insertEmoji(&quot;😅&quot;)">😅</span><span onclick="insertEmoji(&quot;😉&quot;)">😉</span><span onclick="insertEmoji(&quot;😇&quot;)">😇</span><span onclick="insertEmoji(&quot;🥺&quot;)">🥺</span><span onclick="insertEmoji(&quot;😏&quot;)">😏</span><span onclick="insertEmoji(&quot;🤨&quot;)">🤨</span><span onclick="insertEmoji(&quot;😬&quot;)">😬</span>
+      </div></button>
       <input type="text" id="chat-input" placeholder="Type a message...">
-      <button onclick="sendMessage()">Send</button>
+      <button class="send-btn" onclick="sendMessage()">Send</button>
     </div>
   </div>
 </div>
@@ -86,9 +210,19 @@
   const orderId = urlParams.get('id');
   // Same webhook URL as index.html — paste the same one here so buyer chat
   // messages also ping Discord, not just new orders.
-  const DISCORD_ORDER_WEBHOOK_URL = 'https://discord.com/api/webhooks/1538240096757616661/tCRVlYfNKD4fhiWJ5MT_6A3_zAMQ0iSl_GdTbqWl5ajdXoHhGvfIrKWMXF4lcR_vVoAK';
+  const DISCORD_ORDER_WEBHOOK_URL = 'https://discord.com/api/webhooks/1543453297015525517/V9idgXAO4jvAPqhR4uqY9GKE4-6hl6CxjD4CMXm3agTU-HRm3c9EeARyB4MpLWYN1eGg';
   let currentUser = null;
   let currentOrder = null;
+  const SELLER_ROBLOX_USERNAME = 'Jethro_poter';
+  let sellerAvatarUrl = '';
+  let pendingImageFile = null;
+
+  async function loadSellerAvatar(){
+    try {
+      const { data } = await supabaseClient.functions.invoke('verify-roblox', { body: { username: SELLER_ROBLOX_USERNAME } });
+      if(data && data.success){ sellerAvatarUrl = data.avatarUrl || ''; }
+    } catch(e){ /* avatar is a nice-to-have, ignore failures */ }
+  }
 
   const audioCtx = typeof AudioContext !== 'undefined' || typeof webkitAudioContext !== 'undefined'
     ? new (window.AudioContext || window.webkitAudioContext)() : null;
@@ -137,16 +271,49 @@
 
   function formatMoney(n){ return '$' + Number(n).toFixed(2); }
 
-  function renderSummary(order){
+  function bigStatusBadge(status){
+    const configs = {
+      waiting_for_seller: { bg:'#FFF4E5', color:'#B8720A', icon:'<span class="hourglass-spin">⏳</span>', text:'Waiting for Seller to Accept' },
+      in_progress: { bg:'#EAF3FF', color:'#2F5FE0', icon:'<span class="progress-pulse">🔄</span>', text:'In Progress' },
+      delivered: { bg:'#E9F9EE', color:'#1E8E3E', icon:'📦', text:'Delivered' },
+      completed: { bg:'#E9F9EE', color:'#1E8E3E', icon:'✅', text:'Completed' },
+      disputed: { bg:'#FDEDEC', color:'#C0392B', icon:'🛑', text:'Disputed' },
+      cancelled: { bg:'#F1F1F1', color:'#6B7A99', icon:'❌', text:'Cancelled' },
+    };
+    const c = configs[status] || { bg:'#F1F1F1', color:'#6B7A99', icon:'•', text: status };
+    return `<div class="status-badge-big" style="background:${c.bg}; color:${c.color};"><span class="status-icon">${c.icon}</span><span>${c.text}</span></div>`;
+  }
+
+  async function renderSummary(order){
     currentOrder = order;
     const items = (order.items_json || []).map(i =>
       `<div class="item-line">• ${i.game}: ${i.item} x${i.qty} ($${Number(i.price).toFixed(2)})</div>`
     ).join('');
+
+    let reviewPromptHtml = '';
+    if(order.status === 'completed'){
+      try {
+        const { data: needsReview } = await supabaseClient.rpc('order_needs_review', { p_order_id: order.id });
+        if(needsReview){
+          reviewPromptHtml = `
+            <div id="starReviewPrompt" style="margin-top:16px; padding:16px; background:#F7F9FF; border:1px solid var(--card-border); border-radius:14px; text-align:center;">
+              <p style="font-weight:800; font-size:14px; margin-bottom:10px;">If it's okay with you, we'd love to hear your thoughts about us 🙂</p>
+              <div id="quickStars" style="font-size:30px; letter-spacing:4px; cursor:pointer;">
+                ${[1,2,3,4,5].map(n => `<span data-star="${n}" onclick="submitQuickStarReview(${n})">☆</span>`).join('')}
+              </div>
+            </div>
+          `;
+        }
+      } catch(e){ console.warn('Could not check review status:', e); }
+    }
+
     document.getElementById('orderSummaryCard').innerHTML = `
-      <div class="status-badge status-${order.status}">${STATUS_LABELS[order.status] || order.status}</div>
+      <a href="index.html" class="back-home-link">← Back to Home</a>
+      ${bigStatusBadge(order.status)}
       <h2>Order #${order.order_number}</h2>
       ${items}
       <div class="total-line">Total: ${formatMoney(order.total_amount)}</div>
+      ${reviewPromptHtml}
     `;
 
     const actionsCard = document.getElementById('deliveryActionsCard');
@@ -184,18 +351,27 @@
 
   async function loadOrder(){
     if(!orderId){
-      document.getElementById('orderSummaryCard').innerHTML = '<p class="sub">No order specified.</p>';
+      document.getElementById('orderSummaryCard').innerHTML = `
+        <a href="index.html" class="back-home-link">← Back to Home</a>
+        <p class="sub">No order specified.</p>
+      `;
       return;
     }
     const { data: { session } } = await supabaseClient.auth.getSession();
     currentUser = session ? session.user : null;
     if(!currentUser){
-      document.getElementById('orderSummaryCard').innerHTML = '<p class="sub">Please <a href="login.html">log in</a> to view this order.</p>';
+      document.getElementById('orderSummaryCard').innerHTML = `
+        <a href="index.html" class="back-home-link">← Back to Home</a>
+        <p class="sub">Please <a href="login.html">log in</a> to view this order.</p>
+      `;
       return;
     }
     const { data: order, error } = await supabaseClient.from('orders').select('*').eq('id', orderId).single();
     if(error || !order){
-      document.getElementById('orderSummaryCard').innerHTML = '<p class="sub">Order not found, or you don\'t have access to it.</p>';
+      document.getElementById('orderSummaryCard').innerHTML = `
+        <a href="index.html" class="back-home-link">← Back to Home</a>
+        <p class="sub">Order not found, or you don't have access to it.</p>
+      `;
       return;
     }
     renderSummary(order);
@@ -220,15 +396,293 @@
     return div.innerHTML;
   }
 
+  function formatTime(ts){
+    if(!ts) return '';
+    const d = new Date(ts);
+    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+
+
+  const QUICK_REACTIONS = ['👍','❤️','😂','😮','😢','🙏'];
+
+  function renderReactionPills(reactions, msgId, mySenderType){
+    if(!reactions) return '';
+    const entries = Object.entries(reactions).filter(([emoji, list]) => list && list.length > 0);
+    if(entries.length === 0) return '';
+    return `<div class="reaction-pills">${entries.map(([emoji, list]) => {
+      const mine = list.includes(mySenderType);
+      // Clicking YOUR OWN reaction removes it. Clicking a reaction that's
+      // only from the other person shows who reacted, instead of silently
+      // stacking your own reaction onto it.
+      const action = mine
+        ? `sendReaction('${msgId}','${emoji}',event)`
+        : `showWhoReacted('${list.join(",")}','${emoji}',event)`;
+      return `<span class="reaction-pill ${mine ? 'mine' : ''}" onclick="${action}">${emoji} ${list.length}</span>`;
+    }).join('')}</div>`;
+  }
+
+  window.showWhoReacted = function(whoList, emoji, event){
+    if(event) event.stopPropagation();
+    const names = whoList.split(',').map(s => s === 'buyer' ? 'Buyer' : s === 'seller' ? 'Seller' : s);
+    alert(names.join(', ') + ' reacted ' + emoji);
+  };
+
+  function reactionBarHtml(msgId){
+    return `<div class="reaction-bar" id="reactbar-${msgId}">${QUICK_REACTIONS.map(e => `<span onclick="sendReaction('${msgId}','${e}',event)">${e}</span>`).join('')}</div>`;
+  }
+
+  window.toggleReactionBar = function(msgId, event){
+    event.stopPropagation();
+    document.querySelectorAll('.reaction-bar').forEach(b => { if(b.id !== 'reactbar-' + msgId) b.style.display = 'none'; });
+    const bar = document.getElementById('reactbar-' + msgId);
+    if(bar) bar.style.display = bar.style.display === 'flex' ? 'none' : 'flex';
+  };
+
+  document.addEventListener('click', function(){
+    document.querySelectorAll('.reaction-bar').forEach(b => b.style.display = 'none');
+  });
+
+  window.toggleEmojiPicker = function(){
+    const picker = document.getElementById('emojiPicker');
+    picker.style.display = picker.style.display === 'grid' ? 'none' : 'grid';
+  };
+
+  window.insertEmoji = function(emoji){
+    const input = document.getElementById('chat-input');
+    input.value += emoji;
+    input.focus();
+    document.getElementById('emojiPicker').style.display = 'none';
+  };
+
+  document.addEventListener('click', function(e){
+    const picker = document.getElementById('emojiPicker');
+    if(picker && picker.style.display === 'grid' && !e.target.closest('.emoji-btn') && !e.target.closest('.emoji-picker')){
+      picker.style.display = 'none';
+    }
+  });
+
+  function updateMessageReactions(msg, mySenderType){
+    const wrap = document.querySelector(`[data-msg-id="${msg.id}"] .reaction-pills`);
+    const html = renderReactionPills(msg.reactions, msg.id, mySenderType);
+    if(wrap){
+      wrap.outerHTML = html || '<div class="reaction-pills"></div>';
+    }
+  }
+
   function renderMessage(msg){
     const box = document.getElementById('chat-box');
-    const div = document.createElement('div');
-    div.className = 'msg ' + msg.sender_type;
-    const who = msg.sender_type === 'buyer' ? 'You' : (msg.sender_type === 'seller' ? 'Seller' : 'System');
-    div.innerHTML = `<div class="who">${who}</div><div>${escapeHtml(msg.message)}</div>`;
-    box.appendChild(div);
+    const row = document.createElement('div');
+    row.setAttribute('data-msg-id', msg.id);
+
+    if(msg.is_delivery){
+      row.className = 'msg-row system-row delivery-row';
+      row.innerHTML = `
+        <div class="bubble">
+          <div class="delivery-title">📦 Order Delivered</div>
+          ${msg.image_url ? `<img class="chat-img" src="${msg.image_url}" onclick="openImageLightbox('${msg.image_url}')" style="max-width:260px; max-height:260px;">` : ''}
+        </div>
+        <div class="msg-time">${formatTime(msg.created_at)}</div>
+      `;
+    } else if(msg.sender_type === 'system' || msg.is_reminder){
+      row.className = 'msg-row system-row';
+      row.innerHTML = `
+        <div class="bubble">${msg.is_reminder ? '🔔 ' : ''}${escapeHtml(msg.message || '')}</div>
+        <div class="msg-time">${formatTime(msg.created_at)}</div>
+      `;
+    } else {
+      const isMine = msg.sender_type === 'buyer';
+      const imgHtml = msg.image_url ? `<img class="chat-img" src="${msg.image_url}" onclick="openImageLightbox('${msg.image_url}')">` : '';
+      const rawText = msg.message || '';
+      const textHtml = rawText ? escapeHtml(rawText) : '';
+      const avatarUrl = isMine ? (currentOrder ? currentOrder.roblox_avatar_url : '') : sellerAvatarUrl;
+      const nameLabel = isMine ? 'You' : `Seller · ${SELLER_ROBLOX_USERNAME}`;
+      const pillsHtml = renderReactionPills(msg.reactions, msg.id, 'buyer');
+      const replyHtml = msg.reply_to_text ? `
+        <div class="reply-quote" onclick="jumpToMessage('${msg.reply_to_id || ''}')">
+          <span class="reply-quote-sender">${escapeHtml(msg.reply_to_sender || '')}</span>
+          <span class="reply-quote-text">${escapeHtml(msg.reply_to_text)}</span>
+        </div>` : '';
+      row.setAttribute('data-msg-text', rawText);
+      row.setAttribute('data-msg-mine', isMine ? '1' : '0');
+      row.setAttribute('data-msg-sender-label', isMine ? 'You' : SELLER_ROBLOX_USERNAME);
+
+      row.innerHTML = `
+        <div class="msg-with-avatar ${isMine ? 'sent' : ''}">
+          ${avatarUrl ? `<img class="msg-avatar" src="${avatarUrl}">` : '<span class="msg-avatar"></span>'}
+          <div class="msg-row ${isMine ? 'sent' : 'received'}" style="max-width:100%;">
+            <div class="bubble-wrap">
+              <div class="bubble">${replyHtml}${textHtml}${imgHtml}</div>
+              <span class="react-trigger" onclick="toggleReactionBar('${msg.id}', event)">🙂</span>
+              ${reactionBarHtml(msg.id)}
+            </div>
+            ${pillsHtml || '<div class="reaction-pills"></div>'}
+            <div class="msg-time">${nameLabel} · ${formatTime(msg.created_at)}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    box.appendChild(row);
     box.scrollTop = box.scrollHeight;
   }
+
+  window.openImageLightbox = function(url){
+    let overlay = document.getElementById('imgLightbox');
+    if(!overlay){
+      overlay = document.createElement('div');
+      overlay.id = 'imgLightbox';
+      overlay.className = 'img-lightbox';
+      overlay.innerHTML = `<span class="img-lightbox-close" onclick="closeImageLightbox()">✕</span><img id="imgLightboxPic">`;
+      overlay.addEventListener('click', (e) => { if(e.target === overlay) closeImageLightbox(); });
+      document.body.appendChild(overlay);
+    }
+    document.getElementById('imgLightboxPic').src = url;
+    overlay.classList.add('open');
+  };
+
+  window.closeImageLightbox = function(){
+    const overlay = document.getElementById('imgLightbox');
+    if(overlay) overlay.classList.remove('open');
+  };
+
+  window.jumpToMessage = function(msgId){
+    if(!msgId) return;
+    const el = document.querySelector(`[data-msg-id="${msgId}"]`);
+    if(!el) return;
+    el.scrollIntoView({behavior:'smooth', block:'center'});
+    el.classList.add('flash-highlight');
+    setTimeout(() => el.classList.remove('flash-highlight'), 1200);
+  };
+
+  window.sendReaction = async function(msgId, emoji, event){
+    if(event) event.stopPropagation();
+    const bar = document.getElementById('reactbar-' + msgId);
+    if(bar) bar.style.display = 'none';
+    const { error } = await supabaseClient.rpc('toggle_message_reaction', { p_message_id: msgId, p_emoji: emoji, p_sender_type: 'buyer' });
+    if(error) console.error('Reaction failed:', error);
+  };
+
+  function showOrderConfirm(msg, onYes, confirmLabel){
+    let overlay = document.getElementById('orderConfirmOverlay');
+    if(!overlay){
+      overlay = document.createElement('div');
+      overlay.id = 'orderConfirmOverlay';
+      overlay.style.cssText = `
+        position:fixed; inset:0; background:rgba(15,27,61,0.45); z-index:9998;
+        display:flex; align-items:center; justify-content:center;
+        opacity:0; pointer-events:none; transition:opacity 0.2s ease;
+      `;
+      overlay.innerHTML = `
+        <div id="orderConfirmBox" style="background:#fff; border-radius:16px; padding:22px 24px; max-width:320px; width:88vw; text-align:center; box-shadow:0 10px 40px rgba(0,0,0,0.3); transform:scale(0.9); transition:transform 0.2s ease;">
+          <p id="orderConfirmMsg" style="font-weight:800; font-size:14.5px; color:var(--ink); margin:0 0 18px;"></p>
+          <div style="display:flex; gap:10px; justify-content:center;">
+            <button id="orderConfirmNoBtn" style="font-family:'Baloo 2',sans-serif; font-weight:700; font-size:13px; border:none; border-radius:20px; padding:9px 18px; cursor:pointer; background:#EEF1F8; color:var(--ink);">Cancel</button>
+            <button id="orderConfirmYesBtn" style="font-family:'Baloo 2',sans-serif; font-weight:700; font-size:13px; border:none; border-radius:20px; padding:9px 18px; cursor:pointer; background:#2F5FE0; color:#fff;">Yes</button>
+          </div>
+        </div>`;
+      document.body.appendChild(overlay);
+      overlay.addEventListener('click', (e) => { if(e.target === overlay) hideOrderConfirm(); });
+      document.getElementById('orderConfirmNoBtn').addEventListener('click', hideOrderConfirm);
+    }
+    document.getElementById('orderConfirmMsg').textContent = msg;
+    document.getElementById('orderConfirmYesBtn').textContent = confirmLabel || 'Yes';
+    const yesBtn = document.getElementById('orderConfirmYesBtn');
+    const freshYesBtn = yesBtn.cloneNode(true);
+    yesBtn.parentNode.replaceChild(freshYesBtn, yesBtn);
+    freshYesBtn.addEventListener('click', () => { hideOrderConfirm(); onYes(); });
+    overlay.style.opacity = '1';
+    overlay.style.pointerEvents = 'auto';
+    document.getElementById('orderConfirmBox').style.transform = 'scale(1)';
+  }
+
+  function hideOrderConfirm(){
+    const overlay = document.getElementById('orderConfirmOverlay');
+    if(!overlay) return;
+    overlay.style.opacity = '0';
+    overlay.style.pointerEvents = 'none';
+    document.getElementById('orderConfirmBox').style.transform = 'scale(0.9)';
+  }
+
+  window.unsendMessage = async function(msgId){
+    showOrderConfirm('Unsend this message for everyone? This cannot be undone.', async () => {
+      const { error } = await supabaseClient.from('order_messages').delete().eq('id', msgId);
+      if(error){ alert('Could not unsend: ' + error.message); return; }
+      const el = document.querySelector(`[data-msg-id="${msgId}"]`);
+      if(el) el.remove();
+    });
+  };
+
+  async function uploadChatImage(file){
+    try {
+      const ext = file.name.split('.').pop() || 'png';
+      const path = `${orderId}/${Date.now()}.${ext}`;
+      const { error: uploadError } = await supabaseClient.storage.from('chat-uploads').upload(path, file);
+      if(uploadError){
+        console.error('Upload error:', uploadError);
+        alert('Image upload failed: ' + (uploadError.message || JSON.stringify(uploadError)));
+        return null;
+      }
+      const { data } = supabaseClient.storage.from('chat-uploads').getPublicUrl(path);
+      return data.publicUrl;
+    } catch(e){
+      console.error('Upload exception:', e);
+      alert('Image upload crashed: ' + e.message);
+      return null;
+    }
+  }
+
+  function showImagePreview(file){
+    pendingImageFile = file;
+    document.getElementById('previewImg').src = URL.createObjectURL(file);
+    document.getElementById('sendPreview').style.display = 'flex';
+  }
+
+  window.cancelPendingImage = function(){
+    pendingImageFile = null;
+    document.getElementById('sendPreview').style.display = 'none';
+  };
+
+  window.confirmSendPendingImage = async function(){
+    if(!pendingImageFile || !currentUser) return;
+    const file = pendingImageFile;
+    pendingImageFile = null;
+    document.getElementById('sendPreview').style.display = 'none';
+
+    const url = await uploadChatImage(file);
+    if(!url) return;
+    const { error: insertError } = await supabaseClient.from('order_messages').insert([{
+      order_id: orderId,
+      sender_type: 'buyer',
+      sender_name: currentUser.email,
+      message: '',
+      image_url: url
+    }]);
+    if(insertError){
+      console.error('Message insert error:', insertError);
+      alert('Image uploaded but failed to post to chat: ' + insertError.message);
+    } else {
+      await supabaseClient.from('orders').update({ last_buyer_activity_at: new Date().toISOString() }).eq('id', orderId);
+    }
+  };
+
+  window.handleFileSelect = function(event){
+    const file = event.target.files[0];
+    event.target.value = '';
+    if(!file){ return; }
+    if(!currentUser){ alert('You must be logged in to send an image.'); return; }
+    showImagePreview(file);
+  };
+
+  document.getElementById('chat-input').addEventListener('paste', function(e){
+    const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+    for(const item of items){
+      if(item.type.indexOf('image') !== -1){
+        const file = item.getAsFile();
+        if(!currentUser){ alert('You must be logged in to send an image.'); return; }
+        showImagePreview(file);
+      }
+    }
+  });
 
   function subscribeRealtime(){
     supabaseClient
@@ -237,23 +691,157 @@
         renderMessage(payload.new);
         if(payload.new.is_reminder) triggerReminder(payload.new.message);
       })
+      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'order_messages', filter: `order_id=eq.${orderId}` }, (payload) => {
+        const el = document.querySelector(`[data-msg-id="${payload.old.id}"]`);
+        if(el) el.remove();
+      })
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'order_messages', filter: `order_id=eq.${orderId}` }, (payload) => {
+        updateMessageReactions(payload.new, 'buyer');
+      })
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'orders', filter: `id=eq.${orderId}` }, (payload) => {
         renderSummary(payload.new);
       })
       .subscribe();
   }
 
+  const REPORT_WEBHOOK_URL = 'https://discord.com/api/webhooks/1539854974580822026/_SL4w2rIYCKFj8Ryic4CyNifCbWI7usn92_JqArjibsp4yWlPQYcE1VC9BQ-pGDs44TF';
+  let pendingReplyTo = null;
+
+  window.startReply = function(msgId){
+    const row = document.querySelector(`[data-msg-id="${msgId}"]`);
+    if(!row) return;
+    const text = row.getAttribute('data-msg-text') || '📷 Image';
+    const senderLabel = row.getAttribute('data-msg-sender-label') || '';
+    pendingReplyTo = { id: msgId, text, senderLabel };
+    document.getElementById('replyPreviewText').textContent = `Replying to ${senderLabel}: ${text}`;
+    document.getElementById('replyPreviewBar').style.display = 'flex';
+    document.getElementById('chat-input').focus();
+    hideMessageMenu();
+  };
+
+  window.cancelReply = function(){
+    pendingReplyTo = null;
+    document.getElementById('replyPreviewBar').style.display = 'none';
+  };
+
+  window.copyMessageText = function(msgId){
+    const row = document.querySelector(`[data-msg-id="${msgId}"]`);
+    const text = row ? (row.getAttribute('data-msg-text') || '') : '';
+    if(navigator.clipboard && text){ navigator.clipboard.writeText(text); }
+    hideMessageMenu();
+  };
+
+  window.reportMessageFromMenu = async function(msgId){
+    hideMessageMenu();
+    showOrderConfirm('Report this message to the Buylance team?', async () => {
+      const row = document.querySelector(`[data-msg-id="${msgId}"]`);
+      const text = row ? (row.getAttribute('data-msg-text') || '(image)') : '(unknown)';
+      try {
+        await supabaseClient.from('message_reports').insert([{
+          message_id: msgId, order_id: orderId, reported_by: currentUser.id, reported_message_text: text
+        }]);
+      } catch(e){ console.warn('Report insert failed:', e); }
+      try {
+        await fetch(REPORT_WEBHOOK_URL, {
+          method: 'POST', headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({ content: `🚩 **Message reported** on Order #${currentOrder ? currentOrder.order_number : '?'}\n> ${text}\nhttps://buylance.gg/admin-order.html?id=${orderId}` })
+        });
+      } catch(e){ console.warn('Report webhook failed:', e); }
+      alert('Reported — the team will review it.');
+    }, 'Report');
+  };
+
+  function hideMessageMenu(){
+    document.getElementById('msgContextMenu').style.display = 'none';
+  }
+
+  function showMessageMenu(msgId, x, y){
+    const row = document.querySelector(`[data-msg-id="${msgId}"]`);
+    if(!row) return;
+    const isMine = row.getAttribute('data-msg-mine') === '1';
+    const menu = document.getElementById('msgContextMenu');
+    let html = `<div class="menu-item" onclick="startReply('${msgId}')">↩️ Reply</div>`;
+    html += `<div class="menu-item" onclick="copyMessageText('${msgId}')">📋 Copy</div>`;
+    html += `<div class="menu-divider"></div>`;
+    if(isMine){
+      html += `<div class="menu-item danger" onclick="unsendMessage('${msgId}'); hideMenuNow();">🗑 Delete / Unsend</div>`;
+    } else {
+      html += `<div class="menu-item danger" onclick="reportMessageFromMenu('${msgId}')">🚩 Report</div>`;
+    }
+    menu.innerHTML = html;
+    menu.style.display = 'block';
+    const menuWidth = 190;
+    const left = Math.min(x, window.innerWidth - menuWidth - 10);
+    const top = Math.min(y, window.innerHeight - 160);
+    menu.style.left = left + 'px';
+    menu.style.top = top + 'px';
+  }
+
+  window.hideMenuNow = hideMessageMenu;
+
+  document.addEventListener('click', (e) => {
+    if(!e.target.closest('.msg-context-menu')) hideMessageMenu();
+  });
+
+  // Long-press (works for touch AND mouse hold) on any message bubble opens
+  // the Reply / Copy / Delete-or-Report menu — same interaction as Messenger.
+  (function setupLongPress(){
+    let pressTimer = null;
+    let startX = 0, startY = 0;
+    const box = document.getElementById('chat-box');
+
+    function begin(e){
+      const wrap = e.target.closest('.bubble-wrap') || e.target.closest('.bubble');
+      if(!wrap) return;
+      const row = e.target.closest('[data-msg-id]');
+      if(!row) return;
+      const point = e.touches ? e.touches[0] : e;
+      startX = point.clientX; startY = point.clientY;
+      pressTimer = setTimeout(() => {
+        showMessageMenu(row.getAttribute('data-msg-id'), point.clientX, point.clientY);
+      }, 480);
+    }
+    function cancel(){ if(pressTimer){ clearTimeout(pressTimer); pressTimer = null; } }
+    function move(e){
+      const point = e.touches ? e.touches[0] : e;
+      if(Math.abs(point.clientX - startX) > 10 || Math.abs(point.clientY - startY) > 10) cancel();
+    }
+
+    box.addEventListener('mousedown', begin);
+    box.addEventListener('mouseup', cancel);
+    box.addEventListener('mouseleave', cancel);
+    box.addEventListener('mousemove', move);
+    box.addEventListener('touchstart', begin, {passive:true});
+    box.addEventListener('touchend', cancel);
+    box.addEventListener('touchmove', move, {passive:true});
+
+    // Right-click also opens it instantly (desktop convenience)
+    box.addEventListener('contextmenu', (e) => {
+      const row = e.target.closest('[data-msg-id]');
+      if(row){ e.preventDefault(); showMessageMenu(row.getAttribute('data-msg-id'), e.clientX, e.clientY); }
+    });
+  })();
+
   window.sendMessage = async function(){
     const input = document.getElementById('chat-input');
-    const text = input.value.trim();
+    let text = input.value.trim();
     if(!text) return;
+    const replySnapshot = pendingReplyTo;
+    if(pendingReplyTo){
+      pendingReplyTo = null;
+      document.getElementById('replyPreviewBar').style.display = 'none';
+    }
     input.value = '';
     await supabaseClient.from('order_messages').insert([{
       order_id: orderId,
       sender_type: 'buyer',
       sender_name: currentUser.email,
-      message: text
+      message: text,
+      reply_to_id: replySnapshot ? replySnapshot.id : null,
+      reply_to_text: replySnapshot ? replySnapshot.text.slice(0,120) : null,
+      reply_to_sender: replySnapshot ? replySnapshot.senderLabel : null
     }]);
+    await supabaseClient.from('orders').update({ last_buyer_activity_at: new Date().toISOString() }).eq('id', orderId);
     sendDiscordChatPing(text);
   };
 
@@ -261,12 +849,14 @@
   // seller doesn't have to keep the dashboard open to notice it.
   async function sendDiscordChatPing(text){
     if(!DISCORD_ORDER_WEBHOOK_URL || DISCORD_ORDER_WEBHOOK_URL.includes('PASTE_YOUR') || !currentOrder) return;
-    const dashboardLink = window.location.origin + '/admin-order.html?id=' + orderId;
+    const dashboardLink = 'https://buylance.gg/admin-order.html?id=' + orderId;
     const payload = {
-      content: `💬 **New message on Order #${currentOrder.order_number}** from \`${currentOrder.roblox_username}\`:\n> ${text}\n[Open Order Chat](${dashboardLink})`
+      content: `💬 **New message on Order #${currentOrder.order_number}** from \`${currentOrder.roblox_username}\`:\n> ${text}\n${dashboardLink}`
     };
+    const threadId = currentOrder.discord_thread_id;
+    const url = threadId ? `${DISCORD_ORDER_WEBHOOK_URL}?thread_id=${threadId}` : DISCORD_ORDER_WEBHOOK_URL;
     try {
-      await fetch(DISCORD_ORDER_WEBHOOK_URL, {
+      await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -281,12 +871,36 @@
   };
 
   window.confirmDelivery = async function(){
-    if(!confirm('Confirm you received your item?')) return;
-    const { error } = await supabaseClient.rpc('buyer_confirm_delivery', { p_order_id: orderId });
-    if(error){ alert('Something went wrong — please try again.'); return; }
-    const { data: order } = await supabaseClient.from('orders').select('*').eq('id', orderId).single();
-    if(order) renderSummary(order);
-    sendDiscordSimplePing(`✅ **Order #${order.order_number}** was confirmed as received by \`${order.roblox_username}\`.`);
+    showOrderConfirm('Are you sure? Confirm you received your item?', async () => {
+      const { error } = await supabaseClient.rpc('buyer_confirm_delivery', { p_order_id: orderId });
+      if(error){ alert('Something went wrong — please try again.'); return; }
+      const { data: order } = await supabaseClient.from('orders').select('*').eq('id', orderId).single();
+      if(order) renderSummary(order);
+      sendDiscordSimplePing(`✅ **Order #${order.order_number}** was confirmed as received by \`${order.roblox_username}\`.`);
+    }, "Yes, I got it");
+  };
+
+  window.submitQuickStarReview = async function(stars){
+    // Fill stars visually right away, before the network call finishes
+    document.querySelectorAll('#quickStars span').forEach(s => {
+      s.textContent = Number(s.dataset.star) <= stars ? '★' : '☆';
+      s.style.color = Number(s.dataset.star) <= stars ? '#F2B705' : '';
+    });
+    try {
+      const { data, error } = await supabaseClient.rpc('submit_review', {
+        p_order_id: currentOrder.id,
+        p_name: currentOrder.roblox_username || 'Buyer',
+        p_stars: stars,
+        p_review_text: ''
+      });
+      if(error) throw error;
+      const prompt = document.getElementById('starReviewPrompt');
+      if(prompt){
+        prompt.innerHTML = '<p style="font-weight:800; font-size:14px; color:var(--success);">🙏 Thanks so much for the feedback!</p>';
+      }
+    } catch(e){
+      console.warn('Quick star review failed:', e);
+    }
   };
 
   window.submitReport = async function(){
@@ -297,14 +911,18 @@
     if(error){ alert('Something went wrong — please try again.'); return; }
     const { data: order } = await supabaseClient.from('orders').select('*').eq('id', orderId).single();
     if(order) renderSummary(order);
-    const dashboardLink = window.location.origin + '/admin-order.html?id=' + orderId;
-    sendDiscordSimplePing(`🛑 **DISPUTE on Order #${order.order_number}** from \`${order.roblox_username}\`: ${fullReason}\n[Review it here](${dashboardLink})`);
+    const dashboardLink = 'https://buylance.gg/admin-order.html?id=' + orderId;
+    sendDiscordSimplePing(`🛑 **DISPUTE on Order #${order.order_number}** from \`${order.roblox_username}\`: ${fullReason}\n${dashboardLink}`);
   };
 
   async function sendDiscordSimplePing(content){
     if(!DISCORD_ORDER_WEBHOOK_URL || DISCORD_ORDER_WEBHOOK_URL.includes('PASTE_YOUR')) return;
+    // If this order already has its own Discord thread, post there instead
+    // of the main channel feed, so everything about this order stays together.
+    const threadId = currentOrder && currentOrder.discord_thread_id;
+    const url = threadId ? `${DISCORD_ORDER_WEBHOOK_URL}?thread_id=${threadId}` : DISCORD_ORDER_WEBHOOK_URL;
     try {
-      await fetch(DISCORD_ORDER_WEBHOOK_URL, {
+      await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content })
@@ -318,8 +936,10 @@
     if(e.key === 'Enter') sendMessage();
   });
 
+  loadSellerAvatar();
   loadOrder();
 </script>
 
+<div class="msg-context-menu" id="msgContextMenu"></div>
 </body>
 </html>
