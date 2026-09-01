@@ -111,6 +111,15 @@
     width:44px; height:44px; border-radius:50%; background:var(--brand-blue); color:#fff;
     display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0;
   }
+  .faq-ai-ask-row{ display:flex; gap:8px; margin-bottom:14px; }
+  .faq-ai-ask-row input{
+    flex:1; padding:11px 12px; border:1.5px solid var(--brand-blue); border-radius:10px;
+    font-family:'Nunito Sans', sans-serif; font-size:13.5px;
+  }
+  .faq-ai-ask-row button{
+    background:var(--brand-blue); color:#fff; border:none; border-radius:10px;
+    padding:11px 18px; font-family:'Baloo 2', sans-serif; font-weight:700; font-size:13px; cursor:pointer;
+  }
   #faqConversation{
     background:#F0F3FA; border-radius:14px; padding:16px; margin-bottom:14px;
     display:flex; flex-direction:column; gap:10px; min-height:120px;
@@ -181,6 +190,10 @@
         <p class="sub" style="margin:0;">Ask a common question, get an instant answer</p>
       </div>
     </div>
+    <div class="faq-ai-ask-row">
+      <input type="text" id="faqAiInput" placeholder="Or type any question about Buylance..." onkeydown="if(event.key==='Enter') askAiDirectly()">
+      <button onclick="askAiDirectly()">Ask</button>
+    </div>
     <div id="faqConversation"></div>
   </div>
 
@@ -232,7 +245,7 @@
     // ---- Getting Started ----
     'signup': {
       q: 'How do I create an account?',
-      a: `Signing up only takes a Gmail address — head to the Sign Up page, enter your Gmail, and choose a password (this is a brand new password just for our site, not your actual Gmail password). We'll send a verification link to your inbox — click it, then come back and log in.<br><br>
+      a: `Signing up only takes a real email address — head to the Sign Up page, enter your email, and choose a password (this is a brand new password just for our site, not your email's own password). We'll send a verification link to your inbox — click it, then come back and log in.<br><br>
         If you already have an account, you'll never be shown the signup page again while logged in — you'll just be sent straight to the homepage.`,
       related: ['legit', 'payment']
     },
@@ -377,9 +390,13 @@
   }
 
   function botBubble(html){
+    // Converts any markdown-style [text](url) links (like the AI might
+    // produce) into real clickable HTML links, since this renders as
+    // actual HTML, not plain text.
+    const withRealLinks = html.replace(/\[([^\]]+)\]\((https?:\/\/[^\)]+)\)/g, '<a href="$2" style="color:var(--brand-blue); font-weight:800;">$1</a>');
     return `<div class="faq-chat-row bot faq-bubble-in">
       <div class="faq-bot-mini-avatar">🤖</div>
-      <div class="faq-bubble">${html}</div>
+      <div class="faq-bubble">${withRealLinks}</div>
     </div>`;
   }
 
@@ -533,6 +550,51 @@
   window.escalateToTicket = function(){
     document.getElementById('formCard').style.display = 'block';
     document.getElementById('formCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  // Asking the AI directly. Full fallback chain: AI unavailable →
+  // scripted FAQ tree → "Talk to Support" is always visible regardless,
+  // so nobody ever actually gets stuck with zero answer.
+  window.askAiDirectly = async function(){
+    const input = document.getElementById('faqAiInput');
+    const question = input.value.trim();
+    if(!question) return;
+    input.value = '';
+
+    const box = document.getElementById('faqConversation');
+    renderFaqOptionsBelow('');
+    box.innerHTML = myBubble(question);
+    box.insertAdjacentHTML('beforeend', typingRow());
+    box.scrollTop = box.scrollHeight;
+
+    try {
+      const { data, error } = await supabaseClient.functions.invoke('ask-ai-assistant', {
+        body: { message: question }
+      });
+
+      const typingRowEl = document.getElementById('faqTypingRow');
+      if(typingRowEl) typingRowEl.remove();
+
+      if(error || !data || !data.ok || !data.answer){
+        throw new Error('AI unavailable');
+      }
+
+      box.insertAdjacentHTML('beforeend', botBubble(data.answer));
+      box.scrollTop = box.scrollHeight;
+      renderFaqOptionsBelow(`
+        <button class="faq-option-btn" onclick="renderFaqRoot()">← Back to all questions</button>
+        <button class="faq-escalate-btn" onclick="escalateToTicket()">💬 Talk to our Support</button>
+        <button class="faq-end-btn" onclick="endFaqConversation()">End conversation</button>
+      `);
+    } catch(e){
+      // AI failed for any reason — fall back to the FAQ tree, which
+      // never depends on any external service and can't go down.
+      const typingRowEl = document.getElementById('faqTypingRow');
+      if(typingRowEl) typingRowEl.remove();
+      box.insertAdjacentHTML('beforeend', botBubble("Our AI assistant is a bit busy right now — here's our full help topics instead!"));
+      box.scrollTop = box.scrollHeight;
+      setTimeout(() => { renderFaqRoot(); }, 1400);
+    }
   };
 
   function showError(msg){
