@@ -511,7 +511,7 @@
   }
   .filter-btn{
     background:#fff; border:1px solid var(--card-border); color:var(--muted);
-    font-family:'Baloo 2', sans-serif; font-weight:700; font-size:12.5px;
+    font-family:'Baloo 2', sans-serif; font-weight:700; font-size:14.5px;
     padding:8px 16px; border-radius:20px; cursor:pointer;
   }
   .filter-btn.active{ background:var(--brand-blue); color:#fff; border-color:var(--brand-blue); }
@@ -778,7 +778,8 @@
       </div>
     </div>
     <button class="icon-btn" id="ticketBtn" onclick="window.location.href='support.html'" style="position:relative;" title="Support Tickets">
-      🎫<span class="cart-count" id="ticketCount" style="display:none;">0</span>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle;"><path d="M12 2C6.48 2 2 6.48 2 12v5a3 3 0 0 0 3 3h1a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2H4v-1a8 8 0 0 1 16 0v1h-2a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h1a3 3 0 0 0 3-3v-5c0-5.52-4.48-10-10-10z" fill="currentColor"/><path d="M16 19v1a2 2 0 0 1-2 2h-1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      <span class="cart-count" id="ticketCount" style="display:none;">0</span>
     </button>
     <button class="icon-btn cart-icon" onclick="toggleCart()">🛒<span class="cart-count" id="cartCount">0</span></button>
     <button class="icon-btn" onclick="toggleSearch()">🔍</button>
@@ -4077,8 +4078,10 @@
   }
 
   let currentFilter = 'all';
+  let reviewsExpanded = false;
   function filterReviews(filter, btn){
     currentFilter = filter;
+    reviewsExpanded = false; // fresh filter click always starts capped again
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     renderReviews();
@@ -4086,11 +4089,11 @@
 
   function renderReviews(){
     const wrap = document.getElementById('reviewCards');
-    const shown = currentFilter === 'all'
+    const matching = currentFilter === 'all'
       ? liveReviews
       : liveReviews.filter(r => r.stars === parseInt(currentFilter));
 
-    if(shown.length === 0){
+    if(matching.length === 0){
       wrap.innerHTML = '<div class="review-empty">' +
         (liveReviews.length === 0
           ? "We're brand new — your review could be the first one featured here!"
@@ -4098,6 +4101,10 @@
         '</div>';
       return;
     }
+
+    // Cap at 5 by default, on any filter — "See All" reveals the rest.
+    const shown = reviewsExpanded ? matching : matching.slice(0, 5);
+
     wrap.innerHTML = shown.map(r => `
       <div class="review-card">
         <div class="review-top">
@@ -4110,7 +4117,22 @@
         <div class="review-quote">"${r.review_text || ''}"</div>
       </div>
     `).join('');
+
+    if(!reviewsExpanded && matching.length > 5){
+      wrap.insertAdjacentHTML('afterend', `
+        <div style="text-align:center; margin-top:16px;" id="seeAllReviewsRow">
+          <button class="filter-btn" onclick="expandReviews()">See All ${matching.length} Reviews →</button>
+        </div>
+      `);
+    }
   }
+
+  window.expandReviews = function(){
+    reviewsExpanded = true;
+    const oldRow = document.getElementById('seeAllReviewsRow');
+    if(oldRow) oldRow.remove();
+    renderReviews();
+  };
   loadReviews();
 
   // Star picker
@@ -4460,13 +4482,13 @@
 </style>
 
 <div id="botFab" onclick="toggleBotPanel()">
-  <div class="fab-avatar">🎧</div>
+  <div class="fab-avatar"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12v5a3 3 0 0 0 3 3h1a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2H4v-1a8 8 0 0 1 16 0v1h-2a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h1a3 3 0 0 0 3-3v-5c0-5.52-4.48-10-10-10z" fill="white"/><path d="M16 19v1a2 2 0 0 1-2 2h-1" stroke="white" stroke-width="1.6" stroke-linecap="round"/></svg></div>
   <div class="fab-label">Ask our Bot</div>
 </div>
 
 <div id="botPanel">
   <div class="bot-panel-header">
-    <div class="bot-panel-avatar">🤖</div>
+    <div class="bot-panel-avatar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12v5a3 3 0 0 0 3 3h1a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2H4v-1a8 8 0 0 1 16 0v1h-2a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h1a3 3 0 0 0 3-3v-5c0-5.52-4.48-10-10-10z" fill="white"/><path d="M16 19v1a2 2 0 0 1-2 2h-1" stroke="white" stroke-width="1.6" stroke-linecap="round"/></svg></div>
     <div>
       <div class="bot-panel-title">Bot BuyLanceGg</div>
       <div class="bot-panel-status"><span class="dot"></span> Orders · Payments · Rewards</div>
