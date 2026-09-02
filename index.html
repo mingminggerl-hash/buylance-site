@@ -370,6 +370,20 @@
     text-align:center; color:var(--muted); font-size:12px; font-weight:600; line-height:1.7;
   }
 
+  .big-update-banner{
+    display:flex; align-items:center; gap:14px; flex-wrap:wrap; justify-content:center;
+    max-width:800px; margin:28px auto 0; padding:14px 22px;
+    background:linear-gradient(90deg, #EAF3FF, #FFF4E5);
+    border:1.5px solid var(--brand-blue); border-radius:20px;
+  }
+  .big-update-badge{
+    flex-shrink:0; background:var(--brand-blue); color:#fff;
+    font-family:'Baloo 2', sans-serif; font-weight:800; font-size:12.5px;
+    padding:7px 14px; border-radius:16px; white-space:nowrap;
+  }
+  .big-update-text{ font-size:12.5px; color:var(--ink); font-weight:600; line-height:1.55; text-align:left; }
+  .big-update-text b{ color:var(--brand-blue); }
+
   .trust-pill{
     display:flex; align-items:center; gap:8px;
     width:fit-content; margin:36px auto 0;
@@ -862,6 +876,12 @@
         Apply <span id="cartAvailableWallet">$0.00</span> Cashback Discount
       </label>
     </div>
+    <div id="cartRewardRow" style="display:none; background:#FFF4E5; border:1px solid #F0D9A8; padding:10px 12px; border-radius:10px; margin:8px 0;">
+      <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:12.5px; font-weight:700; color:#8A5B00;">
+        <input type="checkbox" id="applyRewardCheckbox" checked onchange="toggleRewardDiscount()" style="width:16px; height:16px;">
+        🎁 Apply your <span id="cartRewardPercent">10%</span> reward discount (<span id="cartRewardReason">welcome back</span>)
+      </label>
+    </div>
     <div class="cart-subtotal-row" style="font-size:12.5px; color:var(--muted);">
       <span>Processing fee</span>
       <span id="cartFee">$0.00</span>
@@ -886,6 +906,15 @@
     <div id="cartCurrencyNote" style="display:none; font-size:11px; color:var(--muted); text-align:right; margin-top:-8px; padding:0 4px 4px;">Shown for reference — you'll be charged in USD via PayPal.</div>
     <button class="modal-submit" onclick="openCheckoutModal()">Checkout →</button>
   </div>
+</div>
+
+<div class="big-update-banner">
+  <div class="big-update-badge">🎉 COMING SOON</div>
+  <p class="big-update-text">
+    New rewards on the way — spent <b>$10 total</b>, earn a <b>5% off discount</b>, every time. Complete <b>5 orders</b>
+    and get a one-time <b>10% off</b> your next buy. Plus, every buyer will automatically get a fresh
+    <b>10% code every week</b>, just for shopping with us.
+  </p>
 </div>
 
 <div class="trust-pill">
@@ -2955,6 +2984,36 @@
     renderCart();
   }
 
+  // Auto-applied reward discounts (win-back, spend/order milestones —
+  // everything except the weekly typed code). Loaded once when the cart
+  // opens; checked by default, but the buyer can still uncheck it.
+  let pendingReward = null; // { id, percent, reason } or null
+  let useReward = true;
+
+  const REWARD_REASON_LABELS = {
+    win_back: 'welcome back',
+    spend_milestone: 'spending reward',
+    order_milestone: 'loyalty reward',
+  };
+
+  async function loadPendingReward(){
+    if(!currentUser){ pendingReward = null; return; }
+    try {
+      const { data, error } = await supabaseClient.rpc('get_pending_auto_reward');
+      if(error) throw error;
+      pendingReward = data && data.ok ? data : null;
+    } catch(e){
+      console.warn('Could not load pending reward:', e);
+      pendingReward = null;
+    }
+  }
+
+  function toggleRewardDiscount(){
+    const checkbox = document.getElementById('applyRewardCheckbox');
+    useReward = checkbox ? checkbox.checked : false;
+    renderCart();
+  }
+
   function openCashbackModal(type){
     const title = document.getElementById('cashbackModalTitle');
     const body = document.getElementById('cashbackModalBody');
@@ -3051,13 +3110,32 @@
   // This posts a one-way notification into your Discord channel whenever a new order comes in — it is NOT a bot, no hosting needed.
   const DISCORD_ORDER_WEBHOOK_URL = 'https://discord.com/api/webhooks/1543453297015525517/V9idgXAO4jvAPqhR4uqY9GKE4-6hl6CxjD4CMXm3agTU-HRm3c9EeARyB4MpLWYN1eGg';
   let mutationTimerInterval = null;
-  let appliedPromoCode = null; // 'BUYLANCE' or null
+  let appliedPromoCode = null; // { code, percent, isPersonal } or null
 
   // Cart persistence: cart survives page reloads and switching between pages
   // by saving to the browser's own localStorage (stays on the visitor's device).
   const CART_STORAGE_KEY = 'buylance_cart_v1';
   function saveCartToStorage(){
     try { localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart)); } catch(e){ /* storage unavailable, ignore */ }
+    syncCartToDatabaseDebounced();
+  }
+
+  // Also mirrors the cart into Supabase (for logged-in users only), so
+  // the abandoned-cart reminder system has something to check later.
+  // Debounced so rapid quantity changes don't hammer the database.
+  let cartSyncTimeout = null;
+  function syncCartToDatabaseDebounced(){
+    if(!currentUser) return;
+    clearTimeout(cartSyncTimeout);
+    cartSyncTimeout = setTimeout(async () => {
+      try {
+        const itemCount = cart.reduce((s,i) => s + i.qty, 0);
+        await supabaseClient.rpc('sync_cart_snapshot', {
+          p_cart_json: cart,
+          p_item_count: itemCount
+        });
+      } catch(e){ console.warn('Cart sync failed (non-critical):', e); }
+    }, 1500);
   }
   function loadCartFromStorage(){
     try {
@@ -3251,18 +3329,34 @@
     const subtotal = cart.reduce((s,i) => s + i.price * i.qty, 0);
     document.getElementById('cartSubtotal').textContent = formatMoney(subtotal);
 
-    // Promo code: BUYLANCE = 10% off the subtotal
+    // Promo code: either the universal BUYLANCE code or a personal reward code
     const promoRow = document.getElementById('promoDiscountRow');
     let discount = 0;
-    if(appliedPromoCode === 'BUYLANCE' && subtotal > 0){
-      discount = subtotal * 0.10;
+    if(appliedPromoCode && subtotal > 0){
+      discount = subtotal * (appliedPromoCode.percent / 100);
       promoRow.style.display = 'flex';
+      document.querySelector('#promoDiscountRow span').textContent = `Promo (${appliedPromoCode.code} −${appliedPromoCode.percent}%)`;
       document.getElementById('cartPromoAmount').textContent = '-' + formatMoney(discount);
     } else {
       promoRow.style.display = 'none';
     }
 
-    const afterDiscount = subtotal - discount;
+    // Auto-applied reward discount (win-back, spend/order milestones) —
+    // no code to type, just shows up automatically when they qualify.
+    const rewardRow = document.getElementById('cartRewardRow');
+    let rewardDiscount = 0;
+    if(pendingReward && subtotal > 0){
+      rewardRow.style.display = 'block';
+      document.getElementById('cartRewardPercent').textContent = pendingReward.percent + '%';
+      document.getElementById('cartRewardReason').textContent = REWARD_REASON_LABELS[pendingReward.reason] || 'reward';
+      if(useReward){
+        rewardDiscount = subtotal * (pendingReward.percent / 100);
+      }
+    } else {
+      rewardRow.style.display = 'none';
+    }
+
+    const afterDiscount = subtotal - discount - rewardDiscount;
 
     // Processing fee — scales smoothly with order value, deterministic per amount,
     // capped at $1.50. See calculateProcessingFee() below.
@@ -3307,11 +3401,11 @@
     const msg = document.getElementById('promoMsg');
     const code = input.value.trim().toUpperCase();
 
-    if(code !== 'BUYLANCE'){
+    if(!code){
       appliedPromoCode = null;
       msg.style.display = 'block';
       msg.style.color = '#C0392B';
-      msg.textContent = code ? '❌ Invalid code.' : 'Please enter a code.';
+      msg.textContent = 'Please enter a code.';
       renderCart();
       return;
     }
@@ -3337,34 +3431,64 @@
       return;
     }
 
+    // Universal code first.
+    if(code === 'BUYLANCE'){
+      try {
+        const { data: alreadyRedeemed, error: checkErr } = await supabaseClient
+          .rpc('has_redeemed_promo', { p_code: 'BUYLANCE' });
+        if(checkErr) throw checkErr;
+
+        if(alreadyRedeemed){
+          appliedPromoCode = null;
+          msg.style.display = 'block';
+          msg.style.color = '#C0392B';
+          msg.textContent = "❌ You've already used this code once — it's limited to one use per account.";
+          renderCart();
+          return;
+        }
+
+        appliedPromoCode = { code: 'BUYLANCE', percent: 10, isPersonal: false };
+        msg.style.display = 'block';
+        msg.style.color = '#1E8E3E';
+        msg.textContent = '✅ Code applied — 10% off your order!';
+      } catch(e) {
+        console.warn('Promo code check failed:', e);
+        msg.style.display = 'block';
+        msg.style.color = '#C0392B';
+        msg.textContent = 'Something went wrong checking that code — please try again.';
+        appliedPromoCode = null;
+      } finally {
+        if(btn) btn.disabled = false;
+        renderCart();
+      }
+      return;
+    }
+
+    // Otherwise, check if it's a personal reward code (win-back, milestone, etc.)
     try {
-      const userId = session.user.id;
+      const { data, error } = await supabaseClient.rpc('check_personal_discount_code', { p_code: code });
+      if(error) throw error;
 
-      // Already redeemed by this account?
-      const { data: alreadyRedeemed, error: checkErr } = await supabaseClient
-        .rpc('has_redeemed_promo', { p_code: 'BUYLANCE' });
-      if(checkErr) throw checkErr;
-
-      if(alreadyRedeemed){
+      if(!data.ok){
+        const errMap = {
+          invalid_code: '❌ Invalid code.',
+          already_used: '❌ This code has already been used.',
+          expired: '❌ This code has expired.',
+          not_logged_in: '❌ Please log in first to use the code.',
+        };
         appliedPromoCode = null;
         msg.style.display = 'block';
         msg.style.color = '#C0392B';
-        msg.textContent = "❌ You've already used this code once — it's limited to one use per account.";
-        renderCart();
+        msg.textContent = errMap[data.error] || '❌ Invalid code.';
         return;
       }
 
-      // NOTE: we don't reserve/insert the redemption here anymore — that
-      // used to permanently burn the one-time use the moment someone
-      // clicked Apply, even if they never actually completed an order.
-      // The redemption now only gets recorded once an order truly succeeds
-      // (see finalizeOrder).
-      appliedPromoCode = 'BUYLANCE';
+      appliedPromoCode = { code: code, percent: data.discount_percent, isPersonal: true };
       msg.style.display = 'block';
       msg.style.color = '#1E8E3E';
-      msg.textContent = '✅ Code applied — 10% off your order!';
+      msg.textContent = `✅ Code applied — ${data.discount_percent}% off your order!`;
     } catch(e) {
-      console.warn('Promo code check failed:', e);
+      console.warn('Personal code check failed:', e);
       msg.style.display = 'block';
       msg.style.color = '#C0392B';
       msg.textContent = 'Something went wrong checking that code — please try again.';
@@ -3375,7 +3499,11 @@
     }
   }
   function toggleCart(){
-    document.getElementById('cartOverlay').classList.toggle('open');
+    const overlay = document.getElementById('cartOverlay');
+    overlay.classList.toggle('open');
+    if(overlay.classList.contains('open') && !pendingReward){
+      loadPendingReward().then(() => renderCart());
+    }
   }
 
   document.getElementById('cartOverlay').addEventListener('click', (e) => {
@@ -3542,8 +3670,10 @@
     // so what's charged matches exactly what was shown in the cart drawer.
     const subtotal = cart.reduce((s,i) => s + i.price * i.qty, 0);
     let discount = 0;
-    if(appliedPromoCode === 'BUYLANCE' && subtotal > 0){ discount = subtotal * 0.10; }
-    const afterDiscount = subtotal - discount;
+    if(appliedPromoCode && subtotal > 0){ discount = subtotal * (appliedPromoCode.percent / 100); }
+    let rewardDiscount = 0;
+    if(pendingReward && useReward && subtotal > 0){ rewardDiscount = subtotal * (pendingReward.percent / 100); }
+    const afterDiscount = subtotal - discount - rewardDiscount;
     let fee = afterDiscount > 0 ? calculateProcessingFee(afterDiscount) : 0;
     const tip = currentTipAmount || 0;
     let walletDiscount = 0;
@@ -3652,12 +3782,28 @@
     }
 
     // Only NOW — after the order has truly succeeded — do we record the
-    // promo code as used, so an abandoned/failed checkout never burns it.
-    if(appliedPromoCode === 'BUYLANCE'){
-      try { await supabaseClient.rpc('record_promo_redemption', { p_code: 'BUYLANCE' }); }
-      catch(e){ console.warn('Promo redemption record failed:', e); }
+    // code as used, so an abandoned/failed checkout never burns it.
+    if(appliedPromoCode){
+      try {
+        if(appliedPromoCode.isPersonal){
+          await supabaseClient.rpc('redeem_personal_discount_code', { p_code: appliedPromoCode.code });
+        } else {
+          await supabaseClient.rpc('record_promo_redemption', { p_code: 'BUYLANCE' });
+        }
+      } catch(e){ console.warn('Promo redemption record failed:', e); }
       appliedPromoCode = null;
     }
+
+    // Same for the auto-applied reward, if it was actually used on this order.
+    if(pendingReward && useReward && rewardDiscount > 0){
+      try { await supabaseClient.rpc('redeem_personal_discount_code', { p_code: pendingReward.code }); }
+      catch(e){ console.warn('Reward redemption record failed:', e); }
+      pendingReward = null;
+    }
+
+    // Order succeeded — clear the cart snapshot so this doesn't later
+    // trigger an "you left something in your cart" reminder.
+    try { await supabaseClient.rpc('clear_cart_snapshot'); } catch(e){}
 
     if(cart.some(item => item.key === 'free-mm2-reward')){
       await supabaseClient.rpc('mark_20_reward_claimed');
