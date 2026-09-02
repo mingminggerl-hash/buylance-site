@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Log In | Buylance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<style>
+  :root{
+    --bg-top:#EEF3FF; --ink:#0F1B3D; --brand-blue:#2F5FE0;
+    --muted:#6B7A99; --card-border:#D7E3FF; --error:#E8412C; --success:#1E8E3E;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background:linear-gradient(180deg, var(--bg-top) 0%, #FFFFFF 320px);
+    color:var(--ink); font-family:'Nunito Sans', sans-serif;
+    min-height:100vh; display:flex; flex-direction:column; align-items:center;
+    padding:40px 20px;
+  }
+  .logo{
+    font-family:'Baloo 2', sans-serif; font-weight:800; font-size:26px;
+    text-decoration:none; color:var(--ink); margin-bottom:30px;
+  }
+  .logo span{ color:var(--brand-blue); }
+  .card{
+    background:#fff; border:1px solid var(--card-border); border-radius:18px;
+    padding:32px; width:100%; max-width:380px;
+  }
+  h1{ font-family:'Baloo 2', sans-serif; font-size:21px; margin-bottom:4px; text-align:center; }
+  .sub{ color:var(--muted); font-size:13px; font-weight:600; margin-bottom:24px; text-align:center; }
+  label{ font-weight:700; font-size:12.5px; display:block; margin:14px 0 6px; }
+  input{
+    width:100%; padding:12px; border:1px solid var(--card-border); border-radius:10px;
+    font-family:'Nunito Sans', sans-serif; font-size:14px; text-align:center;
+  }
+  input#codeInput{ letter-spacing:8px; font-size:20px; font-weight:800; font-family:'Courier New', monospace; }
+  .error{ color:var(--error); font-size:12.5px; font-weight:700; margin-top:10px; display:none; text-align:center; }
+  .success-msg{ color:var(--success); font-size:12.5px; font-weight:700; margin-top:10px; display:none; text-align:center; }
+  button{
+    margin-top:18px; width:100%; background:var(--brand-blue); color:#fff; border:none;
+    font-family:'Baloo 2', sans-serif; font-weight:700; font-size:14px;
+    padding:13px; border-radius:10px; cursor:pointer;
+  }
+  button:disabled{ opacity:0.6; cursor:default; }
+  button.secondary{ background:#F1F1F1; color:var(--ink); }
+  .checkbox-row{ display:flex; align-items:flex-start; gap:8px; margin-top:18px; }
+  .checkbox-row input{ width:auto; margin-top:2px; }
+  .checkbox-row label{ margin:0; font-weight:600; font-size:12px; color:var(--muted); }
+  .terms-note{ text-align:center; font-size:11px; color:var(--muted); margin-top:16px; line-height:1.5; }
+  .terms-note a{ color:var(--brand-blue); font-weight:700; text-decoration:none; }
+  .back-link{ text-align:center; margin-top:16px; }
+  .back-link a{ color:var(--muted); font-size:12.5px; font-weight:700; text-decoration:none; }
+</style>
+</head>
+<body>
+
+<a href="index.html" class="logo">BUY<span>LANCE</span></a>
+
+<div class="card">
+
+  <div id="emailStep">
+    <h1>Sign in or Create Account</h1>
+    <p class="sub">No password needed — we'll email you a code.</p>
+
+    <label>Email Address</label>
+    <input type="email" id="email" placeholder="you@example.com" style="text-align:left;">
+
+    <div class="error" id="errorMsg"></div>
+
+    <button id="sendCodeBtn" onclick="handleSendCode()">Send Code</button>
+
+    <div class="checkbox-row">
+      <input type="checkbox" id="marketingOptIn" checked>
+      <label for="marketingOptIn">Email me with news and offers</label>
+    </div>
+
+    <p class="terms-note">By continuing, you agree to our <a href="terms.html">Terms of Service</a> and <a href="privacy.html">Privacy Policy</a></p>
+  </div>
+
+  <div id="codeStep" style="display:none;">
+    <h1>Enter your code</h1>
+    <p class="sub" id="codeStepSub">We sent a code to your email.</p>
+
+    <label>6-Character Code</label>
+    <input type="text" id="codeInput" placeholder="A1B2C3" maxlength="6" style="text-transform:uppercase;">
+
+    <div class="error" id="codeErrorMsg"></div>
+    <div class="success-msg" id="codeSuccessMsg"></div>
+
+    <button id="verifyCodeBtn" onclick="handleVerifyCode()">Verify & Log In</button>
+    <button class="secondary" onclick="handleResendCode()">Resend Code</button>
+
+    <div class="back-link"><a href="#" onclick="backToEmailStep(); return false;">← Use a different email</a></div>
+  </div>
+
+</div>
+
+<script>
+  let pendingEmail = '';
+
+  function showError(elId, msg){
+    const el = document.getElementById(elId);
+    el.textContent = msg;
+    el.style.display = 'block';
+  }
+  function hideError(elId){
+    document.getElementById(elId).style.display = 'none';
+  }
+
+  window.handleSendCode = async function(){
+    hideError('errorMsg');
+    const email = document.getElementById('email').value.trim().toLowerCase();
+    if(!email.includes('@') || !email.includes('.')){
+      showError('errorMsg', 'Please enter a valid email address.');
+      return;
+    }
+
+    const btn = document.getElementById('sendCodeBtn');
+    btn.disabled = true;
+    btn.textContent = 'Sending...';
+
+    const { data, error } = await supabaseClient.rpc('request_login_code', { p_email: email });
+
+    btn.disabled = false;
+    btn.textContent = 'Send Code';
+
+    if(error || !data || !data.ok){
+      showError('errorMsg', 'Something went wrong sending your code — please try again.');
+      return;
+    }
+
+    pendingEmail = email;
+    document.getElementById('codeStepSub').textContent = `We sent a code to ${email}.`;
+    document.getElementById('emailStep').style.display = 'none';
+    document.getElementById('codeStep').style.display = 'block';
+    document.getElementById('codeInput').focus();
+  };
+
+  window.handleResendCode = async function(){
+    hideError('codeErrorMsg');
+    document.getElementById('codeSuccessMsg').style.display = 'none';
+    const btn = event.target;
+    btn.disabled = true;
+    btn.textContent = 'Resending...';
+
+    const { data, error } = await supabaseClient.rpc('request_login_code', { p_email: pendingEmail });
+
+    btn.disabled = false;
+    btn.textContent = 'Resend Code';
+
+    if(error || !data || !data.ok){
+      showError('codeErrorMsg', 'Could not resend — please try again.');
+      return;
+    }
+
+    const successEl = document.getElementById('codeSuccessMsg');
+    successEl.textContent = '✅ A fresh code is on its way — the old one no longer works.';
+    successEl.style.display = 'block';
+  };
+
+  window.backToEmailStep = function(){
+    document.getElementById('codeStep').style.display = 'none';
+    document.getElementById('emailStep').style.display = 'block';
+    document.getElementById('codeInput').value = '';
+    hideError('codeErrorMsg');
+  };
+
+  window.handleVerifyCode = async function(){
+    hideError('codeErrorMsg');
+    const code = document.getElementById('codeInput').value.trim().toUpperCase();
+    if(code.length !== 6){
+      showError('codeErrorMsg', 'Please enter the full 6-character code.');
+      return;
+    }
+
+    const btn = document.getElementById('verifyCodeBtn');
+    btn.disabled = true;
+    btn.textContent = 'Verifying...';
+
+    try {
+      const { data, error } = await supabaseClient.functions.invoke('verify-login-code', {
+        body: { email: pendingEmail, code: code }
+      });
+
+      if(error || !data || !data.ok){
+        btn.disabled = false;
+        btn.textContent = 'Verify & Log In';
+        const errMap = {
+          invalid_code: 'That code is incorrect — double check and try again.',
+          expired: 'That code expired — request a new one below.',
+        };
+        showError('codeErrorMsg', errMap[data?.error] || 'Something went wrong — please try again.');
+        return;
+      }
+
+      // Complete the actual sign-in using the token from verify-login-code.
+      const { error: sessionError } = await supabaseClient.auth.verifyOtp({
+        email: pendingEmail,
+        token_hash: data.token_hash,
+        type: 'magiclink'
+      });
+
+      if(sessionError){
+        btn.disabled = false;
+        btn.textContent = 'Verify & Log In';
+        showError('codeErrorMsg', 'Something went wrong logging you in — please try again.');
+        return;
+      }
+
+      // Save marketing opt-in preference, if they're a new profile.
+      try {
+        const wantsMarketing = document.getElementById('marketingOptIn').checked;
+        await supabaseClient.rpc('set_marketing_opt_in', { p_opt_in: wantsMarketing });
+      } catch(e){ /* non-critical, don't block login over this */ }
+
+      window.location.href = 'index.html';
+    } catch(e){
+      btn.disabled = false;
+      btn.textContent = 'Verify & Log In';
+      showError('codeErrorMsg', 'Something went wrong — please try again.');
+    }
+  };
+
+  document.getElementById('codeInput').addEventListener('keydown', function(e){
+    if(e.key === 'Enter') handleVerifyCode();
+  });
+  document.getElementById('email').addEventListener('keydown', function(e){
+    if(e.key === 'Enter') handleSendCode();
+  });
+
+  // Already logged in? Skip straight to home instead of showing this page.
+  (async function redirectIfAlreadyLoggedIn(){
+    try {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if(session){
+        window.location.replace('index.html');
+      }
+    } catch(e){}
+  })();
+</script>
+
+</body>
+</html>
