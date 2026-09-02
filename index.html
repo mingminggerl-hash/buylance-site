@@ -3011,7 +3011,31 @@
   function toggleRewardDiscount(){
     const checkbox = document.getElementById('applyRewardCheckbox');
     useReward = checkbox ? checkbox.checked : false;
+
+    // Only one discount at a time — checking this one clears any typed code.
+    if(useReward && appliedPromoCode){
+      appliedPromoCode = null;
+      const promoInput = document.getElementById('promoInput');
+      const promoMsg = document.getElementById('promoMsg');
+      if(promoInput) promoInput.value = '';
+      if(promoMsg){
+        promoMsg.style.display = 'block';
+        promoMsg.style.color = 'var(--muted)';
+        promoMsg.textContent = 'Your code was removed — only one discount can apply at a time.';
+      }
+    }
+
     renderCart();
+  }
+
+  // The reverse direction — applying a typed code unchecks the reward
+  // box, since only one discount can ever apply at once.
+  function clearRewardCheckboxIfChecked(){
+    if(useReward){
+      useReward = false;
+      const rewardCheckbox = document.getElementById('applyRewardCheckbox');
+      if(rewardCheckbox) rewardCheckbox.checked = false;
+    }
   }
 
   function openCashbackModal(type){
@@ -3448,6 +3472,7 @@
         }
 
         appliedPromoCode = { code: 'BUYLANCE', percent: 10, isPersonal: false };
+        clearRewardCheckboxIfChecked();
         msg.style.display = 'block';
         msg.style.color = '#1E8E3E';
         msg.textContent = '✅ Code applied — 10% off your order!';
@@ -3484,6 +3509,7 @@
       }
 
       appliedPromoCode = { code: code, percent: data.discount_percent, isPersonal: true };
+      clearRewardCheckboxIfChecked();
       msg.style.display = 'block';
       msg.style.color = '#1E8E3E';
       msg.textContent = `✅ Code applied — ${data.discount_percent}% off your order!`;
