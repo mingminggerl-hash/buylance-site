@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Promo Blast | Buylance Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<style>
+  :root{
+    --bg-top:#EEF3FF; --ink:#0F1B3D; --brand-blue:#2F5FE0;
+    --muted:#6B7A99; --card-border:#D7E3FF; --error:#E8412C; --success:#1E8E3E;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background:linear-gradient(180deg, var(--bg-top) 0%, #FFFFFF 320px);
+    color:var(--ink); font-family:'Nunito Sans', sans-serif;
+    min-height:100vh; display:flex; flex-direction:column; align-items:center;
+    padding:40px 20px;
+  }
+  .logo{
+    font-family:'Baloo 2', sans-serif; font-weight:800; font-size:24px;
+    text-decoration:none; color:var(--ink); margin-bottom:8px;
+  }
+  .logo span{ color:var(--brand-blue); }
+  .back-home-link{
+    display:inline-flex; align-items:center; gap:6px; margin-bottom:16px;
+    color:var(--muted); font-weight:700; font-size:13px; text-decoration:none;
+  }
+  .card{
+    background:#fff; border:1px solid var(--card-border); border-radius:18px;
+    padding:30px; width:100%; max-width:480px;
+  }
+  h1{ font-family:'Baloo 2', sans-serif; font-size:20px; margin-bottom:4px; }
+  .sub{ color:var(--muted); font-size:13px; font-weight:600; margin-bottom:20px; }
+  .warn-box{
+    background:#FFF4E5; border:1px solid #F0D9A8; border-radius:10px;
+    padding:12px 14px; font-size:12.5px; color:#8A5B00; font-weight:600; margin-bottom:20px;
+  }
+  label{ font-weight:700; font-size:12.5px; display:block; margin:14px 0 6px; }
+  input, textarea{
+    width:100%; padding:11px 12px; border:1px solid var(--card-border); border-radius:10px;
+    font-family:'Nunito Sans', sans-serif; font-size:14px; resize:vertical;
+  }
+  .error{ color:var(--error); font-size:12.5px; font-weight:700; margin-top:10px; display:none; }
+  .success-msg{ color:var(--success); font-size:12.5px; font-weight:700; margin-top:10px; display:none; }
+  button{
+    margin-top:20px; width:100%; background:var(--brand-blue); color:#fff; border:none;
+    font-family:'Baloo 2', sans-serif; font-weight:700; font-size:14px;
+    padding:13px; border-radius:10px; cursor:pointer;
+  }
+  button:disabled{ opacity:0.6; cursor:default; }
+  .not-admin{ text-align:center; padding:20px 0; }
+</style>
+</head>
+<body>
+
+<a href="index.html" class="back-home-link">← Back to Home</a>
+<a href="index.html" class="logo">BUY<span>LANCE</span> <span style="color:var(--muted); font-size:14px;">Promo Blast</span></a>
+
+<div class="card" id="mainCard">
+  <p class="sub">Checking access...</p>
+</div>
+
+<script>
+  async function init(){
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if(!session){
+      renderNotAdmin("Please log in first.");
+      return;
+    }
+    const { data: profile } = await supabaseClient.from('profiles').select('is_admin').eq('id', session.user.id).single();
+    if(!profile || !profile.is_admin){
+      renderNotAdmin("This page is admin-only.");
+      return;
+    }
+    renderForm();
+  }
+
+  function renderNotAdmin(msg){
+    document.getElementById('mainCard').innerHTML = `<div class="not-admin"><p class="sub">${msg}</p></div>`;
+  }
+
+  function renderForm(){
+    document.getElementById('mainCard').innerHTML = `
+      <h1>📣 Promo Blast</h1>
+      <p class="sub">Send an announcement to everyone who opted into marketing emails.</p>
+      <div class="warn-box">⚠️ This sends to every subscribed buyer at once — use it only for genuinely big news, not routine updates.</div>
+
+      <label>Subject Line</label>
+      <input type="text" id="blastSubject" placeholder="e.g. 🔥 New game just dropped!">
+
+      <label>Heading</label>
+      <input type="text" id="blastHeading" placeholder="e.g. We just added Blox Fruits!">
+
+      <label>Message</label>
+      <textarea id="blastMessage" rows="4" placeholder="Write your announcement here..."></textarea>
+
+      <label>Link (optional)</label>
+      <input type="text" id="blastLink" placeholder="https://buylance.gg/... (defaults to homepage)">
+
+      <div class="error" id="errorMsg"></div>
+      <div class="success-msg" id="successMsg"></div>
+
+      <button id="sendBtn" onclick="handleSendBlast()">Send Blast</button>
+    `;
+  }
+
+  window.handleSendBlast = async function(){
+    const subject = document.getElementById('blastSubject').value.trim();
+    const heading = document.getElementById('blastHeading').value.trim();
+    const message = document.getElementById('blastMessage').value.trim();
+    const link = document.getElementById('blastLink').value.trim();
+    const errorEl = document.getElementById('errorMsg');
+    const successEl = document.getElementById('successMsg');
+    errorEl.style.display = 'none';
+    successEl.style.display = 'none';
+
+    if(!subject || !heading || !message){
+      errorEl.textContent = 'Please fill in subject, heading, and message.';
+      errorEl.style.display = 'block';
+      return;
+    }
+
+    if(!confirm('This will email EVERY subscribed buyer right now. Are you sure?')) return;
+
+    const btn = document.getElementById('sendBtn');
+    btn.disabled = true;
+    btn.textContent = 'Sending...';
+
+    try {
+      const { data, error } = await supabaseClient.rpc('send_promo_blast', {
+        p_subject: subject,
+        p_heading: heading,
+        p_message: message,
+        p_link: link || null
+      });
+
+      btn.disabled = false;
+      btn.textContent = 'Send Blast';
+
+      if(error || !data || !data.ok){
+        errorEl.textContent = 'Something went wrong sending the blast.';
+        errorEl.style.display = 'block';
+        return;
+      }
+
+      successEl.textContent = `✅ Sent to ${data.sent_count} subscriber(s)!`;
+      successEl.style.display = 'block';
+    } catch(e){
+      btn.disabled = false;
+      btn.textContent = 'Send Blast';
+      errorEl.textContent = 'Something went wrong sending the blast.';
+      errorEl.style.display = 'block';
+    }
+  };
+
+  init();
+</script>
+
+</body>
+</html>
