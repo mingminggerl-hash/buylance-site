@@ -2467,9 +2467,8 @@
   }
 
   function openLoginModal(){
-    if(currentUser){ return; } // already logged in; header icon handles the logged-in state
-    switchAuthView('login');
-    document.getElementById('loginModal').classList.add('open');
+    if(currentUser){ return; } // already logged in
+    window.location.href = 'login-code.html';
   }
   function openSellModal(){ document.getElementById('sellModal').classList.add('open'); }
   function closeSellModal(){ document.getElementById('sellModal').classList.remove('open'); }
