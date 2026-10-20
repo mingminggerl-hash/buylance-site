@@ -272,7 +272,7 @@
             fields: [
               { name: '👤 From', value: currentUser.email },
               { name: '💬 Message', value: message },
-              { name: '🔗 Open in Admin', value: `https://buylance.gg/admin-support.html` }
+              { name: '🔗 Open in Admin', value: `https://buyrblx.com/admin-support.html` }
             ]
           }]
         })
@@ -310,7 +310,7 @@
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          content: `🚩 **Ticket flagged as urgent** by \`${currentUser.email}\`\n**${subject}**\n> ${message}\nhttps://buylance.gg/admin-support.html`
+          content: `🚩 **Ticket flagged as urgent** by \`${currentUser.email}\`\n**${subject}**\n> ${message}\nhttps://buyrblx.com/admin-support.html`
         })
       });
       alert("Got it — we've flagged this as urgent, it'll show at the top of our list.");
