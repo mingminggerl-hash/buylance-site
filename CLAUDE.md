@@ -5,13 +5,12 @@ Static HTML shop for Roblox items (formerly "Buylance"), backed by Supabase proj
 
 ## Owner's backlog — bring these up when they ask "what next?" or for suggestions
 - **"How it works" section** on the homepage: 3 steps (buy → trade/join in-game → receive) + usual delivery time. Owner said they'd do it themselves; remind them.
-- **Image speed fix**: product pictures are base64-embedded in the HTML (ps99.html ~16 MB, mm2.html ~11 MB). Move to separate image files + lazy loading.
 - **Link previews / SEO**: no og:title, og:image, meta description or favicon on any page. Needs a logo/banner image from the owner.
-- **Visitor stats**: Google Analytics or Microsoft Clarity — owner wants this once they have an audience.
 - **Trust**: Trustpilot page + order counter — later, once there's an audience.
 - **More games/bundles** (Blox Fruits, Da Hood, Jailbreak, MM2 bundles) — later.
 - **PayPal is in sandbox mode** (`verify-paypal` uses api-m.sandbox.paypal.com) — owner will switch to live before real selling.
 - **Adopt Me pictures** — owner is adding them; ask for real image files, not pasted base64.
+- **Cloudflare proxy (orange cloud)** for caching — once GitHub's HTTPS certificate is issued and "Enforce HTTPS" is on; then set Cloudflare SSL/TLS mode to Full.
 
 ## Gotchas
 - Emails send from `noreply@buyrblx.com` via Resend: they only work once buyrblx.com is bought and verified in Resend.
@@ -24,3 +23,6 @@ Static HTML shop for Roblox items (formerly "Buylance"), backed by Supabase proj
 - Checkout code is duplicated: index.html has the newer cart (reward discounts, smooth fee via calculateProcessingFee); the 11 game pages share an older copy (flat fee tiers $0.75/$1.00/$1.50, BUYRBLX only). The tip step is shared (tip.js, `checkoutAmountsUSD()` per page). Owner hasn't decided on unifying yet.
 - Reviews cleanup still pending (needs owner approval): drop `submit_review(text,int,text)`, drop policy "Users can post one review", add `reviews_stars_range` check.
 - 🥷/🪙 were replaced with 🧠/💰 — Unicode 13+ emoji render as boxes on older Windows; avoid them.
+- Product pictures live in `img/<hash>.webp` (max 600px, shown ~216px), with `loading="lazy"`. New pictures go in `img/` as files — never base64 in the HTML.
+- Visitor counter: `visit.js` calls `count_visit()` once per browser per day (`site_visits` table, Manila date); admin dashboard shows it via `get_visit_stats()`.
+- pg_cron `auto-resolve-stale-orders` (hourly, `private.auto_resolve_stale_orders()`): delivered 3+ days without confirm/dispute → completed; in_progress + seller reminded + buyer silent 7 days → cancelled and total + wallet used credited to wallet (owner approved this rule).

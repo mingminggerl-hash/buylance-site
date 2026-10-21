@@ -65,6 +65,10 @@
   .detail-attn{ font-size:15px; padding:10px 18px; margin:0 0 10px; }
   .history-search{ width:100%; margin:0 0 10px !important; border-radius:999px !important; padding:9px 14px !important; }
   .history-more{ width:100%; margin-top:6px; border:1px dashed var(--brand-blue); background:#F7F9FF; color:var(--brand-blue); font:800 12.5px 'Nunito Sans', sans-serif; padding:9px; border-radius:12px; cursor:pointer; }
+  .visits-grid{ display:grid; grid-template-columns:repeat(4, 1fr); gap:6px; }
+  .visits-grid div{ background:#F7F9FF; border:1px solid var(--card-border); border-radius:12px; padding:8px 4px; text-align:center; }
+  .visits-grid b{ display:block; font:800 18px 'Baloo 2', sans-serif; color:var(--brand-blue); }
+  .visits-grid span{ font-size:10.5px; font-weight:800; color:var(--muted); }
   .orders-empty{ text-align:center; padding:18px 8px; color:var(--muted); font-weight:700; font-size:13px; }
   @keyframes hotPulse{ 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.06); } }
   @keyframes rowGlow{ 0%,100%{ box-shadow:0 0 0 0 rgba(255,122,41,0.0); } 50%{ box-shadow:0 0 0 5px rgba(255,122,41,0.18); } }
@@ -188,6 +192,13 @@
 
 <div class="layout" id="dashboardLayout" style="display:none;">
   <div class="col-orders">
+    <div class="card visits-card">
+      <h2>👀 Visitors</h2>
+      <div class="visits-grid" id="visitsGrid">
+        <div><b>–</b><span>Today</span></div><div><b>–</b><span>7 days</span></div>
+        <div><b>–</b><span>30 days</span></div><div><b>–</b><span>All time</span></div>
+      </div>
+    </div>
     <div class="card">
       <h2>📦 Orders</h2>
       <div class="orders-tabs" id="ordersTabs"></div>
@@ -273,6 +284,7 @@
     document.getElementById('dashboardLayout').style.display = 'flex';
     await loadOrdersList();
     if(preselectId) selectOrder(preselectId);
+    loadVisitStats();
 
     // Live-refresh the order list whenever anything changes
     supabaseClient
@@ -335,6 +347,14 @@
   // Only what's needed day to day: everything still open plus this week's
   // finished orders. History is fetched separately, page by page, so the
   // dashboard stays fast even with thousands of old orders.
+  // Daily unique visitors counted by visit.js on the shop pages.
+  async function loadVisitStats(){
+    const { data, error } = await supabaseClient.rpc('get_visit_stats');
+    if(error || !data) return;
+    const cells = [[data.today, 'Today'], [data.week, '7 days'], [data.month, '30 days'], [data.total, 'All time']];
+    document.getElementById('visitsGrid').innerHTML = cells.map(([n, label]) => `<div><b>${Number(n).toLocaleString()}</b><span>${label}</span></div>`).join('');
+  }
+
   async function loadOrdersList(){
     const since = weekAgoIso();
     const [{ data: orders }, { count }] = await Promise.all([
