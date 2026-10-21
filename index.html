@@ -4360,31 +4360,19 @@
   .bot-msg-row.mine .bot-msg-bubble{ background:linear-gradient(135deg,#7C6CF0,#5B4CD6); color:#fff; border-bottom-right-radius:4px; }
   .bot-msg-bubble a{ color:#B9AEFF; font-weight:800; }
 
-  .bot-chip-row{ display:flex; flex-wrap:wrap; gap:7px; padding:4px 16px 12px; }
+  .bot-chip-row{ display:flex; flex-wrap:wrap; gap:7px; padding:10px 16px 12px; max-height:180px; overflow-y:auto; border-top:1px solid rgba(255,255,255,0.06); }
   .bot-chip{
     background:rgba(124,108,240,0.12); border:1px solid rgba(124,108,240,0.4); color:#C9C2FF;
     font-size:11.5px; font-weight:700; padding:7px 12px; border-radius:16px; cursor:pointer;
   }
   .bot-chip:hover{ background:rgba(124,108,240,0.22); }
+  .bot-chip-back{ background:transparent; border-style:dashed; color:#9C96D6; }
+  .bot-msg-bubble b{ color:#fff; }
 
   .bot-support-row{ padding:0 16px 12px; }
   .bot-support-btn{
     width:100%; background:linear-gradient(135deg,#FF9A52,#FF7A29); color:#fff; border:none;
     font-family:'Baloo 2', sans-serif; font-weight:700; font-size:12.5px; padding:10px; border-radius:12px; cursor:pointer;
-  }
-
-  .bot-input-row{
-    display:flex; align-items:center; gap:8px; padding:12px 14px;
-    border-top:1px solid rgba(255,255,255,0.08);
-  }
-  .bot-input-row input{
-    flex:1; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.14);
-    color:#fff; border-radius:20px; padding:10px 14px; font-size:12.5px; font-family:'Nunito Sans', sans-serif;
-  }
-  .bot-input-row input::placeholder{ color:#8B85B8; }
-  .bot-input-row button{
-    background:linear-gradient(135deg,#7C6CF0,#4F3FC9); border:none; color:#fff; width:36px; height:36px;
-    border-radius:50%; cursor:pointer; font-size:15px; flex-shrink:0;
   }
 
   .bot-typing-row{ display:flex; align-items:center; gap:5px; padding:11px 14px; width:fit-content;
@@ -4417,48 +4405,53 @@
   <div class="bot-support-row">
     <button class="bot-support-btn" onclick="window.location.href='support.html'">🎫 Need Support? Talk to a Real Person →</button>
   </div>
-  <div class="bot-input-row">
-    <input type="text" id="botPanelInput" placeholder="Ask a quick question..." onkeydown="if(event.key==='Enter') askBotPanel()">
-    <button onclick="askBotPanel()">➤</button>
-  </div>
 </div>
 
 <script>
   const BOT_FAQ_CATEGORIES = [
-    { label: 'Getting Started', ids: ['signup', 'legit', 'payment', 'processing-fee', 'tip'] },
-    { label: 'Ordering & Delivery', ids: ['how-receive', 'waiting-status', 'order-chat', 'delivery-proof', 'which-games', 'mutations', 'prices-change'] },
-    { label: 'Money & Rewards', ids: ['wallet-cashback', 'spin-wheel', 'promo-code'] },
-    { label: 'After Your Order', ids: ['reviews', 'refund', 'cancel-order'] },
-    { label: 'Account', ids: ['account-warnings', 'why-warning', 'notifications', 'currency'] },
+    { label: '🚀 Getting Started', ids: ['signup', 'legit', 'password-safety', 'payment', 'processing-fee', 'tip'] },
+    { label: '📦 Ordering & Delivery', ids: ['how-receive', 'waiting-status', 'order-chat', 'delivery-proof', 'which-games', 'mutations', 'prices-change', 'sell'] },
+    { label: '💸 Money & Rewards', ids: ['wallet-cashback', 'rewards', 'spin-wheel', 'promo-code'] },
+    { label: '⭐ After Your Order', ids: ['reviews', 'refund', 'cancel-order'] },
+    { label: '👤 Account', ids: ['cant-login', 'account-warnings', 'why-warning', 'notifications', 'currency'] },
   ];
 
+  // Answers support **bold** and [text](link).
   const BOT_FAQ_TREE = {
-    'signup': { q: 'How do I create an account?', a: `Signing up only takes a real email address — head to the Sign Up page, enter your email, and choose a password (this is a brand new password just for our site). We'll send a verification link to your inbox — click it, then come back and log in.` },
-    'legit': { q: 'Is this legit? Can I trust this site?', a: `Real public reviews are shown right on our homepage, orders are hand-delivered by an actual person, and every order has its own delivery proof and chat log tied to it. Pricing is straightforward, no hidden markups.` },
-    'payment': { q: 'What payment methods do you accept?', a: `We accept PayPal, Visa, GCash, Maribank, and Apple Pay. Your order gets created automatically the instant your payment is confirmed.` },
-    'processing-fee': { q: 'Why is there a processing fee?', a: `It covers the small cut each payment method takes for processing safely — capped at $1.50 no matter how big your order gets.` },
-    'tip': { q: 'Can I tip the seller?', a: `Yes — there's an optional tip box in your cart, right under the processing fee. Minimum $0.10 if you choose to tip, or leave it blank.` },
-    'how-receive': { q: 'How do I receive my item?', a: `Once payment goes through, a real person picks up your order and messages you in your Order Chat with clear instructions — usually adding a Roblox username and trading in-game. Delivery typically takes 5-15 minutes.` },
-    'waiting-status': { q: 'My order says "Waiting for Seller" — normal?', a: `Yes, totally normal right after paying — just means a real person hasn't picked it up yet. It'll move to "In Progress" once they do.` },
-    'order-chat': { q: 'How does Order Chat work?', a: `Every order gets its own private chat — you can send text, attach screenshots, and reply directly to a specific message, just like a normal messaging app.` },
-    'delivery-proof': { q: 'What is "delivery proof"?', a: `A screenshot attached when your order is marked delivered, showing the item was actually handed over — protects both sides if there's ever a disagreement.` },
-    'which-games': { q: 'Which games do you support?', a: `Blade Ball, PS99, Grow a Garden 1 & 2, Escape Tsunami, Murder Mystery 2, Adopt Me, Baddies, Pet Simulator X, Tap Sim, and Steal a Brainrot.` },
-    'mutations': { q: 'What are "mutations" on Steal a Brainrot?', a: `Different rarity variants of the same character — Gold, Crystal, Cyber, Phantom, Yin Yang, Cursed, Divine, Rainbow, plus Normal. Each is priced separately.` },
-    'prices-change': { q: 'Why do prices change?', a: `Prices follow the current market for these items, so they move up or down — but the price you see at checkout is the price you pay.` },
-    'wallet-cashback': { q: 'How does wallet / cashback work?', a: `You automatically earn cashback on every order into your Store Credit balance, shown in the header — it's automatically available to apply at checkout.` },
-    'spin-wheel': { q: 'How does the $50 / $20 spin wheel work?', a: `Every $50 milestone unlocks a free spin (Gun or Knife wheel). There's also a one-time $20 milestone gift, guaranteed, no spinning. Prizes go free into your cart, no expiration.` },
-    'promo-code': { q: 'How does the promo code work?', a: `The BUYRBLX code gives 10% off, limited to one real use per account — it only gets used up once you complete a real order with it applied.` },
-    'reviews': { q: 'How do I leave a review?', a: `Once an order is "Completed," you'll see a quick star-only prompt right there — no typing needed, and it posts straight to our homepage.` },
-    'refund': { q: 'How do refunds and disputes work?', a: `Use "Report an Issue" on your order once it's delivered. A real person reviews it and either finishes the delivery properly or sorts out a refund.` },
-    'cancel-order': { q: 'Can I cancel my order?', a: `Orders move quickly into our queue, so we can't guarantee cancellation once placed — message us ASAP via Order Chat or Support if you need to try.` },
-    'account-warnings': { q: 'What happens if I break the rules?', a: `A simple 3-strike system — 1st is just a reminder, 2nd removes $50 spin access, 3rd freezes your account for 1 month. Warnings expire after 90 days.` },
-    'why-warning': { q: 'Why did I get a warning?', a: `Usually bad language, disrespect toward support, or harassment. Also covers chargeback fraud, spin/promo abuse, or false delivery info.` },
-    'notifications': { q: 'What is the notification bell for?', a: `Lets you know when your order status changes or a support ticket gets a reply. Click it to see recent notifications.` },
-    'currency': { q: 'Can I see prices in my local currency?', a: `Yes, use the currency selector in the header — just know USD is what actually gets charged, others are just a helpful conversion.` },
+    'signup': { q: 'How do I make an account?', a: `Easy! Tap **Log In**, enter your email, and we'll send you a 6-character code 📧. Type it in and you're in — if it's your first time, your account is created automatically. No password needed!` },
+    'legit': { q: 'Is BuyRBLX legit?', a: `Yep! ✅ Every order is delivered by a real person, has its own private Order Chat, and gets a screenshot as delivery proof. Reviews on our site come only from buyers with completed orders — no fakes.` },
+    'password-safety': { q: 'Will you ask for my Roblox password?', a: `**Never.** 🚫 We only need your Roblox **username** to deliver. If anyone asks for your password or a 2-step code saying they're from BuyRBLX, it's a scam — tell our [Support](support.html) team.` },
+    'payment': { q: 'How can I pay?', a: `Checkout runs through **PayPal** 💳 — pay with your PayPal balance or a debit/credit card like Visa. Want to pay with GCash, Maribank or Binance instead? Message [Support](support.html) before ordering and we'll help you out.` },
+    'processing-fee': { q: 'Why is there a processing fee?', a: `Payment providers take a small cut of every payment, and the fee covers that. It's between **$0.50 and $1.50** depending on your order — never more than $1.50. 👍` },
+    'tip': { q: 'Can I tip the seller?', a: `You can! 💖 There's an optional tip box in your cart, right under the processing fee (minimum $0.10). Totally up to you — leave it blank if you want.` },
+
+    'how-receive': { q: 'How do I get my item?', a: `After you pay, a real seller picks up your order and messages you in your **Order Chat** with what to do — usually join their server and accept a trade in-game 🎮. Most orders are done in **5–15 minutes** ⚡.` },
+    'waiting-status': { q: 'My order says "Waiting for Seller" — is that okay?', a: `Totally normal! ⏳ It just means a seller hasn't picked it up yet. It switches to **In Progress** as soon as they do — keep an eye on your Order Chat, and we'll email you when the seller messages you.` },
+    'order-chat': { q: 'How does Order Chat work?', a: `Every order gets its own private chat with your seller 💬. You can send messages and screenshots, reply to a specific message, and react with emojis — just like a normal messaging app.` },
+    'delivery-proof': { q: 'What is delivery proof?', a: `When your item is delivered, the seller attaches a screenshot of the trade 📸. It keeps both you and us protected if anything ever goes wrong.` },
+    'which-games': { q: 'Which games do you sell?', a: `Murder Mystery 2, Adopt Me, Steal a Brainrot, Grow a Garden 1 & 2, Pet Simulator 99, Pet Simulator X, Blade Ball, Escape Tsunami, Baddies and Tap Simulator 🎮. More games are coming soon!` },
+    'mutations': { q: 'What are mutations? (Steal a Brainrot)', a: `They're special versions of the same brainrot ✨ — Normal, Gold, Crystal, Cyber, Phantom, Yin Yang, Cursed, Divine and Rainbow. Each one has its own price, and rarer mutations cost more.` },
+    'prices-change': { q: 'Why do prices change?', a: `Prices follow the in-game market 📈, so they go up and down. Don't worry — the price in your cart at checkout is exactly what you pay.` },
+    'sell': { q: 'Can I sell my items to you?', a: `Yes! 💰 We buy items and pay you in Robux. Tap **"Want to sell your items?"** on the homepage or email us at **buyrblx.com@gmail.com**.` },
+
+    'wallet-cashback': { q: 'How does cashback work?', a: `You get **2% back** on every order 💸 — it's added to your Store Credit (shown at the top of the page). At checkout, tick **"Apply Cashback Discount"** in your cart to use it. Store credit can't be cashed out.` },
+    'rewards': { q: 'What rewards can I get?', a: `Lots! 🎁<br>• **$20 spent:** a free MM2 Gun or Knife (one time)<br>• **Every $10 spent:** a 5% off code<br>• **Every $50 spent:** a free spin 🎡<br>• **5 completed orders:** a one-time 10% off code 🏆<br>• **Every Monday:** a fresh 10% code, valid for 7 days 🎟️<br>We'll notify you whenever you unlock one!` },
+    'spin-wheel': { q: 'How does the spin wheel work?', a: `Every time your total spending goes up by **$50**, you unlock a free spin 🎡 on the Gun or Knife wheel. Whatever you win goes into your cart for free. Spins are paused if your account has 2 or more strikes.` },
+    'promo-code': { q: 'How do I use the BUYRBLX code?', a: `Type **BUYRBLX** in your cart for **10% off** 🎉. It works once per account, and only counts as used after you finish an order with it.` },
+
+    'reviews': { q: 'How do I leave a review?', a: `Once your order is **Completed**, you can rate it ⭐ on your order page or in the "What Buyers Are Saying" section. Your review shows your Roblox name with a ✔ Verified Buyer badge.` },
+    'refund': { q: 'Something went wrong with my order', a: `Sorry about that! 🙏 Tap **Report an Issue** on your order. A real person checks it and either finishes your delivery or sorts out a refund.` },
+    'cancel-order': { q: 'Can I cancel my order?', a: `Orders start moving fast, so we can't promise a cancel once you've paid. Message us right away in your Order Chat or [Support](support.html) and we'll do our best. ⚡` },
+
+    'cant-login': { q: "I can't log in / didn't get my code", a: `Codes can take a minute to arrive 📧 — check your **Spam** or **Promotions** folder too. Each code works once and expires after 15 minutes, so if it's old, tap **Resend Code**. Still stuck? Email us at **buyrblx.com@gmail.com**.` },
+    'account-warnings': { q: 'What happens if I break the rules?', a: `We use 3 strikes ⚠️:<br>• **1st:** a warning<br>• **2nd:** your $50 spins get locked<br>• **3rd:** your account is frozen for 1 month<br>Strikes go away after 90 days. See our [Rules](rules.html).` },
+    'why-warning': { q: 'Why did I get a warning?', a: `Usually for rude language, harassing support or other buyers, chargebacks, abusing spins or promo codes, or giving false delivery info. You can see the reason in your **Settings**.` },
+    'notifications': { q: 'What is the bell icon for?', a: `The 🔔 lets you know when your order status changes, a seller or support replies, or you unlock a reward. Tap it to see your latest updates.` },
+    'currency': { q: 'Can I see prices in my currency?', a: `Yes! 🌍 Pick your currency at the top of the page. It's just to help you compare — you're always charged in **USD**.` },
   };
 
   let botAsked = new Set();
-  let botAtRoot = true;
+  let botBusy = false;
 
   function toggleBotPanel(){
     const panel = document.getElementById('botPanel');
@@ -4473,42 +4466,52 @@
     renderBotRoot();
   }
 
+  function botFormat(text){
+    return text
+      .replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>')
+      .replace(/\[([^\]]+)\]\(((?:https?:\/\/|[a-z0-9-]+\.html)[^\)]*)\)/g, '<a href="$2">$1</a>');
+  }
+
   function botBubbleEl(text, mine){
     const row = document.createElement('div');
     row.className = 'bot-msg-row ' + (mine ? 'mine' : 'bot');
-    const withLinks = text.replace(/\[([^\]]+)\]\((https?:\/\/[^\)]+)\)/g, '<a href="$2">$1</a>');
-    row.innerHTML = `<div class="bot-msg-bubble">${withLinks}</div>`;
+    const bubble = document.createElement('div');
+    bubble.className = 'bot-msg-bubble';
+    // Questions are plain text; answers are our own trusted strings.
+    if(mine) bubble.textContent = text; else bubble.innerHTML = botFormat(text);
+    row.appendChild(bubble);
     return row;
   }
 
+  // Starts a fresh chat: greeting + topic chips.
   function renderBotRoot(){
     const body = document.getElementById('botPanelBody');
     body.innerHTML = '';
-    body.appendChild(botBubbleEl("👋 Hi! Pick a topic below, or type your own question.", false));
-    body.scrollTop = body.scrollHeight;
-
-    const chipRow = document.getElementById('botChipRow');
-    const remainingCats = BOT_FAQ_CATEGORIES.filter(cat => cat.ids.some(id => !botAsked.has(id)));
-    chipRow.innerHTML = remainingCats.map(cat =>
-      `<span class="bot-chip" onclick="renderBotCategory('${cat.label}')">${cat.label}</span>`
-    ).join('');
-    botAtRoot = true;
+    body.appendChild(botBubbleEl("👋 Hey! I'm the BuyRBLX bot. Pick a topic below and I'll answer right away.", false));
+    renderBotTopics();
   }
 
-  window.renderBotCategory = function(label){
-    const cat = BOT_FAQ_CATEGORIES.find(c => c.label === label);
+  // Shows the topic chips without touching the chat history.
+  function renderBotTopics(){
+    document.getElementById('botChipRow').innerHTML = BOT_FAQ_CATEGORIES.map((cat, i) =>
+      `<span class="bot-chip" onclick="renderBotCategory(${i})">${cat.label}</span>`
+    ).join('');
+  }
+
+  window.renderBotCategory = function(index){
+    const cat = BOT_FAQ_CATEGORIES[index];
     if(!cat) return;
-    const chipRow = document.getElementById('botChipRow');
     const remaining = cat.ids.filter(id => !botAsked.has(id));
-    chipRow.innerHTML = remaining.map(id =>
-      `<span class="bot-chip" onclick="askBotFaq('${id}')">${BOT_FAQ_TREE[id].q}</span>`
-    ).join('') + `<span class="bot-chip" onclick="renderBotRoot()">← Back</span>`;
-    botAtRoot = false;
+    if(!remaining.length){ renderBotTopics(); return; }
+    document.getElementById('botChipRow').innerHTML =
+      `<span class="bot-chip bot-chip-back" onclick="renderBotTopics()">← All topics</span>` +
+      remaining.map(id => `<span class="bot-chip" onclick="askBotFaq('${id}', ${index})">${BOT_FAQ_TREE[id].q}</span>`).join('');
   };
 
-  window.askBotFaq = function(id){
+  window.askBotFaq = function(id, catIndex){
     const node = BOT_FAQ_TREE[id];
-    if(!node) return;
+    if(!node || botBusy) return;
+    botBusy = true;
     botAsked.add(id);
     const body = document.getElementById('botPanelBody');
     body.appendChild(botBubbleEl(node.q, true));
@@ -4520,23 +4523,13 @@
 
     setTimeout(() => {
       typing.remove();
-      body.appendChild(botBubbleEl(node.a, false));
-      body.scrollTop = body.scrollHeight;
-      renderBotRoot();
-    }, 1000);
-  };
-
-  window.askBotPanel = function(){
-    const input = document.getElementById('botPanelInput');
-    const q = input.value.trim();
-    if(!q) return;
-    input.value = '';
-    const body = document.getElementById('botPanelBody');
-    body.appendChild(botBubbleEl(q, true));
-    body.scrollTop = body.scrollHeight;
-    setTimeout(() => {
-      body.appendChild(botBubbleEl("I'm just a simple quick-question bot — for anything beyond the topics below, hit \"Need Support?\" and a real person will help! 🙂", false));
-      body.scrollTop = body.scrollHeight;
+      const answer = botBubbleEl(node.a, false);
+      body.appendChild(answer);
+      // Scroll so the start of the answer is visible, not just its end.
+      body.scrollTop = Math.max(0, answer.offsetTop - body.offsetTop - 60);
+      // Keep the user in the same topic so follow-up questions are one tap away.
+      renderBotCategory(catIndex);
+      botBusy = false;
     }, 700);
   };
 </script>
