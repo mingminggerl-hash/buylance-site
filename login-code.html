@@ -197,10 +197,11 @@
       }
 
       // Complete the actual sign-in using the token from verify-login-code.
+      // Supabase rejects token_hash verification if anything besides
+      // token_hash and type is sent, so no email here.
       const { error: sessionError } = await supabaseClient.auth.verifyOtp({
-        email: pendingEmail,
         token_hash: data.token_hash,
-        type: 'magiclink'
+        type: data.type || 'magiclink'
       });
 
       if(sessionError){
