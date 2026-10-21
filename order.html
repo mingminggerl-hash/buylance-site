@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Your Order | Buylance</title>
+<title>Your Order | BuyRBLX</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -163,7 +163,7 @@
 </head>
 <body>
 
-<a href="index.html" class="logo">BUY<span>LANCE</span></a>
+<a href="index.html" class="logo">BUY<span>RBLX</span></a>
 
 <div class="wrap">
   <div id="reminder-banner">🔔 <span id="reminder-text">Seller is waiting for you!</span></div>
@@ -735,7 +735,7 @@
 
   window.reportMessageFromMenu = async function(msgId){
     hideMessageMenu();
-    showOrderConfirm('Report this message to the Buylance team?', async () => {
+    showOrderConfirm('Report this message to the BuyRBLX team?', async () => {
       const row = document.querySelector(`[data-msg-id="${msgId}"]`);
       const text = row ? (row.getAttribute('data-msg-text') || '(image)') : '(unknown)';
       try {
@@ -746,7 +746,7 @@
       try {
         await fetch(REPORT_WEBHOOK_URL, {
           method: 'POST', headers: {'Content-Type':'application/json'},
-          body: JSON.stringify({ content: `🚩 **Message reported** on Order #${currentOrder ? currentOrder.order_number : '?'}\n> ${text}\nhttps://buylance.gg/admin-order.html?id=${orderId}` })
+          body: JSON.stringify({ content: `🚩 **Message reported** on Order #${currentOrder ? currentOrder.order_number : '?'}\n> ${text}\nhttps://buyrblx.com/admin-order.html?id=${orderId}` })
         });
       } catch(e){ console.warn('Report webhook failed:', e); }
       alert('Reported — the team will review it.');
@@ -851,7 +851,7 @@
   // seller doesn't have to keep the dashboard open to notice it.
   async function sendDiscordChatPing(text){
     if(!DISCORD_ORDER_WEBHOOK_URL || DISCORD_ORDER_WEBHOOK_URL.includes('PASTE_YOUR') || !currentOrder) return;
-    const dashboardLink = 'https://buylance.gg/admin-order.html?id=' + orderId;
+    const dashboardLink = 'https://buyrblx.com/admin-order.html?id=' + orderId;
     const payload = {
       content: `💬 **New message on Order #${currentOrder.order_number}** from \`${currentOrder.roblox_username}\`:\n> ${text}\n${dashboardLink}`
     };
@@ -913,7 +913,7 @@
     if(error){ alert('Something went wrong — please try again.'); return; }
     const { data: order } = await supabaseClient.from('orders').select('*').eq('id', orderId).single();
     if(order) renderSummary(order);
-    const dashboardLink = 'https://buylance.gg/admin-order.html?id=' + orderId;
+    const dashboardLink = 'https://buyrblx.com/admin-order.html?id=' + orderId;
     sendDiscordSimplePing(`🛑 **DISPUTE on Order #${order.order_number}** from \`${order.roblox_username}\`: ${fullReason}\n${dashboardLink}`);
   };
 

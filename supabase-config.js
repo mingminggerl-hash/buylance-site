@@ -1,4 +1,4 @@
-// Buylance Supabase client config.
+// BuyRBLX Supabase client config.
 // Loaded on every page that needs login/signup/reviews/promo codes.
 // The publishable key below is safe to expose publicly — it only works
 // alongside Row Level Security policies, which are already set up.

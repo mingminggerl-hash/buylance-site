@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Buylance — Roblox Item Marketplace</title>
+<title>BuyRBLX — Roblox Item Marketplace</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -488,40 +488,12 @@
     margin-top:18px; color:var(--muted); font-weight:700; font-size:13.5px; line-height:1.6;
   }
 
-  .star-filter{
-    display:flex; flex-wrap:wrap; justify-content:center; gap:8px;
-    max-width:900px; margin:22px auto 0; padding:0 6vw;
-  }
   .filter-btn{
     background:#fff; border:1px solid var(--card-border); color:var(--muted);
     font-family:'Baloo 2', sans-serif; font-weight:700; font-size:12.5px;
     padding:8px 16px; border-radius:20px; cursor:pointer;
   }
   .filter-btn.active{ background:var(--brand-blue); color:#fff; border-color:var(--brand-blue); }
-  .review-cards{
-    display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));
-    gap:16px; max-width:900px; margin:26px auto 0; padding:0 6vw;
-  }
-  .review-card{
-    background:#fff; border:1px solid var(--card-border); border-radius:16px;
-    padding:18px; text-align:left;
-  }
-  .review-top{ display:flex; align-items:center; gap:10px; }
-  .review-avatar{
-    width:38px; height:38px; border-radius:50%; flex-shrink:0;
-    background:#D7E3FF; display:flex; align-items:center; justify-content:center;
-  }
-  .review-avatar svg{ width:22px; height:22px; }
-  .review-name{ font-weight:800; font-size:13.5px; }
-  .review-stars{ color:var(--star-gold); font-size:12px; margin-top:1px; }
-  .review-quote{ color:var(--muted); font-size:12.5px; font-weight:600; margin-top:10px; line-height:1.55; }
-  .review-empty{
-    grid-column:1/-1; text-align:center; color:var(--muted); font-size:13px; font-weight:600;
-    padding:20px;
-  }
-  .star-picker{ font-size:26px; letter-spacing:4px; color:#DDE4F0; cursor:pointer; }
-  .star-picker span{ transition:color 0.1s ease; }
-  .star-picker span.on{ color:var(--star-gold); }
 
   .faq{ max-width:800px; margin:80px auto 0; padding:0 6vw; }
   .faq-item{
@@ -690,6 +662,7 @@
   }
 </style>
 <script src="https://www.paypal.com/sdk/js?client-id=AQvXxaPmRMQk9sfoo9AcSJs26LuWGE2RsUYCzhagWOk6fDXVqOApJBwfHtAYWeaI9rP4K0JRjRaR5_I2&currency=USD"></script>
+<link rel="stylesheet" href="reviews.css">
 </head>
 <body>
 
@@ -823,7 +796,7 @@
       <span id="cartSubtotal">$0.00</span>
     </div>
     <div class="cart-subtotal-row" id="promoDiscountRow" style="display:none; color:#1E8E3E;">
-      <span>Promo (BUYLANCE −10%)</span>
+      <span>Promo (BUYRBLX −10%)</span>
       <span id="cartPromoAmount">-$0.00</span>
     </div>
     <div id="cartWalletRow" style="display:none; background:#F0FDF4; border:1px solid #BBF7D0; padding:10px 12px; border-radius:10px; margin:8px 0;">
@@ -2935,7 +2908,7 @@
 </div>
 
 <div class="section-heading" id="rewards" style="margin-top:80px;">
-  <h2>Why Shop With <span class="hl">Buylance</span>?</h2>
+  <h2>Why Shop With <span class="hl">BuyRBLX</span>?</h2>
   <p>Perks that come standard with every order</p>
 </div>
 <div class="perks">
@@ -3007,48 +2980,7 @@
   </div>
 </div>
 
-<div class="section-heading" style="margin-top:70px;">
-  <h2>What <span class="hl">Buyers</span> Are Saying</h2>
-  <p>Real reviews from real orders — leave yours below</p>
-</div>
-<div class="star-filter" id="starFilter">
-  <button class="filter-btn active" data-filter="all" onclick="filterReviews('all', this)">All</button>
-  <button class="filter-btn" data-filter="5" onclick="filterReviews('5', this)">★★★★★</button>
-  <button class="filter-btn" data-filter="4" onclick="filterReviews('4', this)">★★★★☆</button>
-  <button class="filter-btn" data-filter="3" onclick="filterReviews('3', this)">★★★☆☆</button>
-  <button class="filter-btn" data-filter="2" onclick="filterReviews('2', this)">★★☆☆☆</button>
-  <button class="filter-btn" data-filter="1" onclick="filterReviews('1', this)">★☆☆☆☆</button>
-</div>
-<div class="review-cards" id="reviewCards"></div>
-
-<div class="feedback-row" style="grid-template-columns:1fr; max-width:500px; margin-top:26px;">
-  <div class="feedback-card">
-    <h4>⭐ Leave a Review</h4>
-    <p>Bought from us? Tell other buyers how it went. Reviews are public and visible to everyone — one review per account, so please only submit if you've placed a real order.</p>
-
-    <div id="reviewLoggedOut" style="display:none; text-align:center; padding:10px 0;">
-      <p style="font-weight:700; font-size:13px;">You need an account to leave a review.</p>
-      <a href="login.html" class="modal-submit" style="display:inline-block; text-decoration:none; text-align:center; width:auto; padding:10px 24px; margin-top:6px;">Log in / Sign up</a>
-    </div>
-
-    <div id="reviewAlreadyLeft" style="display:none; text-align:center; padding:10px 0; font-weight:700; font-size:13px; color:#1E8E3E;">
-      ✅ You've already left a review — thanks for that!
-    </div>
-
-    <div id="reviewForm" style="display:none;">
-      <label style="font-weight:700; font-size:12.5px; display:block; margin-bottom:6px;">Your Name <span style="color:var(--accent-orange);">*</span></label>
-      <input type="text" id="revName" placeholder="Your name" readonly style="background:#F0F3FA;">
-      <label style="font-weight:700; font-size:12.5px; display:block; margin:10px 0 6px;">Your Rating</label>
-      <div class="star-picker" id="starPicker">
-        <span data-star="1">★</span><span data-star="2">★</span><span data-star="3">★</span><span data-star="4">★</span><span data-star="5">★</span>
-      </div>
-      <label style="font-weight:700; font-size:12.5px; display:block; margin:10px 0 6px;">Your Review</label>
-      <textarea rows="3" id="revText" placeholder="How was your order?"></textarea>
-      <button onclick="submitReview()">Submit Review</button>
-    </div>
-    <div class="feedback-thanks" id="reviewThanks">Thanks for the review! It's now live for everyone to see. 🙌</div>
-  </div>
-</div>
+<section id="buyerReviews" class="rv"></section>
 
 <div class="feedback-row" id="itemRequestSection" style="grid-template-columns:1fr; max-width:600px;">
   <div class="feedback-card">
@@ -3086,11 +3018,11 @@
     </div>
   </div>
   <div class="faq-item">
-    <div class="faq-q">Is Buylance safe to buy from? <div class="chev">▾</div></div>
+    <div class="faq-q">Is BuyRBLX safe to buy from? <div class="chev">▾</div></div>
     <div class="faq-a">
       <p>We built the checkout flow specifically to avoid asking for anything sensitive — the only thing we ever need to deliver your order is your Roblox username.</p>
       <p>Payments themselves are handled by trusted third-party providers (like PayPal), so your card or account details are never something we see or store directly.</p>
-      <p>We'll never ask for your password, and we'll never ask you to download anything to "claim" an order — if anyone claiming to be from Buylance asks for either of those, it's not really us.</p>
+      <p>We'll never ask for your password, and we'll never ask you to download anything to "claim" an order — if anyone claiming to be from BuyRBLX asks for either of those, it's not really us.</p>
     </div>
   </div>
   <div class="faq-item">
@@ -3114,13 +3046,13 @@
 
 <div class="seo-faq">
   <div class="section-heading">
-    <h2>More About <span class="hl">Buylance</span></h2>
+    <h2>More About <span class="hl">BuyRBLX</span></h2>
   </div>
   <div class="seo-faq-grid">
     <div>
       <div class="seo-icon">🏬</div>
-      <h4>So what exactly is Buylance, anyway?</h4>
-      <p>Buylance is a small, Filipino-run marketplace for Roblox in-game items and currency. We focus on a handful of games at a time — right now Blade Ball tokens and PS99 gems — so every order gets delivered by hand, quickly and correctly, instead of spreading thin across dozens of titles.</p>
+      <h4>So what exactly is BuyRBLX, anyway?</h4>
+      <p>BuyRBLX is a small, Filipino-run marketplace for Roblox in-game items and currency. We focus on a handful of games at a time — right now Blade Ball tokens and PS99 gems — so every order gets delivered by hand, quickly and correctly, instead of spreading thin across dozens of titles.</p>
     </div>
     <div>
       <div class="seo-icon">🛍️</div>
@@ -3152,11 +3084,11 @@
       <p>Message support with your order details — since it's handled by a real person rather than an automated system, expect a reply within 12–48 hours.</p>
     </div>
   </div>
-  <p class="seo-disclaimer">Buylance.gg is not affiliated, associated, or partnered with Roblox Corporation or any game developers. Buylance.gg is an independent platform for digital item and currency sales. All trademarks and copyrights belong to their respective owners.</p>
+  <p class="seo-disclaimer">BuyRBLX.com is not affiliated, associated, or partnered with Roblox Corporation or any game developers. BuyRBLX.com is an independent platform for digital item and currency sales. All trademarks and copyrights belong to their respective owners.</p>
 </div>
 
 <footer>
-  Buylance.gg is not affiliated with Roblox Corporation or any game developers.
+  BuyRBLX.com is not affiliated with Roblox Corporation or any game developers.
   <br>
   <a href="terms.html" style="color:var(--muted); text-decoration:underline;">Terms of Service</a> ·
   <a href="rules.html" style="color:var(--muted); text-decoration:underline;">Rules & Regulations</a> ·
@@ -3173,12 +3105,12 @@
 
     <div id="authLoginView">
       <h3>👤 Log in</h3>
-      <p class="sub">Welcome back — use the password you made for Buylance, not your Gmail one.</p>
+      <p class="sub">Welcome back — use the password you made for BuyRBLX, not your Gmail one.</p>
       <label>Gmail Address</label>
       <input type="email" id="authLoginEmail" placeholder="you@gmail.com">
       <label>Password</label>
       <div class="pw-wrap">
-        <input type="password" id="authLoginPassword" placeholder="Your Buylance password">
+        <input type="password" id="authLoginPassword" placeholder="Your BuyRBLX password">
         <button type="button" class="pw-eye" onclick="togglePasswordVisibility('authLoginPassword', this)">👁️</button>
       </div>
       <div class="error" id="authLoginError" style="display:none; color:#E8412C; font-size:12.5px; font-weight:700; margin-top:10px;"></div>
@@ -3191,7 +3123,7 @@
 
     <div id="authSignupView" style="display:none;">
       <h3>✨ Create your account</h3>
-      <p class="sub">Gmail only for now — you'll set a separate password just for Buylance.</p>
+      <p class="sub">Gmail only for now — you'll set a separate password just for BuyRBLX.</p>
       <label>Gmail Address</label>
       <input type="email" id="authSignupEmail" placeholder="you@gmail.com">
       <label>Password</label>
@@ -3237,14 +3169,12 @@
   <div class="modal-box">
     <button class="modal-close" onclick="closeSellModal()">✕</button>
     <h3>💰 Sell Your Items</h3>
-    <p class="sub">We'd love to buy your items — paid out in Robux. Just DM us on any of these:</p>
+    <p class="sub">We'd love to buy your items — paid out in Robux. Just email us:</p>
     <div style="display:flex; flex-direction:column; gap:8px; margin:14px 0;">
-      <a href="https://web.telegram.org/k/#@buylancegg" target="_blank" rel="noopener" class="modal-submit" style="text-decoration:none; text-align:center; background:#229ED9;">📩 Telegram: @buylancegg</a>
-      <a href="https://www.facebook.com/profile.php?id=61592463342121" target="_blank" rel="noopener" class="modal-submit" style="text-decoration:none; text-align:center; background:#1877F2;">📘 Facebook: buylance</a>
-      <a href="https://www.tiktok.com/@buylancegg?_r=1&_t=ZS-98dO4CMUGST" target="_blank" rel="noopener" class="modal-submit" style="text-decoration:none; text-align:center; background:#000;">🎵 TikTok: @buylancegg</a>
+      <a href="mailto:buyrblx.com@gmail.com" class="modal-submit" style="text-decoration:none; text-align:center; background:#EA4335;">📧 Gmail: buyrblx.com@gmail.com</a>
     </div>
     <div style="background:#FFF4E5; border:1px solid #FFD79A; border-radius:10px; padding:10px 12px; font-size:11.5px; font-weight:700; line-height:1.5;">
-      ⚠️ To make sure you're not talking to a scammer or poser, only use the links above — they go straight to our real accounts.
+      ⚠️ To make sure you're not talking to a scammer or poser, only use the email above — it goes straight to our real inbox.
     </div>
     <div style="margin-top:16px; font-size:12.5px; font-weight:700; line-height:1.7;">
       <div style="font-weight:900; margin-bottom:4px;">How we pay out:</div>
@@ -3333,6 +3263,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase-config.js"></script>
+<script src="reviews.js"></script>
 
 <script>
   var currentUser = null; // shared login state across all script blocks
@@ -3852,7 +3783,7 @@
   // This posts a one-way notification into your Discord channel whenever a new order comes in — it is NOT a bot, no hosting needed.
   const DISCORD_ORDER_WEBHOOK_URL = 'https://discord.com/api/webhooks/1539854823632019636/ZrQXZJhWAecjRoOA_gytBfFHZWBH3yDJt4KqsL9bm2Fl02QregPJ_XHt1NbIerHawqrd';
   let mutationTimerInterval = null;
-  let appliedPromoCode = null; // 'BUYLANCE' or null
+  let appliedPromoCode = null; // 'BUYRBLX' or null
 
   // Cart persistence: cart survives page reloads and switching between pages
   // by saving to the browser's own localStorage (stays on the visitor's device).
@@ -3927,10 +3858,10 @@
     const subtotal = cart.reduce((s,i) => s + i.price * i.qty, 0);
     document.getElementById('cartSubtotal').textContent = formatMoney(subtotal);
 
-    // Promo code: BUYLANCE = 10% off the subtotal
+    // Promo code: BUYRBLX = 10% off the subtotal
     const promoRow = document.getElementById('promoDiscountRow');
     let discount = 0;
-    if(appliedPromoCode === 'BUYLANCE' && subtotal > 0){
+    if(appliedPromoCode === 'BUYRBLX' && subtotal > 0){
       discount = subtotal * 0.10;
       promoRow.style.display = 'flex';
       document.getElementById('cartPromoAmount').textContent = '-' + formatMoney(discount);
@@ -3977,7 +3908,7 @@
     const msg = document.getElementById('promoMsg');
     const code = input.value.trim().toUpperCase();
 
-    if(code !== 'BUYLANCE'){
+    if(code !== 'BUYRBLX'){
       appliedPromoCode = null;
       msg.style.display = 'block';
       msg.style.color = '#C0392B';
@@ -4015,7 +3946,8 @@
         .from('promo_redemptions')
         .select('id')
         .eq('user_id', userId)
-        .eq('code', 'BUYLANCE')
+        .in('code', ['BUYRBLX', 'BUYLANCE']) // BUYLANCE = the code's old name
+        .limit(1)
         .maybeSingle();
       if(checkErr) throw checkErr;
 
@@ -4033,7 +3965,7 @@
       // clicked Apply, even if they never actually completed an order.
       // The redemption now only gets recorded once an order truly succeeds
       // (see finalizeOrder).
-      appliedPromoCode = 'BUYLANCE';
+      appliedPromoCode = 'BUYRBLX';
       msg.style.display = 'block';
       msg.style.color = '#1E8E3E';
       msg.textContent = '✅ Code applied — 10% off your order!';
@@ -4186,7 +4118,7 @@
     // so what's charged matches exactly what was shown in the cart drawer.
     const subtotal = cart.reduce((s,i) => s + i.price * i.qty, 0);
     let discount = 0;
-    if(appliedPromoCode === 'BUYLANCE' && subtotal > 0){ discount = subtotal * 0.10; }
+    if(appliedPromoCode === 'BUYRBLX' && subtotal > 0){ discount = subtotal * 0.10; }
     const afterDiscount = subtotal - discount;
     let fee = 0;
     if(afterDiscount > 0){
@@ -4299,8 +4231,8 @@
 
     // Only NOW — after the order has truly succeeded — do we record the
     // promo code as used, so an abandoned/failed checkout never burns it.
-    if(appliedPromoCode === 'BUYLANCE'){
-      try { await supabaseClient.from('promo_redemptions').insert({ user_id: currentUser.id, code: 'BUYLANCE' }); }
+    if(appliedPromoCode === 'BUYRBLX'){
+      try { await supabaseClient.from('promo_redemptions').insert({ user_id: currentUser.id, code: 'BUYRBLX' }); }
       catch(e){ console.warn('Promo redemption record failed:', e); }
       appliedPromoCode = null;
     }
@@ -4691,167 +4623,7 @@
     });
   });
 
-  // REVIEWS — public and live from Supabase. Anyone can read the "reviews"
-  // table (no approval step); only a logged-in account can submit, and each
-  // account is limited to one review by a unique constraint on user_id in
-  // the database. See setup notes sent separately for the required SQL.
-  let liveReviews = [];
-  const defaultAvatar = `<svg viewBox="0 0 24 24" fill="#8FA3C9"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg>`;
-
-  async function loadReviews(){
-    try {
-      const { data, error } = await supabaseClient
-        .from('reviews')
-        .select('name, stars, review_text')
-        .order('created_at', { ascending: false });
-      if(error) throw error;
-      liveReviews = data || [];
-    } catch(e) {
-      console.warn('Could not load reviews:', e);
-      liveReviews = [];
-    }
-    renderReviews();
-  }
-
-  let currentFilter = 'all';
-  function filterReviews(filter, btn){
-    currentFilter = filter;
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    renderReviews();
-  }
-
-  function renderReviews(){
-    const wrap = document.getElementById('reviewCards');
-    const shown = currentFilter === 'all'
-      ? liveReviews
-      : liveReviews.filter(r => r.stars === parseInt(currentFilter));
-
-    if(shown.length === 0){
-      wrap.innerHTML = '<div class="review-empty">' +
-        (liveReviews.length === 0
-          ? "We're brand new — your review could be the first one featured here!"
-          : 'No reviews at that star rating yet.') +
-        '</div>';
-      return;
-    }
-    wrap.innerHTML = shown.map(r => `
-      <div class="review-card">
-        <div class="review-top">
-          <div class="review-avatar">${defaultAvatar}</div>
-          <div>
-            <div class="review-name">${r.name}</div>
-            <div class="review-stars">${'★'.repeat(r.stars)}${'☆'.repeat(5 - r.stars)}</div>
-          </div>
-        </div>
-        <div class="review-quote">"${r.review_text || ''}"</div>
-      </div>
-    `).join('');
-  }
-  loadReviews();
-
-  // Star picker
-  let selectedStars = 0;
-  document.querySelectorAll('#starPicker span').forEach(star => {
-    star.addEventListener('click', () => {
-      selectedStars = parseInt(star.dataset.star);
-      document.querySelectorAll('#starPicker span').forEach(s => {
-        s.classList.toggle('on', parseInt(s.dataset.star) <= selectedStars);
-      });
-    });
-  });
-
-  // currentUser is a shared global declared earlier in the page
-  async function initReviewFormState(){
-    try {
-      const { data: { session } } = await supabaseClient.auth.getSession();
-      currentUser = session ? session.user : null;
-    } catch(e) {
-      currentUser = null;
-    }
-    const loggedOutEl = document.getElementById('reviewLoggedOut');
-    const formEl = document.getElementById('reviewForm');
-    const alreadyEl = document.getElementById('reviewAlreadyLeft');
-    if(!currentUser){
-      loggedOutEl.style.display = 'block';
-      formEl.style.display = 'none';
-      alreadyEl.style.display = 'none';
-      return;
-    }
-    // Check if this account already left a review
-    try {
-      const { data, error } = await supabaseClient
-        .from('reviews')
-        .select('id')
-        .eq('user_id', currentUser.id)
-        .maybeSingle();
-      if(error) throw error;
-      if(data){
-        loggedOutEl.style.display = 'none';
-        formEl.style.display = 'none';
-        alreadyEl.style.display = 'block';
-      } else {
-        loggedOutEl.style.display = 'none';
-        formEl.style.display = 'block';
-        alreadyEl.style.display = 'none';
-        prefillReviewName();
-      }
-    } catch(e) {
-      console.warn('Could not check existing review:', e);
-      loggedOutEl.style.display = 'none';
-      formEl.style.display = 'block';
-      alreadyEl.style.display = 'none';
-      prefillReviewName();
-    }
-  }
-
-  async function prefillReviewName(){
-    const { data: profile } = await supabaseClient.from('profiles').select('roblox_username').eq('id', currentUser.id).single();
-    const nameInput = document.getElementById('revName');
-    if(profile && profile.roblox_username){
-      nameInput.value = profile.roblox_username;
-      nameInput.readOnly = true;
-      nameInput.style.background = '#F0F3FA';
-    }
-  }
   refreshAuthUI();
-
-  async function submitReview(){
-    if(!currentUser){ alert('Please log in first.'); return; }
-    const name = document.getElementById('revName').value.trim();
-    const text = document.getElementById('revText').value.trim();
-    if(!name || selectedStars === 0){
-      alert('Please add your name and pick a star rating.');
-      return;
-    }
-    const btn = document.querySelector('#reviewForm button');
-    btn.disabled = true;
-    btn.textContent = 'Submitting...';
-    try {
-      const { error } = await supabaseClient.from('reviews').insert({
-        user_id: currentUser.id,
-        name: name,
-        stars: selectedStars,
-        review_text: text
-      });
-      if(error){
-        if(error.code === '23505'){
-          document.getElementById('reviewForm').style.display = 'none';
-          document.getElementById('reviewAlreadyLeft').style.display = 'block';
-          return;
-        }
-        throw error;
-      }
-      document.getElementById('reviewForm').style.display = 'none';
-      document.getElementById('reviewThanks').classList.add('show');
-      loadReviews();
-    } catch(e) {
-      console.warn('Review submit failed:', e);
-      alert("Sorry, something went wrong submitting your review — please try again in a moment.");
-      btn.disabled = false;
-      btn.textContent = 'Submit Review';
-    }
-  }
 </script>
 
 <script>

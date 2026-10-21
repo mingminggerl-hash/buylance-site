@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Support | Buylance</title>
+<title>Support | BuyRBLX</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -170,7 +170,7 @@
 <body>
 
 <a href="index.html" class="back-home-link">← Back to Home</a>
-<a href="index.html" class="logo">BUY<span>LANCE</span></a>
+<a href="index.html" class="logo">BUY<span>RBLX</span></a>
 
 <div class="wrap">
   
@@ -272,7 +272,7 @@
             fields: [
               { name: '👤 From', value: currentUser.email },
               { name: '💬 Message', value: message },
-              { name: '🔗 Open in Admin', value: `https://buylance.gg/admin-support.html` }
+              { name: '🔗 Open in Admin', value: `https://buyrblx.com/admin-support.html` }
             ]
           }]
         })
@@ -310,7 +310,7 @@
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          content: `🚩 **Ticket flagged as urgent** by \`${currentUser.email}\`\n**${subject}**\n> ${message}\nhttps://buylance.gg/admin-support.html`
+          content: `🚩 **Ticket flagged as urgent** by \`${currentUser.email}\`\n**${subject}**\n> ${message}\nhttps://buyrblx.com/admin-support.html`
         })
       });
       alert("Got it — we've flagged this as urgent, it'll show at the top of our list.");
