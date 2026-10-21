@@ -127,15 +127,8 @@
       </div>
 
       <div class="card">
-        <h4>Change Password</h4>
-        <label>Old Password</label>
-        <input type="password" id="oldPasswordInput">
-        <label>New Password</label>
-        <input type="password" id="newPasswordInput">
-        <label>Confirm New Password</label>
-        <input type="password" id="confirmPasswordInput">
-        <button class="action green" onclick="updatePassword()">Update Password</button>
-        <div class="msg-inline" id="passwordChangeMsg"></div>
+        <h4>🔐 How You Log In</h4>
+        <p class="sub">No password needed — each time you log in, we email a 6-character code to <b id="loginEmailDisplay">your email</b>.</p>
       </div>
 
       <div class="card">
@@ -175,6 +168,7 @@
     document.getElementById('settingsLayout').style.display = 'flex';
 
     document.getElementById('currentEmailDisplay').textContent = currentUser.email;
+    document.getElementById('loginEmailDisplay').textContent = currentUser.email;
 
     const { data: profile } = await supabaseClient.from('profiles').select('*').eq('id', currentUser.id).single();
     document.getElementById('currentRobloxDisplay').textContent = profile && profile.roblox_username ? '@' + profile.roblox_username : 'Not set';
@@ -374,46 +368,6 @@
     } catch(e){
       showMsg('robloxChangeMsg', 'Something went wrong — please try again.', true);
     }
-  };
-
-  window.updatePassword = async function(){
-    const oldPassword = document.getElementById('oldPasswordInput').value;
-    const newPassword = document.getElementById('newPasswordInput').value;
-    const confirmPassword = document.getElementById('confirmPasswordInput').value;
-
-    if(!oldPassword || !newPassword || !confirmPassword){
-      showMsg('passwordChangeMsg', 'Please fill in all three fields.', true);
-      return;
-    }
-    if(newPassword.length < 8){
-      showMsg('passwordChangeMsg', 'New password must be at least 8 characters.', true);
-      return;
-    }
-    if(newPassword !== confirmPassword){
-      showMsg('passwordChangeMsg', "New passwords don't match.", true);
-      return;
-    }
-
-    // Verify the old password is correct by attempting to sign in with it,
-    // before allowing the change.
-    const { error: verifyError } = await supabaseClient.auth.signInWithPassword({
-      email: currentUser.email,
-      password: oldPassword
-    });
-    if(verifyError){
-      showMsg('passwordChangeMsg', 'Old password is incorrect.', true);
-      return;
-    }
-
-    const { error } = await supabaseClient.auth.updateUser({ password: newPassword });
-    if(error){
-      showMsg('passwordChangeMsg', error.message, true);
-      return;
-    }
-    document.getElementById('oldPasswordInput').value = '';
-    document.getElementById('newPasswordInput').value = '';
-    document.getElementById('confirmPasswordInput').value = '';
-    showMsg('passwordChangeMsg', 'Password updated!', false);
   };
 
   window.doLogout = async function(){

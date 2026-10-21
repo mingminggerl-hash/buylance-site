@@ -41,6 +41,36 @@
   .status-disputed{ background:#FDEBEA; color:var(--error); }
   .status-cancelled{ background:#F1F1F1; color:var(--muted); }
 
+  /* Order list tabs */
+  .orders-tabs{ display:flex; gap:6px; margin-bottom:12px; flex-wrap:wrap; }
+  .orders-tab{ background:#F0F3FA; border:1px solid var(--card-border); color:var(--muted); font:800 12px 'Nunito Sans', sans-serif; padding:7px 11px; border-radius:999px; cursor:pointer; }
+  .orders-tab.active{ background:var(--brand-blue); border-color:var(--brand-blue); color:#fff; }
+  .orders-tab .count{ display:inline-block; min-width:18px; padding:0 5px; margin-left:4px; border-radius:999px; background:rgba(255,255,255,0.35); font-size:11px; }
+  .orders-tab:not(.active) .count{ background:#DDE5F5; }
+  .orders-tab .count.hot{ background:#FF7A29; color:#fff; animation:hotPulse 1.2s ease-in-out infinite; }
+
+  /* Attention badges: big + animated so waiting orders can't be missed */
+  .order-row.needs-you{ border:2px solid #FF7A29; background:linear-gradient(90deg, #FFF4E8, #FFFFFF); animation:rowGlow 1.6s ease-in-out infinite; }
+  .order-row.working{ border-color:#9DB8FF; }
+  .attn-badge{ display:inline-flex; align-items:center; gap:6px; margin-top:6px; padding:6px 12px; border-radius:999px; font:800 12.5px 'Baloo 2', sans-serif; letter-spacing:.3px; }
+  .attn-badge.hot{ background:linear-gradient(90deg, #FF7A29, #FF4D4D); color:#fff; box-shadow:0 6px 16px -6px rgba(255,90,40,0.9); animation:hotPulse 1.2s ease-in-out infinite; }
+  .attn-badge.hot .ico{ display:inline-block; animation:wiggle 1s ease-in-out infinite; }
+  .attn-badge.work{ background:#EAF3FF; color:var(--brand-blue); }
+  .attn-badge.work .ico{ display:inline-block; animation:spin 2.4s linear infinite; }
+  .attn-badge.wait{ background:#E9F9EE; color:var(--success); }
+  .attn-badge.wait .ico{ display:inline-block; animation:hourglass 2.2s ease-in-out infinite; }
+  .attn-badge.danger{ background:linear-gradient(90deg, #E8412C, #FF6B5B); color:#fff; animation:hotPulse 1.2s ease-in-out infinite; }
+  .attn-badge.done{ background:#E9F9EE; color:var(--success); }
+  .attn-badge.off{ background:#F1F1F1; color:var(--muted); }
+  .detail-attn{ font-size:15px; padding:10px 18px; margin:0 0 10px; }
+  .orders-empty{ text-align:center; padding:18px 8px; color:var(--muted); font-weight:700; font-size:13px; }
+  @keyframes hotPulse{ 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.06); } }
+  @keyframes rowGlow{ 0%,100%{ box-shadow:0 0 0 0 rgba(255,122,41,0.0); } 50%{ box-shadow:0 0 0 5px rgba(255,122,41,0.18); } }
+  @keyframes wiggle{ 0%,100%{ transform:rotate(0); } 25%{ transform:rotate(-14deg); } 75%{ transform:rotate(14deg); } }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+  @keyframes hourglass{ 0%,45%{ transform:rotate(0); } 55%,100%{ transform:rotate(180deg); } }
+  @media (prefers-reduced-motion: reduce){ .order-row.needs-you, .attn-badge, .attn-badge .ico, .orders-tab .count.hot{ animation:none !important; } }
+
   .item-line{ font-size:13px; color:var(--muted); font-weight:600; padding:3px 0; }
   .total-line{ font-weight:900; font-size:15px; margin-top:8px; border-top:1px solid var(--card-border); padding-top:8px; }
 
@@ -142,7 +172,9 @@
   button.action.danger{ background:var(--error); }
   button.action.success{ background:var(--success); }
   .dispute-box{ background:#FDEBEA; border:1px solid #F5C2BE; border-radius:10px; padding:12px; margin-top:10px; }
+  .msg-row.system-row.remind-row .bubble{ font-size:13px; font-weight:800; }
 </style>
+<link rel="stylesheet" href="chat.css">
 </head>
 <body>
 
@@ -156,6 +188,7 @@
   <div class="col-orders">
     <div class="card">
       <h2>📦 Orders</h2>
+      <div class="orders-tabs" id="ordersTabs"></div>
       <div id="ordersList"><p class="sub">Loading…</p></div>
     </div>
   </div>
@@ -185,8 +218,8 @@
           <div class="emoji-picker" id="emojiPicker">
             <span onclick="insertEmoji(&quot;😀&quot;)">😀</span><span onclick="insertEmoji(&quot;😂&quot;)">😂</span><span onclick="insertEmoji(&quot;😍&quot;)">😍</span><span onclick="insertEmoji(&quot;😘&quot;)">😘</span><span onclick="insertEmoji(&quot;😎&quot;)">😎</span><span onclick="insertEmoji(&quot;🤩&quot;)">🤩</span><span onclick="insertEmoji(&quot;🥳&quot;)">🥳</span><span onclick="insertEmoji(&quot;😭&quot;)">😭</span><span onclick="insertEmoji(&quot;😢&quot;)">😢</span><span onclick="insertEmoji(&quot;😡&quot;)">😡</span><span onclick="insertEmoji(&quot;😱&quot;)">😱</span><span onclick="insertEmoji(&quot;🤔&quot;)">🤔</span><span onclick="insertEmoji(&quot;🙄&quot;)">🙄</span><span onclick="insertEmoji(&quot;😴&quot;)">😴</span><span onclick="insertEmoji(&quot;🤗&quot;)">🤗</span><span onclick="insertEmoji(&quot;👍&quot;)">👍</span><span onclick="insertEmoji(&quot;👎&quot;)">👎</span><span onclick="insertEmoji(&quot;👏&quot;)">👏</span><span onclick="insertEmoji(&quot;🙏&quot;)">🙏</span><span onclick="insertEmoji(&quot;💪&quot;)">💪</span><span onclick="insertEmoji(&quot;🤝&quot;)">🤝</span><span onclick="insertEmoji(&quot;✋&quot;)">✋</span><span onclick="insertEmoji(&quot;👋&quot;)">👋</span><span onclick="insertEmoji(&quot;💯&quot;)">💯</span><span onclick="insertEmoji(&quot;🔥&quot;)">🔥</span><span onclick="insertEmoji(&quot;✨&quot;)">✨</span><span onclick="insertEmoji(&quot;💰&quot;)">💰</span><span onclick="insertEmoji(&quot;🎉&quot;)">🎉</span><span onclick="insertEmoji(&quot;❤️&quot;)">❤️</span><span onclick="insertEmoji(&quot;💙&quot;)">💙</span><span onclick="insertEmoji(&quot;💚&quot;)">💚</span><span onclick="insertEmoji(&quot;💛&quot;)">💛</span><span onclick="insertEmoji(&quot;🧡&quot;)">🧡</span><span onclick="insertEmoji(&quot;💜&quot;)">💜</span><span onclick="insertEmoji(&quot;🖤&quot;)">🖤</span><span onclick="insertEmoji(&quot;🤍&quot;)">🤍</span><span onclick="insertEmoji(&quot;💔&quot;)">💔</span><span onclick="insertEmoji(&quot;😊&quot;)">😊</span><span onclick="insertEmoji(&quot;😅&quot;)">😅</span><span onclick="insertEmoji(&quot;😉&quot;)">😉</span><span onclick="insertEmoji(&quot;😇&quot;)">😇</span><span onclick="insertEmoji(&quot;🥺&quot;)">🥺</span><span onclick="insertEmoji(&quot;😏&quot;)">😏</span><span onclick="insertEmoji(&quot;🤨&quot;)">🤨</span><span onclick="insertEmoji(&quot;😬&quot;)">😬</span>
           </div></button>
-        <input type="text" id="chat-input" placeholder="Type a reply...">
-        <button class="send-btn" onclick="sendMessage()">Send</button>
+        <input type="text" id="chat-input" placeholder="Type a reply…">
+        <button class="send-btn" onclick="sendMessage()" title="Send">➤</button>
       </div>
     </div>
   </div>
@@ -246,25 +279,83 @@
       .subscribe();
   }
 
+  // Admin's view of each status: who has to act next.
+  const ADMIN_BADGES = {
+    waiting_for_seller: { cls:'hot',    ico:'🔥', text:'WAITING FOR YOU — accept it' },
+    in_progress:        { cls:'work',   ico:'🔄', text:'In progress — deliver it' },
+    delivered:          { cls:'wait',   ico:'⏳', text:'Waiting for buyer to confirm' },
+    disputed:           { cls:'danger', ico:'🛑', text:'DISPUTE — needs you' },
+    completed:          { cls:'done',   ico:'✅', text:'Completed' },
+    cancelled:          { cls:'off',    ico:'❌', text:'Cancelled' },
+  };
+  const NEEDS_YOU = ['waiting_for_seller', 'disputed'];
+  const ACTIVE_STATUSES = ['waiting_for_seller', 'in_progress', 'delivered', 'disputed'];
+  const HISTORY_AFTER_DAYS = 7;
+
+  function attnBadge(status, extraClass){
+    const b = ADMIN_BADGES[status] || { cls:'off', ico:'•', text: status };
+    return `<span class="attn-badge ${b.cls} ${extraClass || ''}"><span class="ico">${b.ico}</span>${b.text}</span>`;
+  }
+
+  // Finished orders stay under "This week" for 7 days, then move to History.
+  // Order numbers never change.
+  function orderTab(o){
+    if(ACTIVE_STATUSES.includes(o.status)) return 'active';
+    const finishedAt = new Date(o.completed_at || o.updated_at || o.created_at).getTime();
+    return (Date.now() - finishedAt) / 86400000 < HISTORY_AFTER_DAYS ? 'recent' : 'history';
+  }
+
+  let currentOrdersTab = 'active';
+  let allOrders = [];
+  const baseTitle = document.title;
+
+  window.setOrdersTab = function(tab){
+    currentOrdersTab = tab;
+    renderOrdersList();
+  };
+
   async function loadOrdersList(){
     const { data: orders } = await supabaseClient.from('orders').select('*').order('created_at', { ascending: false });
+    allOrders = orders || [];
+    renderOrdersList();
+  }
+
+  function renderOrdersList(){
     const list = document.getElementById('ordersList');
-    if(!orders || orders.length === 0){
-      list.innerHTML = '<p class="sub">No orders yet.</p>';
+    const counts = { active:0, recent:0, history:0 };
+    allOrders.forEach(o => counts[orderTab(o)]++);
+    const waitingCount = allOrders.filter(o => NEEDS_YOU.includes(o.status)).length;
+    document.title = waitingCount ? `(${waitingCount}) 🔥 Waiting for you | ${baseTitle}` : baseTitle;
+
+    const tabs = [['active', '🔥 Active'], ['recent', '✅ This week'], ['history', '📁 History']];
+    document.getElementById('ordersTabs').innerHTML = tabs.map(([key, label]) => {
+      const hot = key === 'active' && waitingCount > 0;
+      return `<button class="orders-tab ${currentOrdersTab === key ? 'active' : ''}" onclick="setOrdersTab('${key}')">${label}<span class="count ${hot ? 'hot' : ''}">${counts[key]}</span></button>`;
+    }).join('');
+
+    const shown = allOrders.filter(o => orderTab(o) === currentOrdersTab);
+    if(currentOrdersTab === 'active'){
+      // Orders that need you float to the top.
+      shown.sort((a, b) => (NEEDS_YOU.includes(b.status) ? 1 : 0) - (NEEDS_YOU.includes(a.status) ? 1 : 0));
+    }
+    if(!shown.length){
+      list.innerHTML = `<div class="orders-empty">${currentOrdersTab === 'active' ? '🎉 Nothing waiting — all caught up!' : 'No orders here yet.'}</div>`;
       return;
     }
-    list.innerHTML = orders.map(o => `
-      <div class="order-row ${o.id === activeOrderId ? 'active' : ''}" onclick="selectOrder('${o.id}')">
-        <div class="num">#${o.order_number} — ${o.roblox_username || 'unknown'}</div>
-        <div class="who">${formatMoney(o.total_amount)} — ${o.user_email || ''}</div>
-        <span class="status-badge status-${o.status}">${STATUS_LABELS[o.status] || o.status}</span>
-      </div>
-    `).join('');
+    list.innerHTML = shown.map(o => {
+      const rowCls = NEEDS_YOU.includes(o.status) ? 'needs-you' : (o.status === 'in_progress' ? 'working' : '');
+      return `
+      <div class="order-row ${rowCls} ${o.id === activeOrderId ? 'active' : ''}" onclick="selectOrder('${o.id}')">
+        <div class="num">#${o.order_number} — ${escapeHtml(o.roblox_username || 'unknown')}</div>
+        <div class="who">${formatMoney(o.total_amount)} — ${escapeHtml(o.user_email || '')}</div>
+        ${attnBadge(o.status)}
+      </div>`;
+    }).join('');
   }
 
   window.selectOrder = async function(orderId){
     activeOrderId = orderId;
-    await loadOrdersList();
+    renderOrdersList();
     const { data: order, error } = await supabaseClient.from('orders').select('*').eq('id', orderId).single();
     if(error || !order){
       document.getElementById('orderDetailCard').innerHTML = '<p class="sub">Order not found.</p>';
@@ -378,7 +469,7 @@
 
   function renderDetail(order){
     const items = (order.items_json || []).map(i =>
-      `<div class="item-line">• ${i.game}: ${i.item} x${i.qty} ($${Number(i.price).toFixed(2)})</div>`
+      `<div class="item-line">• ${escapeHtml(i.game || '')}: ${escapeHtml(i.item || '')} x${Number(i.qty) || 1} ($${Number(i.price).toFixed(2)})</div>`
     ).join('');
 
     const paymentBreakdownHtml = (order.wallet_amount_used > 0)
@@ -408,25 +499,25 @@
       actionsHtml = `
         <div class="dispute-box">
           <b>Buyer's reported reason:</b>
-          <p>${order.dispute_reason || 'No reason given'}</p>
-          ${order.proof_image_url ? `<p style="margin-top:8px;"><a href="${order.proof_image_url}" target="_blank">View your delivery proof →</a></p>` : ''}
+          <p>${escapeHtml(order.dispute_reason || 'No reason given')}</p>
+          ${safeUrl(order.proof_image_url) ? `<p style="margin-top:8px;"><a href="${safeUrl(order.proof_image_url)}" target="_blank" rel="noopener">View your delivery proof →</a></p>` : ''}
         </div>
         <button class="action danger" onclick="resolveDispute('${order.id}', 'completed')">Reject Dispute / Force Complete</button>
         <button class="action" onclick="resolveDispute('${order.id}', 'in_progress')">Resend Item / Reopen</button>
       `;
     } else if(order.status === 'delivered'){
       actionsHtml = `<p class="sub">Waiting on the buyer to confirm or report an issue.</p>`;
-      if(order.proof_image_url){
-        actionsHtml += `<p style="margin-top:6px;"><a href="${order.proof_image_url}" target="_blank">View your delivery proof →</a></p>`;
+      if(safeUrl(order.proof_image_url)){
+        actionsHtml += `<p style="margin-top:6px;"><a href="${safeUrl(order.proof_image_url)}" target="_blank" rel="noopener">View your delivery proof →</a></p>`;
       }
     }
 
     document.getElementById('orderDetailCard').innerHTML = `
-      <span class="status-badge status-${order.status}">${STATUS_LABELS[order.status] || order.status}</span>
+      ${attnBadge(order.status, 'detail-attn')}
       <h2>Order #${order.order_number}</h2>
       <p class="sub header-with-avatar">
-        ${order.roblox_avatar_url ? `<img class="header-avatar" src="${order.roblox_avatar_url}">` : ''}
-        <span>Roblox: <b>${order.roblox_username}</b> &nbsp;|&nbsp; Email: <b>${order.user_email}</b></span>
+        ${safeUrl(order.roblox_avatar_url) ? `<img class="header-avatar" src="${safeUrl(order.roblox_avatar_url)}">` : ''}
+        <span>Roblox: <b>${escapeHtml(order.roblox_username || '')}</b> &nbsp;|&nbsp; Email: <b>${escapeHtml(order.user_email || '')}</b></span>
       </p>
       <div id="strikeBadgeArea"></div>
       <div style="margin-bottom:10px;">
@@ -455,8 +546,14 @@
 
   function escapeHtml(str){
     const div = document.createElement('div');
-    div.textContent = str;
-    return div.innerHTML;
+    div.textContent = str == null ? '' : String(str);
+    return div.innerHTML.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
+  // Only plain https links may go into src/href attributes (chat images,
+  // avatars, proof) — anything else is dropped.
+  function safeUrl(url){
+    return /^https:\/\/[^\s"'<>]+$/.test(url || '') ? url : '';
   }
 
   function formatTime(ts){
@@ -539,12 +636,18 @@
     const buyerName = (activeOrderData && activeOrderData.roblox_username) || 'Buyer';
     const buyerAvatar = (activeOrderData && activeOrderData.roblox_avatar_url) || '';
 
-    if(msg.is_delivery){
+    if(msg.sender_type === 'buyer' && msg.message === '🔔 Reminder sent to the seller'){
+      row.className = 'msg-row system-row remind-row';
+      row.innerHTML = `
+        <div class="bubble">🔔 ${escapeHtml(buyerName)} reminded you — they're waiting!</div>
+        <div class="msg-time">${formatTime(msg.created_at)}</div>
+      `;
+    } else if(msg.is_delivery){
       row.className = 'msg-row system-row delivery-row';
       row.innerHTML = `
         <div class="bubble">
           <div class="delivery-title">📦 Order Delivered</div>
-          ${msg.image_url ? `<img class="chat-img" src="${msg.image_url}" onclick="openImageLightbox('${msg.image_url}')" style="max-width:260px; max-height:260px;">` : ''}
+          ${safeUrl(msg.image_url) ? `<img class="chat-img" src="${safeUrl(msg.image_url)}" onclick="openImageLightbox('${safeUrl(msg.image_url)}')" style="max-width:260px; max-height:260px;">` : ''}
         </div>
         <div class="msg-time">${formatTime(msg.created_at)}</div>
       `;
@@ -557,7 +660,7 @@
     } else {
       const isMine = msg.sender_type === 'seller';
       row.className = 'msg-row ' + (isMine ? 'sent' : 'received');
-      const imgHtml = msg.image_url ? `<img class="chat-img" src="${msg.image_url}" onclick="openImageLightbox('${msg.image_url}')">` : '';
+      const imgHtml = safeUrl(msg.image_url) ? `<img class="chat-img" src="${safeUrl(msg.image_url)}" onclick="openImageLightbox('${safeUrl(msg.image_url)}')">` : '';
       const rawText = msg.message || '';
       const textHtml = rawText ? escapeHtml(rawText) : '';
       const avatarUrl = isMine ? sellerAvatarUrl : buyerAvatar;
@@ -574,7 +677,7 @@
 
       row.innerHTML = `
         <div class="msg-with-avatar ${isMine ? 'sent' : ''}">
-          ${avatarUrl ? `<img class="msg-avatar" src="${avatarUrl}">` : '<span class="msg-avatar"></span>'}
+          ${safeUrl(avatarUrl) ? `<img class="msg-avatar" src="${safeUrl(avatarUrl)}">` : '<span class="msg-avatar"></span>'}
           <div class="msg-row ${isMine ? 'sent' : 'received'}" style="max-width:100%;">
             <div class="bubble-wrap">
               <div class="bubble">${replyHtml}${textHtml}${imgHtml}</div>
@@ -630,7 +733,6 @@
       .subscribe();
   }
 
-  const REPORT_WEBHOOK_URL = 'https://discord.com/api/webhooks/1539854974580822026/_SL4w2rIYCKFj8Ryic4CyNifCbWI7usn92_JqArjibsp4yWlPQYcE1VC9BQ-pGDs44TF';
   let pendingReplyTo = null;
 
   window.startReply = function(msgId){
@@ -668,11 +770,8 @@
       }]);
     } catch(e){ console.warn('Report insert failed:', e); }
     try {
-      await fetch(REPORT_WEBHOOK_URL, {
-        method: 'POST', headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({ content: `🚩 **Message reported** on Order #${activeOrderData ? activeOrderData.order_number : '?'}\n> ${text}\nhttps://buyrblx.com/admin-order.html?id=${activeOrderId}` })
-      });
-    } catch(e){ console.warn('Report webhook failed:', e); }
+      await supabaseClient.functions.invoke('discord-notify', { body: { event: 'message_report', message_id: msgId } });
+    } catch(e){ console.warn('Report notification failed:', e); }
     alert('Reported.');
   };
 

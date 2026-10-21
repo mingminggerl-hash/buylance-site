@@ -159,7 +159,60 @@
 
   .sub{ color:var(--muted); font-size:12.5px; font-weight:600; }
   .center{ text-align:center; padding:20px; }
+
+  /* Status hero with progress steps */
+  .status-hero{ position:relative; overflow:hidden; border-radius:18px; padding:18px 18px 16px; margin-bottom:16px; color:#fff;
+    background:linear-gradient(120deg, var(--h1), var(--h2), var(--h1)); background-size:220% 100%; animation:heroShift 6s ease-in-out infinite; }
+  .status-hero.s-waiting{ --h1:#FF8A3D; --h2:#FFB547; }
+  .status-hero.s-progress{ --h1:#2F5FE0; --h2:#7B5CFF; }
+  .status-hero.s-delivered{ --h1:#16A34A; --h2:#34D399; }
+  .status-hero.s-completed{ --h1:#1E8E3E; --h2:#2FBF71; }
+  .status-hero.s-disputed{ --h1:#E8412C; --h2:#FF7A6B; }
+  .status-hero.s-cancelled{ --h1:#7C879E; --h2:#A3ACBF; }
+  .hero-top{ display:flex; align-items:center; gap:14px; }
+  .hero-ico{ width:52px; height:52px; border-radius:16px; background:rgba(255,255,255,0.22); display:flex; align-items:center; justify-content:center; font-size:28px; flex-shrink:0; }
+  .hero-ico span{ display:inline-block; }
+  .hero-title{ font:800 19px/1.2 'Baloo 2', sans-serif; }
+  .hero-sub{ font-size:12.5px; font-weight:700; opacity:.92; margin-top:2px; }
+  .steps{ display:flex; align-items:flex-start; margin-top:16px; }
+  .step{ flex:1; text-align:center; position:relative; font-size:11px; font-weight:800; opacity:.75; }
+  .step::before{ content:""; position:absolute; top:13px; left:-50%; width:100%; height:3px; background:rgba(255,255,255,0.35); }
+  .step:first-child::before{ display:none; }
+  .step.done::before, .step.now::before{ background:#fff; }
+  .step .dot{ position:relative; z-index:1; width:28px; height:28px; margin:0 auto 5px; border-radius:50%; background:rgba(255,255,255,0.3); display:flex; align-items:center; justify-content:center; font-size:13px; }
+  .step.done, .step.now{ opacity:1; }
+  .step.done .dot{ background:#fff; color:var(--ink); }
+  .step.now .dot{ background:#fff; color:var(--ink); animation:stepPing 1.6s ease-out infinite; }
+  .anim-flip{ animation:hourglassFlip 2.2s ease-in-out infinite; }
+  .anim-spin{ animation:heroSpin 2.4s linear infinite; }
+  .anim-bounce{ animation:heroBounce 1.4s ease-in-out infinite; }
+  .anim-pop{ animation:heroPop 1.8s ease-in-out infinite; }
+  @keyframes heroShift{ 0%,100%{ background-position:0% 50%; } 50%{ background-position:100% 50%; } }
+  @keyframes stepPing{ 0%{ box-shadow:0 0 0 0 rgba(255,255,255,0.75); } 100%{ box-shadow:0 0 0 12px rgba(255,255,255,0); } }
+  @keyframes heroSpin{ to{ transform:rotate(360deg); } }
+  @keyframes heroBounce{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-5px); } }
+  @keyframes heroPop{ 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.15); } }
+
+  /* Chat header */
+  .chat-head{ display:flex; align-items:center; gap:12px; margin-bottom:12px; }
+  .chat-head img, .chat-head .ph{ width:44px; height:44px; border-radius:50%; padding:2px; background:linear-gradient(135deg, #2F5FE0, #FF7A29); object-fit:cover; flex-shrink:0; }
+  .chat-head .name{ font:800 16px 'Baloo 2', sans-serif; }
+  .chat-head .presence{ display:flex; align-items:center; gap:6px; font-size:12px; font-weight:700; color:var(--muted); }
+  .chat-head .presence i{ width:8px; height:8px; border-radius:50%; background:#22C55E; animation:presencePulse 1.8s ease-in-out infinite; }
+  .remind-btn{ margin-left:auto; border:none; cursor:pointer; border-radius:999px; padding:9px 14px; font:800 12.5px 'Baloo 2', sans-serif;
+    background:linear-gradient(90deg, #FF7A29, #FF4D4D); color:#fff; box-shadow:0 8px 18px -8px rgba(255,90,40,0.9); transition:transform .15s ease; }
+  .remind-btn:hover{ transform:translateY(-2px); }
+  .remind-btn:disabled{ opacity:.55; cursor:not-allowed; transform:none; }
+  .remind-btn .bell{ display:inline-block; animation:bellSwing 2.4s ease-in-out infinite; }
+  @keyframes presencePulse{ 0%,100%{ box-shadow:0 0 0 0 rgba(34,197,94,0.6); } 50%{ box-shadow:0 0 0 5px rgba(34,197,94,0); } }
+  @keyframes bellSwing{ 0%,60%,100%{ transform:rotate(0); } 70%{ transform:rotate(-18deg); } 80%{ transform:rotate(16deg); } 90%{ transform:rotate(-8deg); } }
+
+  .toast{ position:fixed; left:50%; bottom:26px; transform:translateX(-50%) translateY(20px); opacity:0; pointer-events:none; z-index:9999;
+    background:#0F1B3D; color:#fff; font-weight:800; font-size:13px; padding:11px 18px; border-radius:999px; box-shadow:0 12px 30px rgba(15,27,61,0.35); transition:all .25s ease; }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+  @media (prefers-reduced-motion: reduce){ .status-hero, .step.now .dot, .anim-flip, .anim-spin, .anim-bounce, .anim-pop, .chat-head .presence i, .remind-btn .bell{ animation:none !important; } }
 </style>
+<link rel="stylesheet" href="chat.css">
 </head>
 <body>
 
@@ -175,9 +228,16 @@
   <div class="card" id="deliveryActionsCard" style="display:none;"></div>
 
   <div class="card">
-    <h2>💬 Order Chat</h2>
+    <div class="chat-head">
+      <span class="ph" id="chatHeadAvatar"></span>
+      <div>
+        <div class="name">💬 Chat with the seller</div>
+        <div class="presence"><i></i> Real person · usually replies in minutes</div>
+      </div>
+      <button class="remind-btn" id="remindBtn" onclick="remindSeller()" title="Ping the seller (or type !remind)"><span class="bell">🔔</span> Remind seller</button>
+    </div>
     <div class="chat-helper-tip">
-      💡 <b>Have a question about receiving your item?</b> Just ask below — we'll walk you through it. Need something outside this order? <a href="support.html">Visit Support</a>.
+      💡 <b>Questions about receiving your item?</b> Ask here. Seller taking a while? Tap <b>Remind seller</b> or type <b>!remind</b>. Need something else? <a href="support.html">Visit Support</a>.
     </div>
     <div id="chat-box"></div>
     <div class="reply-preview-bar" id="replyPreviewBar">
@@ -199,8 +259,8 @@
       <div class="emoji-picker" id="emojiPicker">
         <span onclick="insertEmoji(&quot;😀&quot;)">😀</span><span onclick="insertEmoji(&quot;😂&quot;)">😂</span><span onclick="insertEmoji(&quot;😍&quot;)">😍</span><span onclick="insertEmoji(&quot;😘&quot;)">😘</span><span onclick="insertEmoji(&quot;😎&quot;)">😎</span><span onclick="insertEmoji(&quot;🤩&quot;)">🤩</span><span onclick="insertEmoji(&quot;🥳&quot;)">🥳</span><span onclick="insertEmoji(&quot;😭&quot;)">😭</span><span onclick="insertEmoji(&quot;😢&quot;)">😢</span><span onclick="insertEmoji(&quot;😡&quot;)">😡</span><span onclick="insertEmoji(&quot;😱&quot;)">😱</span><span onclick="insertEmoji(&quot;🤔&quot;)">🤔</span><span onclick="insertEmoji(&quot;🙄&quot;)">🙄</span><span onclick="insertEmoji(&quot;😴&quot;)">😴</span><span onclick="insertEmoji(&quot;🤗&quot;)">🤗</span><span onclick="insertEmoji(&quot;👍&quot;)">👍</span><span onclick="insertEmoji(&quot;👎&quot;)">👎</span><span onclick="insertEmoji(&quot;👏&quot;)">👏</span><span onclick="insertEmoji(&quot;🙏&quot;)">🙏</span><span onclick="insertEmoji(&quot;💪&quot;)">💪</span><span onclick="insertEmoji(&quot;🤝&quot;)">🤝</span><span onclick="insertEmoji(&quot;✋&quot;)">✋</span><span onclick="insertEmoji(&quot;👋&quot;)">👋</span><span onclick="insertEmoji(&quot;💯&quot;)">💯</span><span onclick="insertEmoji(&quot;🔥&quot;)">🔥</span><span onclick="insertEmoji(&quot;✨&quot;)">✨</span><span onclick="insertEmoji(&quot;💰&quot;)">💰</span><span onclick="insertEmoji(&quot;🎉&quot;)">🎉</span><span onclick="insertEmoji(&quot;❤️&quot;)">❤️</span><span onclick="insertEmoji(&quot;💙&quot;)">💙</span><span onclick="insertEmoji(&quot;💚&quot;)">💚</span><span onclick="insertEmoji(&quot;💛&quot;)">💛</span><span onclick="insertEmoji(&quot;🧡&quot;)">🧡</span><span onclick="insertEmoji(&quot;💜&quot;)">💜</span><span onclick="insertEmoji(&quot;🖤&quot;)">🖤</span><span onclick="insertEmoji(&quot;🤍&quot;)">🤍</span><span onclick="insertEmoji(&quot;💔&quot;)">💔</span><span onclick="insertEmoji(&quot;😊&quot;)">😊</span><span onclick="insertEmoji(&quot;😅&quot;)">😅</span><span onclick="insertEmoji(&quot;😉&quot;)">😉</span><span onclick="insertEmoji(&quot;😇&quot;)">😇</span><span onclick="insertEmoji(&quot;🥺&quot;)">🥺</span><span onclick="insertEmoji(&quot;😏&quot;)">😏</span><span onclick="insertEmoji(&quot;🤨&quot;)">🤨</span><span onclick="insertEmoji(&quot;😬&quot;)">😬</span>
       </div></button>
-      <input type="text" id="chat-input" placeholder="Type a message...">
-      <button class="send-btn" onclick="sendMessage()">Send</button>
+      <input type="text" id="chat-input" placeholder="Type a message…">
+      <button class="send-btn" onclick="sendMessage()" title="Send">➤</button>
     </div>
   </div>
 </div>
@@ -208,9 +268,7 @@
 <script>
   const urlParams = new URLSearchParams(window.location.search);
   const orderId = urlParams.get('id');
-  // Same webhook URL as index.html — paste the same one here so buyer chat
-  // messages also ping Discord, not just new orders.
-  const DISCORD_ORDER_WEBHOOK_URL = 'https://discord.com/api/webhooks/1543453297015525517/V9idgXAO4jvAPqhR4uqY9GKE4-6hl6CxjD4CMXm3agTU-HRm3c9EeARyB4MpLWYN1eGg';
+  const REMIND_COOLDOWN_MS = 5 * 60 * 1000;
   let currentUser = null;
   let currentOrder = null;
   const SELLER_ROBLOX_USERNAME = 'Jethro_poter';
@@ -220,7 +278,11 @@
   async function loadSellerAvatar(){
     try {
       const { data } = await supabaseClient.functions.invoke('verify-roblox', { body: { username: SELLER_ROBLOX_USERNAME } });
-      if(data && data.success){ sellerAvatarUrl = data.avatarUrl || ''; }
+      if(data && data.success){
+        sellerAvatarUrl = data.avatarUrl || '';
+        const head = document.getElementById('chatHeadAvatar');
+        if(head && safeUrl(sellerAvatarUrl)) head.outerHTML = `<img id="chatHeadAvatar" src="${safeUrl(sellerAvatarUrl)}" alt="">`;
+      }
     } catch(e){ /* avatar is a nice-to-have, ignore failures */ }
   }
 
@@ -271,23 +333,33 @@
 
   function formatMoney(n){ return '$' + Number(n).toFixed(2); }
 
-  function bigStatusBadge(status){
-    const configs = {
-      waiting_for_seller: { bg:'#FFF4E5', color:'#B8720A', icon:'<span class="hourglass-spin">⏳</span>', text:'Waiting for Seller to Accept' },
-      in_progress: { bg:'#EAF3FF', color:'#2F5FE0', icon:'<span class="progress-pulse">🔄</span>', text:'In Progress' },
-      delivered: { bg:'#E9F9EE', color:'#1E8E3E', icon:'📦', text:'Delivered' },
-      completed: { bg:'#E9F9EE', color:'#1E8E3E', icon:'✅', text:'Completed' },
-      disputed: { bg:'#FDEDEC', color:'#C0392B', icon:'🛑', text:'Disputed' },
-      cancelled: { bg:'#F1F1F1', color:'#6B7A99', icon:'❌', text:'Cancelled' },
-    };
-    const c = configs[status] || { bg:'#F1F1F1', color:'#6B7A99', icon:'•', text: status };
-    return `<div class="status-badge-big" style="background:${c.bg}; color:${c.color};"><span class="status-icon">${c.icon}</span><span>${c.text}</span></div>`;
+  // Buyer's view of the order: animated header + where it is in the journey.
+  const HERO = {
+    waiting_for_seller: { cls:'s-waiting',   ico:'<span class="anim-flip">⏳</span>',  title:'Waiting for the seller to accept', sub:"Usually just a few minutes — we'll email you when they reply.", step:1 },
+    in_progress:        { cls:'s-progress',  ico:'<span class="anim-spin">🔄</span>',  title:'Your order is in progress',        sub:'The seller is on it — keep an eye on the chat below.', step:2 },
+    delivered:          { cls:'s-delivered', ico:'<span class="anim-bounce">📦</span>', title:'Delivered! Please confirm',        sub:"Got your item? Tap \"I Received It\" below.", step:3 },
+    completed:          { cls:'s-completed', ico:'<span class="anim-pop">🎉</span>',    title:'Order complete',                   sub:'Thanks for shopping with BuyRBLX!', step:5 },
+    disputed:           { cls:'s-disputed',  ico:'🛑', title:'Your report is under review', sub:"A real person is looking into it — you'll hear back here." },
+    cancelled:          { cls:'s-cancelled', ico:'❌', title:'Order cancelled',             sub:'Questions? Reach us through Support.' },
+  };
+  const STEPS = ['Paid', 'Accepted', 'Delivering', 'Delivered', 'Done'];
+
+  function statusHero(status){
+    const c = HERO[status] || { cls:'s-cancelled', ico:'•', title: escapeHtml(status), sub:'' };
+    const steps = c.step === undefined ? '' : `<div class="steps">${STEPS.map((label, i) => {
+      const state = i < c.step ? 'done' : i === c.step ? 'now' : '';
+      return `<div class="step ${state}"><div class="dot">${i < c.step ? '✓' : i + 1}</div>${label}</div>`;
+    }).join('')}</div>`;
+    return `<div class="status-hero ${c.cls}">
+      <div class="hero-top"><div class="hero-ico">${c.ico}</div><div><div class="hero-title">${c.title}</div><div class="hero-sub">${c.sub}</div></div></div>
+      ${steps}
+    </div>`;
   }
 
   async function renderSummary(order){
     currentOrder = order;
     const items = (order.items_json || []).map(i =>
-      `<div class="item-line">• ${i.game}: ${i.item} x${i.qty} ($${Number(i.price).toFixed(2)})</div>`
+      `<div class="item-line">• ${escapeHtml(i.game || '')}: ${escapeHtml(i.item || '')} x${Number(i.qty) || 1} ($${Number(i.price).toFixed(2)})</div>`
     ).join('');
 
     let reviewPromptHtml = '';
@@ -309,19 +381,22 @@
 
     document.getElementById('orderSummaryCard').innerHTML = `
       <a href="index.html" class="back-home-link">← Back to Home</a>
-      ${bigStatusBadge(order.status)}
+      ${statusHero(order.status)}
       <h2>Order #${order.order_number}</h2>
       ${items}
       <div class="total-line">Total: ${formatMoney(order.total_amount)}</div>
       ${reviewPromptHtml}
     `;
 
+    const remindBtn = document.getElementById('remindBtn');
+    if(remindBtn) remindBtn.style.display = ['waiting_for_seller', 'in_progress', 'delivered', 'disputed'].includes(order.status) ? '' : 'none';
+
     const actionsCard = document.getElementById('deliveryActionsCard');
     if(order.status === 'delivered'){
       actionsCard.style.display = 'block';
       actionsCard.innerHTML = `
         <h2>📦 Delivery Proof</h2>
-        ${order.proof_image_url ? `<div class="proof-box"><img src="${order.proof_image_url}" alt="Delivery proof"></div>` : '<p class="sub">No proof image attached.</p>'}
+        ${safeUrl(order.proof_image_url) ? `<div class="proof-box"><img src="${safeUrl(order.proof_image_url)}" alt="Delivery proof"></div>` : '<p class="sub">No proof image attached.</p>'}
         <p class="sub" style="margin-top:10px;">Did you receive your item?</p>
         <div class="action-row">
           <button class="btn-confirm" onclick="confirmDelivery()">✅ I Received It</button>
@@ -389,14 +464,25 @@
       .order('created_at', { ascending: true });
     const box = document.getElementById('chat-box');
     box.innerHTML = '';
-    (messages || []).forEach(renderMessage);
+    if(!messages || !messages.length){
+      box.innerHTML = '<div class="chat-empty" id="chatEmpty"><span class="big">👋</span>Say hi to your seller!<br>They\'ll message you here with delivery steps.</div>';
+      return;
+    }
+    messages.forEach(renderMessage);
   }
 
   function escapeHtml(str){
     const div = document.createElement('div');
-    div.textContent = str;
-    return div.innerHTML;
+    div.textContent = str == null ? '' : String(str);
+    return div.innerHTML.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
+
+  // Only plain https links may go into src/href attributes.
+  function safeUrl(url){
+    return /^https:\/\/[^\s"'<>]+$/.test(url || '') ? url : '';
+  }
+
+  const REMIND_TEXT = '🔔 Reminder sent to the seller';
 
   function formatTime(ts){
     if(!ts) return '';
@@ -473,15 +559,23 @@
 
   function renderMessage(msg){
     const box = document.getElementById('chat-box');
+    const empty = document.getElementById('chatEmpty');
+    if(empty) empty.remove();
     const row = document.createElement('div');
     row.setAttribute('data-msg-id', msg.id);
 
-    if(msg.is_delivery){
+    if(msg.sender_type === 'buyer' && msg.message === REMIND_TEXT){
+      row.className = 'msg-row system-row remind-row';
+      row.innerHTML = `
+        <div class="bubble">🔔 You reminded the seller — they've been pinged!</div>
+        <div class="msg-time">${formatTime(msg.created_at)}</div>
+      `;
+    } else if(msg.is_delivery){
       row.className = 'msg-row system-row delivery-row';
       row.innerHTML = `
         <div class="bubble">
           <div class="delivery-title">📦 Order Delivered</div>
-          ${msg.image_url ? `<img class="chat-img" src="${msg.image_url}" onclick="openImageLightbox('${msg.image_url}')" style="max-width:260px; max-height:260px;">` : ''}
+          ${safeUrl(msg.image_url) ? `<img class="chat-img" src="${safeUrl(msg.image_url)}" onclick="openImageLightbox('${safeUrl(msg.image_url)}')" style="max-width:260px; max-height:260px;">` : ''}
         </div>
         <div class="msg-time">${formatTime(msg.created_at)}</div>
       `;
@@ -493,7 +587,7 @@
       `;
     } else {
       const isMine = msg.sender_type === 'buyer';
-      const imgHtml = msg.image_url ? `<img class="chat-img" src="${msg.image_url}" onclick="openImageLightbox('${msg.image_url}')">` : '';
+      const imgHtml = safeUrl(msg.image_url) ? `<img class="chat-img" src="${safeUrl(msg.image_url)}" onclick="openImageLightbox('${safeUrl(msg.image_url)}')">` : '';
       const rawText = msg.message || '';
       const textHtml = rawText ? escapeHtml(rawText) : '';
       const avatarUrl = isMine ? (currentOrder ? currentOrder.roblox_avatar_url : '') : sellerAvatarUrl;
@@ -510,7 +604,7 @@
 
       row.innerHTML = `
         <div class="msg-with-avatar ${isMine ? 'sent' : ''}">
-          ${avatarUrl ? `<img class="msg-avatar" src="${avatarUrl}">` : '<span class="msg-avatar"></span>'}
+          ${safeUrl(avatarUrl) ? `<img class="msg-avatar" src="${safeUrl(avatarUrl)}">` : '<span class="msg-avatar"></span>'}
           <div class="msg-row ${isMine ? 'sent' : 'received'}" style="max-width:100%;">
             <div class="bubble-wrap">
               <div class="bubble">${replyHtml}${textHtml}${imgHtml}</div>
@@ -652,18 +746,19 @@
 
     const url = await uploadChatImage(file);
     if(!url) return;
-    const { error: insertError } = await supabaseClient.from('order_messages').insert([{
+    const { data: savedImg, error: insertError } = await supabaseClient.from('order_messages').insert([{
       order_id: orderId,
       sender_type: 'buyer',
       sender_name: currentUser.email,
       message: '',
       image_url: url
-    }]);
+    }]).select('id').single();
     if(insertError){
       console.error('Message insert error:', insertError);
       alert('Image uploaded but failed to post to chat: ' + insertError.message);
     } else {
       await supabaseClient.from('orders').update({ last_buyer_activity_at: new Date().toISOString() }).eq('id', orderId);
+      if(savedImg) notifyDiscord({ event: 'order_chat', order_id: orderId, message_id: savedImg.id });
     }
   };
 
@@ -706,7 +801,6 @@
       .subscribe();
   }
 
-  const REPORT_WEBHOOK_URL = 'https://discord.com/api/webhooks/1539854974580822026/_SL4w2rIYCKFj8Ryic4CyNifCbWI7usn92_JqArjibsp4yWlPQYcE1VC9BQ-pGDs44TF';
   let pendingReplyTo = null;
 
   window.startReply = function(msgId){
@@ -743,12 +837,7 @@
           message_id: msgId, order_id: orderId, reported_by: currentUser.id, reported_message_text: text
         }]);
       } catch(e){ console.warn('Report insert failed:', e); }
-      try {
-        await fetch(REPORT_WEBHOOK_URL, {
-          method: 'POST', headers: {'Content-Type':'application/json'},
-          body: JSON.stringify({ content: `🚩 **Message reported** on Order #${currentOrder ? currentOrder.order_number : '?'}\n> ${text}\nhttps://buyrblx.com/admin-order.html?id=${orderId}` })
-        });
-      } catch(e){ console.warn('Report webhook failed:', e); }
+      notifyDiscord({ event: 'message_report', message_id: msgId });
       alert('Reported — the team will review it.');
     }, 'Report');
   };
@@ -828,13 +917,18 @@
     const input = document.getElementById('chat-input');
     let text = input.value.trim();
     if(!text) return;
+    if(text.toLowerCase() === '!remind'){
+      input.value = '';
+      remindSeller();
+      return;
+    }
     const replySnapshot = pendingReplyTo;
     if(pendingReplyTo){
       pendingReplyTo = null;
       document.getElementById('replyPreviewBar').style.display = 'none';
     }
     input.value = '';
-    await supabaseClient.from('order_messages').insert([{
+    const { data: saved } = await supabaseClient.from('order_messages').insert([{
       order_id: orderId,
       sender_type: 'buyer',
       sender_name: currentUser.email,
@@ -842,29 +936,57 @@
       reply_to_id: replySnapshot ? replySnapshot.id : null,
       reply_to_text: replySnapshot ? replySnapshot.text.slice(0,120) : null,
       reply_to_sender: replySnapshot ? replySnapshot.senderLabel : null
-    }]);
+    }]).select('id').single();
     await supabaseClient.from('orders').update({ last_buyer_activity_at: new Date().toISOString() }).eq('id', orderId);
-    sendDiscordChatPing(text);
+    if(saved) notifyDiscord({ event: 'order_chat', order_id: orderId, message_id: saved.id });
   };
 
-  // Pings Discord whenever the buyer sends a new chat message, so the
-  // seller doesn't have to keep the dashboard open to notice it.
-  async function sendDiscordChatPing(text){
-    if(!DISCORD_ORDER_WEBHOOK_URL || DISCORD_ORDER_WEBHOOK_URL.includes('PASTE_YOUR') || !currentOrder) return;
-    const dashboardLink = 'https://buyrblx.com/admin-order.html?id=' + orderId;
-    const payload = {
-      content: `💬 **New message on Order #${currentOrder.order_number}** from \`${currentOrder.roblox_username}\`:\n> ${text}\n${dashboardLink}`
-    };
-    const threadId = currentOrder.discord_thread_id;
-    const url = threadId ? `${DISCORD_ORDER_WEBHOOK_URL}?thread_id=${threadId}` : DISCORD_ORDER_WEBHOOK_URL;
+  function showToast(text){
+    let t = document.getElementById('toast');
+    if(!t){ t = document.createElement('div'); t.id = 'toast'; t.className = 'toast'; document.body.appendChild(t); }
+    t.textContent = text;
+    t.classList.add('show');
+    clearTimeout(t._hide);
+    t._hide = setTimeout(() => t.classList.remove('show'), 2800);
+  }
+
+  function lastRemindAt(){
+    try { return Number(localStorage.getItem('remind_' + orderId)) || 0; } catch(e){ return 0; }
+  }
+
+  // "Remind seller" button or typing !remind: drops a note in the chat and
+  // @mentions the owner in this order's Discord thread. 5-minute cooldown.
+  window.remindSeller = async function(){
+    if(!currentOrder || !currentUser) return;
+    if(!['waiting_for_seller', 'in_progress', 'delivered', 'disputed'].includes(currentOrder.status)){
+      showToast('This order is already finished 🙂');
+      return;
+    }
+    const waitMs = REMIND_COOLDOWN_MS - (Date.now() - lastRemindAt());
+    if(waitMs > 0){
+      showToast(`⏳ You can remind again in ${Math.ceil(waitMs / 60000)} min`);
+      return;
+    }
+    try { localStorage.setItem('remind_' + orderId, String(Date.now())); } catch(e){}
+    const btn = document.getElementById('remindBtn');
+    if(btn){ btn.disabled = true; setTimeout(() => { btn.disabled = false; }, REMIND_COOLDOWN_MS); }
+
+    await supabaseClient.from('order_messages').insert([{
+      order_id: orderId, sender_type: 'buyer', sender_name: currentUser.email, message: REMIND_TEXT
+    }]);
+    await supabaseClient.from('orders').update({ last_buyer_activity_at: new Date().toISOString() }).eq('id', orderId);
+
+    notifyDiscord({ event: 'order_remind', order_id: orderId });
+    showToast('🔔 Seller reminded!');
+  };
+
+  // Discord pings go through our server (discord-notify), which checks the
+  // request and builds the message — no webhook URLs in this page.
+  async function notifyDiscord(body){
     try {
-      await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
+      await supabaseClient.functions.invoke('discord-notify', { body });
     } catch(e){
-      console.warn('Discord chat ping failed (message is still saved fine):', e);
+      console.warn('Discord notification failed (nothing else is affected):', e);
     }
   }
 
@@ -878,7 +1000,7 @@
       if(error){ alert('Something went wrong — please try again.'); return; }
       const { data: order } = await supabaseClient.from('orders').select('*').eq('id', orderId).single();
       if(order) renderSummary(order);
-      sendDiscordSimplePing(`✅ **Order #${order.order_number}** was confirmed as received by \`${order.roblox_username}\`.`);
+      notifyDiscord({ event: 'order_confirmed', order_id: orderId });
     }, "Yes, I got it");
   };
 
@@ -913,26 +1035,8 @@
     if(error){ alert('Something went wrong — please try again.'); return; }
     const { data: order } = await supabaseClient.from('orders').select('*').eq('id', orderId).single();
     if(order) renderSummary(order);
-    const dashboardLink = 'https://buyrblx.com/admin-order.html?id=' + orderId;
-    sendDiscordSimplePing(`🛑 **DISPUTE on Order #${order.order_number}** from \`${order.roblox_username}\`: ${fullReason}\n${dashboardLink}`);
+    notifyDiscord({ event: 'order_disputed', order_id: orderId });
   };
-
-  async function sendDiscordSimplePing(content){
-    if(!DISCORD_ORDER_WEBHOOK_URL || DISCORD_ORDER_WEBHOOK_URL.includes('PASTE_YOUR')) return;
-    // If this order already has its own Discord thread, post there instead
-    // of the main channel feed, so everything about this order stays together.
-    const threadId = currentOrder && currentOrder.discord_thread_id;
-    const url = threadId ? `${DISCORD_ORDER_WEBHOOK_URL}?thread_id=${threadId}` : DISCORD_ORDER_WEBHOOK_URL;
-    try {
-      await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content })
-      });
-    } catch(e){
-      console.warn('Discord ping failed (order status is still saved fine):', e);
-    }
-  }
 
   document.getElementById('chat-input').addEventListener('keydown', (e) => {
     if(e.key === 'Enter') sendMessage();

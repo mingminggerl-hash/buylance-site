@@ -220,9 +220,6 @@
     el.style.display = 'block';
   }
 
-  const NEW_TICKET_WEBHOOK_URL = 'https://discord.com/api/webhooks/1539854970923262013/9Now_qIUyF5kjvE5mgydiRG3d1SUHEc5r4rMmHG5OsZx1HgmR3xIprgA31xPl16n6pw0';
-  const URGENT_FLAG_WEBHOOK_URL = 'https://discord.com/api/webhooks/1543453792215896136/o8oa3m8pVaWpcto1kGDhh3kZ3Gckf3efk8R1vrC6GlPMz2dmoIj4V6U0z1Sf9F9lhqds';
-
   window.submitTicket = async function(){
     document.getElementById('errorMsg').style.display = 'none';
     const subject = document.getElementById('subject').value;
@@ -258,31 +255,11 @@
 
     const ticketId = data.ticket_id;
 
-    // Auto-creates a Discord thread for this ticket, same pattern as orders.
+    // Our server (discord-notify) opens a Discord thread for this ticket.
     try {
-      const res = await fetch(NEW_TICKET_WEBHOOK_URL + '?wait=true', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          content: '🎫 **NEW SUPPORT TICKET**',
-          thread_name: `${subject} — ${currentUser.email}`,
-          embeds: [{
-            title: subject,
-            color: 3092790,
-            fields: [
-              { name: '👤 From', value: currentUser.email },
-              { name: '💬 Message', value: message },
-              { name: '🔗 Open in Admin', value: `https://buyrblx.com/admin-support.html` }
-            ]
-          }]
-        })
-      });
-      const webhookData = await res.json();
-      if(webhookData && webhookData.channel_id){
-        await supabaseClient.rpc('set_ticket_discord_thread', { p_ticket_id: ticketId, p_thread_id: webhookData.channel_id });
-      }
+      await supabaseClient.functions.invoke('discord-notify', { body: { event: 'new_ticket', ticket_id: ticketId } });
     } catch(e){
-      console.warn('Discord ticket webhook failed (ticket is still saved fine):', e);
+      console.warn('Discord ticket notification failed (ticket is still saved fine):', e);
     }
 
     document.getElementById('message').value = '';
@@ -306,13 +283,7 @@
   window.flagTicketUrgent = async function(ticketId, subject, message){
     try {
       await supabaseClient.rpc('flag_ticket_urgent', { p_ticket_id: ticketId });
-      await fetch(URGENT_FLAG_WEBHOOK_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          content: `🚩 **Ticket flagged as urgent** by \`${currentUser.email}\`\n**${subject}**\n> ${message}\nhttps://buyrblx.com/admin-support.html`
-        })
-      });
+      await supabaseClient.functions.invoke('discord-notify', { body: { event: 'ticket_urgent', ticket_id: ticketId } });
       alert("Got it — we've flagged this as urgent, it'll show at the top of our list.");
       loadTickets();
     } catch(e){
