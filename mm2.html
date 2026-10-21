@@ -2613,9 +2613,6 @@
   }
 
   let cart = [];
-  // Paste your Discord webhook URL here (Discord Channel Settings → Integrations → Webhooks → New Webhook → Copy URL).
-  // This posts a one-way notification into your Discord channel whenever a new order comes in — it is NOT a bot, no hosting needed.
-  const DISCORD_ORDER_WEBHOOK_URL = 'https://discord.com/api/webhooks/1539854823632019636/ZrQXZJhWAecjRoOA_gytBfFHZWBH3yDJt4KqsL9bm2Fl02QregPJ_XHt1NbIerHawqrd';
   let mutationTimerInterval = null;
   let appliedPromoCode = null; // 'BUYRBLX' or null
 
@@ -3075,7 +3072,7 @@
       await supabaseClient.rpc('mark_20_reward_claimed');
     }
 
-    sendDiscordOrderWebhook(order, itemsJson);
+    sendDiscordOrderWebhook(order);
 
     cart = [];
     useWalletCredit = false;
@@ -3091,39 +3088,14 @@
     if(chatLink) chatLink.href = 'order.html?id=' + order.id;
   }
 
-  // Fires a one-way notification into Discord via a webhook — not a bot,
-  // no hosting, completely free. If the webhook fails for any reason, the
-  // order itself is unaffected (it's already safely saved in Supabase).
-  async function sendDiscordOrderWebhook(order, itemsJson){
-    if(!DISCORD_ORDER_WEBHOOK_URL || DISCORD_ORDER_WEBHOOK_URL.includes('PASTE_YOUR')){
-      console.warn('Discord webhook URL not set — skipping notification.');
-      return;
-    }
-    const itemList = itemsJson.map(i => `• **${i.game}**: ${i.item} x${i.qty} ($${Number(i.price).toFixed(2)})`).join('\n');
-    const dashboardLink = window.location.origin + '/admin-order.html?id=' + order.id;
-    const payload = {
-      content: '🚨 **NEW ORDER RECEIVED!**',
-      embeds: [{
-        title: `📦 Order #${order.order_number}`,
-        color: 3860086,
-        thumbnail: order.roblox_avatar_url ? { url: order.roblox_avatar_url } : undefined,
-        fields: [
-          { name: '👤 Roblox User', value: `\`${order.roblox_username}\``, inline: true },
-          { name: '📧 Email', value: `\`${order.user_email}\``, inline: true },
-          { name: '💵 Total', value: `**$${Number(order.total_amount).toFixed(2)}**`, inline: true },
-          { name: '🛒 Items', value: itemList || 'N/A' },
-          { name: '🔗 Open Seller Dashboard', value: `[Click Here to Chat & Deliver](${dashboardLink})` }
-        ]
-      }]
-    };
+  // Asks our server (discord-notify) to post the new order to Discord and
+  // open its thread. The webhook URL stays on the server, not in this page.
+  // If it fails, the order itself is unaffected (it's already saved).
+  async function sendDiscordOrderWebhook(order){
     try {
-      await fetch(DISCORD_ORDER_WEBHOOK_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
+      await supabaseClient.functions.invoke('discord-notify', { body: { event: 'new_order', order_id: order.id } });
     } catch(e){
-      console.warn('Discord webhook failed (order is still saved fine):', e);
+      console.warn('Discord notification failed (order is still saved fine):', e);
     }
   }
 

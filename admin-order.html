@@ -733,7 +733,6 @@
       .subscribe();
   }
 
-  const REPORT_WEBHOOK_URL = 'https://discord.com/api/webhooks/1539854974580822026/_SL4w2rIYCKFj8Ryic4CyNifCbWI7usn92_JqArjibsp4yWlPQYcE1VC9BQ-pGDs44TF';
   let pendingReplyTo = null;
 
   window.startReply = function(msgId){
@@ -771,11 +770,8 @@
       }]);
     } catch(e){ console.warn('Report insert failed:', e); }
     try {
-      await fetch(REPORT_WEBHOOK_URL, {
-        method: 'POST', headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({ content: `🚩 **Message reported** on Order #${activeOrderData ? activeOrderData.order_number : '?'}\n> ${text}\nhttps://buyrblx.com/admin-order.html?id=${activeOrderId}` })
-      });
-    } catch(e){ console.warn('Report webhook failed:', e); }
+      await supabaseClient.functions.invoke('discord-notify', { body: { event: 'message_report', message_id: msgId } });
+    } catch(e){ console.warn('Report notification failed:', e); }
     alert('Reported.');
   };
 
