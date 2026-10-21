@@ -17,3 +17,7 @@ Static HTML shop for Roblox items (formerly "Buylance"), backed by Supabase proj
 - Emails send from `noreply@buyrblx.com` via Resend: they only work once buyrblx.com is bought and verified in Resend.
 - Supabase Auth → URL Configuration still needs `https://buyrblx.com` added (dashboard only).
 - Promo code `BUYRBLX` was renamed from `BUYLANCE`; redemption checks look for both.
+- DB → email edge functions authenticate with an `x-email-secret` header from `private.email_hook_headers()` (vault secret `email_hook_secret`); the functions run with verify_jwt off and check it via `check_email_hook_secret`.
+- Table grants were stripped at some point; grant only what the site uses. Buyers may update only `profiles(roblox_username, roblox_avatar_url, roblox_id, vip_cancelled)` and `orders(discord_thread_id, last_buyer_activity_at)`. `guard_order_insert` keeps browser-created orders from starting as delivered/completed.
+- Discord is reached through webhooks embedded in the HTML (order.html, index.html). `!remind` mentions `DISCORD_OWNER_ID` in order.html (falls back to @here until it's set).
+- Admin order list: completed orders move from "This week" to "History" after 7 days. Order numbers are never renumbered.

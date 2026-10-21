@@ -694,6 +694,26 @@
 </style>
 <script src="https://www.paypal.com/sdk/js?client-id=AQvXxaPmRMQk9sfoo9AcSJs26LuWGE2RsUYCzhagWOk6fDXVqOApJBwfHtAYWeaI9rP4K0JRjRaR5_I2&currency=USD"></script>
 <link rel="stylesheet" href="reviews.css">
+<style>
+  .ongoing-card{
+    position:fixed; left:18px; bottom:22px; z-index:480; max-width:min(360px, calc(100vw - 112px));
+    display:flex; align-items:center; gap:12px; cursor:pointer;
+    background:#fff; border:2px solid #2F5FE0; border-radius:18px; padding:12px 14px;
+    box-shadow:0 16px 36px -14px rgba(47,95,224,0.75);
+    font-family:'Nunito Sans', sans-serif; color:#0F1B3D;
+    animation:ocIn .55s cubic-bezier(.2,.9,.3,1.3) both, ocNudge 3.2s ease-in-out 1.2s infinite;
+  }
+  .ongoing-card.urgent{ border-color:#FF7A29; box-shadow:0 16px 36px -14px rgba(255,122,41,0.85); }
+  .ongoing-card .oc-ico{ width:42px; height:42px; border-radius:14px; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:22px;
+    background:linear-gradient(135deg, #2F5FE0, #7B5CFF); }
+  .ongoing-card.urgent .oc-ico{ background:linear-gradient(135deg, #FF7A29, #FF4D4D); }
+  .ongoing-card .oc-title{ font:800 14px/1.25 'Baloo 2', sans-serif; }
+  .ongoing-card .oc-sub{ font-size:12px; font-weight:700; color:#2F5FE0; margin-top:2px; }
+  .ongoing-card .oc-close{ border:none; background:#F0F3FA; color:#6B7A99; width:24px; height:24px; border-radius:50%; cursor:pointer; font-weight:800; flex-shrink:0; }
+  @keyframes ocIn{ from{ opacity:0; transform:translateY(30px) scale(.9); } to{ opacity:1; transform:none; } }
+  @keyframes ocNudge{ 0%,88%,100%{ transform:translateY(0); } 92%{ transform:translateY(-6px); } 96%{ transform:translateY(0); } }
+  @media (prefers-reduced-motion: reduce){ .ongoing-card{ animation:none; } }
+</style>
 </head>
 <body>
 
@@ -2569,6 +2589,7 @@
       loadNotifications();
       loadTicketCount();
       checkSellerWaitingOrders();
+      checkOngoingOrders();
       supabaseClient
         .channel('my_notifications')
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${currentUser.id}` }, () => loadNotifications())
@@ -2579,7 +2600,7 @@
         .subscribe();
       supabaseClient
         .channel('my_order_updates')
-        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'orders', filter: `user_id=eq.${currentUser.id}` }, () => checkSellerWaitingOrders())
+        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'orders', filter: `user_id=eq.${currentUser.id}` }, () => { checkSellerWaitingOrders(); checkOngoingOrders(); })
         .subscribe();
     }
     const btn = document.getElementById('headerLoginBtn');
@@ -2907,6 +2928,47 @@
         document.head.appendChild(style);
       }
     } catch(e){ console.warn('Could not check seller-waiting orders:', e); }
+  }
+
+  // Small floating reminder (bottom-left) about orders that aren't finished
+  // yet, so buyers coming back to the homepage don't forget their chat.
+  const ONGOING_TEXT = {
+    waiting_for_seller: 'is waiting for the seller ⏳',
+    in_progress: 'is in progress 🔄',
+    delivered: 'was delivered — please confirm! 📦',
+    disputed: 'is under review 🛑',
+  };
+  async function checkOngoingOrders(){
+    const old = document.getElementById('ongoingOrdersCard');
+    if(old) old.remove();
+    if(!currentUser) return;
+    try { if(sessionStorage.getItem('ongoingDismissed')) return; } catch(e){}
+    const { data: orders, error } = await supabaseClient
+      .from('orders')
+      .select('id, order_number, status')
+      .eq('user_id', currentUser.id)
+      .in('status', Object.keys(ONGOING_TEXT))
+      .order('created_at', { ascending: false });
+    if(error || !orders || !orders.length) return;
+
+    const first = orders[0];
+    const card = document.createElement('div');
+    card.id = 'ongoingOrdersCard';
+    card.className = 'ongoing-card' + (first.status === 'delivered' ? ' urgent' : '');
+    card.innerHTML = `
+      <div class="oc-ico">📦</div>
+      <div class="oc-body">
+        <div class="oc-title">Order #${first.order_number} ${ONGOING_TEXT[first.status]}</div>
+        <div class="oc-sub">${orders.length > 1 ? `+${orders.length - 1} more ongoing · ` : ''}Tap to open your order chat →</div>
+      </div>
+      <button class="oc-close" title="Hide">✕</button>`;
+    card.onclick = () => { window.location.href = `order.html?id=${first.id}`; };
+    card.querySelector('.oc-close').onclick = (e) => {
+      e.stopPropagation();
+      try { sessionStorage.setItem('ongoingDismissed', '1'); } catch(err){}
+      card.remove();
+    };
+    document.body.appendChild(card);
   }
 
   function toggleWalletDiscount(){

@@ -52,6 +52,20 @@
   .status-replied{ background:#E9F9EE; color:var(--success); }
   .status-closed{ background:#F1F1F1; color:var(--muted); }
 
+  /* Attention badges: tickets waiting on you are big + animated */
+  .ticket-row.needs-you{ border:2px solid #FF7A29; background:linear-gradient(90deg, #FFF4E8, #FFFFFF); animation:rowGlow 1.6s ease-in-out infinite; }
+  .attn-badge{ display:inline-flex; align-items:center; gap:6px; margin-top:6px; padding:6px 12px; border-radius:999px; font:800 12.5px 'Baloo 2', sans-serif; letter-spacing:.3px; }
+  .attn-badge.hot{ background:linear-gradient(90deg, #FF7A29, #FF4D4D); color:#fff; box-shadow:0 6px 16px -6px rgba(255,90,40,0.9); animation:hotPulse 1.2s ease-in-out infinite; }
+  .attn-badge.hot .ico{ display:inline-block; animation:wiggle 1s ease-in-out infinite; }
+  .attn-badge.wait{ background:#E9F9EE; color:var(--success); }
+  .attn-badge.wait .ico{ display:inline-block; animation:hourglass 2.2s ease-in-out infinite; }
+  .attn-badge.off{ background:#F1F1F1; color:var(--muted); }
+  @keyframes hotPulse{ 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.06); } }
+  @keyframes rowGlow{ 0%,100%{ box-shadow:0 0 0 0 rgba(255,122,41,0); } 50%{ box-shadow:0 0 0 5px rgba(255,122,41,0.18); } }
+  @keyframes wiggle{ 0%,100%{ transform:rotate(0); } 25%{ transform:rotate(-14deg); } 75%{ transform:rotate(14deg); } }
+  @keyframes hourglass{ 0%,45%{ transform:rotate(0); } 55%,100%{ transform:rotate(180deg); } }
+  @media (prefers-reduced-motion: reduce){ .ticket-row.needs-you, .attn-badge, .attn-badge .ico{ animation:none !important; } }
+
   textarea{ width:100%; padding:10px 12px; border:1px solid var(--card-border); border-radius:10px; font-family:'Nunito Sans', sans-serif; font-size:13px; margin-top:8px; resize:vertical; }
   button.action{ background:var(--brand-blue); color:#fff; border:none; padding:11px 16px; border-radius:10px; font-weight:800; font-size:13px; cursor:pointer; margin-top:8px; }
   .msg-box{ background:#F7F9FF; border-radius:10px; padding:12px; font-size:13px; margin:10px 0; }
@@ -96,6 +110,23 @@
 <script>
   let currentUser = null;
   let activeTicketId = null;
+  const baseTitle = document.title;
+
+  // "open" means the buyer wrote last, so it's on you.
+  const TICKET_BADGES = {
+    open:    { cls:'hot',  ico:'🔥', text:'WAITING FOR YOU — reply' },
+    replied: { cls:'wait', ico:'⏳', text:'Waiting for buyer' },
+    closed:  { cls:'off',  ico:'✅', text:'Closed' },
+  };
+  function ticketBadge(status){
+    const b = TICKET_BADGES[status] || { cls:'off', ico:'•', text: status };
+    return `<span class="attn-badge ${b.cls}"><span class="ico">${b.ico}</span>${b.text}</span>`;
+  }
+  function escapeHtml(str){
+    const div = document.createElement('div');
+    div.textContent = str == null ? '' : String(str);
+    return div.innerHTML.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
 
   async function init(){
     const { data: { session } } = await supabaseClient.auth.getSession();
@@ -126,14 +157,17 @@
       list.innerHTML = '<p class="sub">No tickets yet.</p>';
       return;
     }
-    // Urgent tickets always float to the top, regardless of date.
-    const sorted = [...tickets].sort((a, b) => (b.is_urgent ? 1 : 0) - (a.is_urgent ? 1 : 0));
+    const waiting = tickets.filter(t => t.status === 'open').length;
+    document.title = waiting ? `(${waiting}) 🔥 Waiting for you | ${baseTitle}` : baseTitle;
+    // Urgent first, then tickets waiting on you, then the rest by date.
+    const rank = t => (t.is_urgent ? 2 : 0) + (t.status === 'open' ? 1 : 0);
+    const sorted = [...tickets].sort((a, b) => rank(b) - rank(a));
     list.innerHTML = sorted.map(t => `
-      <div class="ticket-row ${t.id === activeTicketId ? 'active' : ''} ${t.is_urgent ? 'ticket-row-urgent' : ''}" onclick="selectTicket('${t.id}')">
+      <div class="ticket-row ${t.id === activeTicketId ? 'active' : ''} ${t.is_urgent ? 'ticket-row-urgent' : ''} ${t.status === 'open' ? 'needs-you' : ''}" onclick="selectTicket('${t.id}')">
         ${t.is_urgent ? '<span class="urgent-badge">🚩 Urgent</span>' : ''}
-        <div class="subj">${t.subject}</div>
-        <div class="who">${t.email}</div>
-        <span class="status-badge status-${t.status}">${t.status}</span>
+        <div class="subj">${escapeHtml(t.subject)}</div>
+        <div class="who">${escapeHtml(t.email)}</div>
+        ${ticketBadge(t.status)}
       </div>
     `).join('');
   }
@@ -154,13 +188,13 @@
 
     document.getElementById('ticketDetailCard').innerHTML = `
       <a href="#" class="back-tickets-link" onclick="clearTicketSelection(); return false;">← Back to Tickets</a>
-      <span class="status-badge status-${ticket.status}">${ticket.status}</span>
-      <h2>${ticket.subject}</h2>
-      <p class="sub">From: ${ticket.email}</p>
+      ${ticketBadge(ticket.status)}
+      <h2>${escapeHtml(ticket.subject)}</h2>
+      <p class="sub">From: ${escapeHtml(ticket.email)}</p>
       <div class="ticket-thread">
         ${allMsgs.map(m => `
           <div class="ticket-msg-row ${m.sender_type === 'admin' ? 'mine' : 'theirs'}">
-            <div class="ticket-msg-bubble">${m.message}</div>
+            <div class="ticket-msg-bubble">${escapeHtml(m.message)}</div>
           </div>
         `).join('')}
       </div>
