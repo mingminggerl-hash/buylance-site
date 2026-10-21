@@ -701,7 +701,7 @@
       <a onclick="goToSellerTab('baddies', 'Baddies'); toggleGameMenu();">💜 Baddies</a>
       <a onclick="goToSellerTab('psx', 'Pet Simulator X'); toggleGameMenu();">💎 Pet Simulator X</a>
       <a onclick="goToSellerTab('tapsim', 'Tap Sim'); toggleGameMenu();">👆 Tap Sim</a>
-      <a onclick="goToSellerTab('sab', 'Steal a Brainrot'); toggleGameMenu();">🥷 Steal a Brainrot</a>
+      <a onclick="goToSellerTab('sab', 'Steal a Brainrot'); toggleGameMenu();">🧠 Steal a Brainrot</a>
     </div>
   </div>
 
@@ -854,7 +854,7 @@
   <button class="seller-tab" onclick="goToSellerTab('baddies', 'Baddies')">💜 Baddies</button>
   <button class="seller-tab" onclick="goToSellerTab('psx', 'Pet Simulator X')">💎 Pet Simulator X</button>
   <button class="seller-tab" onclick="goToSellerTab('tapsim', 'Tap Sim')">👆 Tap Sim</button>
-  <button class="seller-tab" onclick="goToSellerTab('sab', 'Steal a Brainrot')">🥷 Steal a Brainrot</button>
+  <button class="seller-tab" onclick="goToSellerTab('sab', 'Steal a Brainrot')">🧠 Steal a Brainrot</button>
 </div>
 <div class="inline-search-wrap" style="position:relative; width:100%; max-width:520px;">
   <input type="text" id="inlineSearchInput" class="inline-search-input" oninput="inlineLiveSearch(this.value)" onfocus="inlineLiveSearch(this.value)" placeholder="🔍 Search items across games (e.g. Harvester, PSX, Gems)..." style="width:100%; padding:12px 18px; border-radius:25px; border:1.5px solid var(--card-border); font-family:'Nunito Sans', sans-serif; font-size:14px; outline:none; box-shadow:0 2px 8px rgba(0,0,0,0.05); box-sizing:border-box;">
@@ -1187,7 +1187,7 @@
   <div class="perk-card">
     <div class="perk-icon">🎡</div>
     <h3>Reached $20 Total Spent? Here's a Free Gift to Show Our Appreciation!</h3>
-    <p>We love rewarding our buyers! Once your total orders on the site hit $20+, you automatically unlock a guaranteed free MM2 Gun or Knife. Enter your details to collect your gift!</p>
+    <p>We love rewarding our buyers! Once your total orders on the site hit $20+, you automatically unlock a guaranteed free MM2 Gun or Knife. Tap the button and it goes straight into your cart!</p>
     <button class="perk-btn" onclick="claimGiftInstantly()">Collect Your Gift Now</button>
   </div>
   <div class="perk-card">
@@ -1232,9 +1232,6 @@
 <div class="payment-grid">
   <div class="pay-badge" style="color:#003087;">PayPal</div>
   <div class="pay-badge" style="color:#1A1F71;">VISA</div>
-  <div class="pay-badge" style="color:#00A2FF;">GCash</div>
-  <div class="pay-badge" style="color:#1E7A46;">Maribank</div>
-  <div class="pay-badge" style="color:#F0B90B;">Binance</div>
 </div>
 
 <div class="safety">
@@ -1254,19 +1251,19 @@
 
 <section id="buyerReviews" class="rv"></section>
 
-<div class="feedback-row" id="itemRequestSection" style="grid-template-columns:1fr; max-width:600px;">
-  <div class="feedback-card">
-    <h4>💬 Found something off?</h4>
-    <p>Spotted a bug, a confusing page, or anything that just feels off? Let us know and we'll fix it.</p>
-    <h4 style="margin-top:14px;">🔍 Can't find an item?</h4>
-    <p>Tell us what item or game currency you're after and we'll consider adding it to the shop.</p>
-    <p style="margin-top:14px;">
-      Please fill a
-      <!-- Google Form link -->
-      <a href="https://docs.google.com/forms/d/e/1FAIpQLSdPcrlCnp8B2QYCq5784mMbW8JAx7MrTXh1QjzA6yhA5DLMqQ/viewform?usp=publish-editor" target="_blank" style="color:var(--brand-blue); font-weight:800; text-decoration:underline;">FORM</a>
-      below then.
-    </p>
-  </div>
+<div class="fb-duo" id="itemRequestSection">
+  <a class="fb-card fb-bug" href="https://docs.google.com/forms/d/e/1FAIpQLSdPcrlCnp8B2QYCq5784mMbW8JAx7MrTXh1QjzA6yhA5DLMqQ/viewform?usp=publish-editor" target="_blank" rel="noopener">
+    <span class="fb-ico">🐞</span>
+    <span class="fb-title">Found something off?</span>
+    <span class="fb-sub">A bug, a confusing page, anything that feels weird — tell us and we'll fix it.</span>
+    <span class="fb-btn">Report it →</span>
+  </a>
+  <a class="fb-card fb-wish" href="https://docs.google.com/forms/d/e/1FAIpQLSdPcrlCnp8B2QYCq5784mMbW8JAx7MrTXh1QjzA6yhA5DLMqQ/viewform?usp=publish-editor" target="_blank" rel="noopener">
+    <span class="fb-ico">🔍</span>
+    <span class="fb-title">Can't find an item?</span>
+    <span class="fb-sub">Tell us the item or game currency you want and we'll look into adding it.</span>
+    <span class="fb-btn">Request an item →</span>
+  </a>
 </div>
 
 <div class="section-heading" id="faq" style="margin-top:20px;">
@@ -1513,6 +1510,7 @@
         </div>
       </div>
       <div id="checkoutFormError" style="display:none; color:#C0392B; font-size:12.5px; font-weight:700; margin-top:10px;"></div>
+      <div id="tipPicker"></div>
       <div id="paypal-button-container" style="margin-top:14px;"></div>
       <div id="paypalProcessingNote" style="display:none; text-align:center; font-size:12.5px; color:var(--muted); font-weight:700; margin-top:8px;">Confirming your payment — please don't close this window…</div>
     </div>
@@ -1535,6 +1533,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase-config.js"></script>
+<script src="tip.js"></script>
 <script src="reviews.js"></script>
 
 <script>
@@ -1592,14 +1591,17 @@
     }
 
     // Eligible — auto-add the free item and pop the cart open.
-    addToCart('free-mm2-reward', 'MM2 FREE $20 SPENT', '🎁 Reward', 0.00, 1, false);
+    if(cart.some(i => i.key === 'free-mm2-reward')){ showCartToast('🎁 Your free gift is already in your cart!'); toggleCart(); return; }
+    addToCart('free-mm2-reward', 'MM2 FREE $20 SPENT', '🎁 Reward', 0.00, 1, false, true);
     toggleCart();
+    showCartToast('🎁 Free MM2 gift added to your cart — check out to claim it!');
   }
 
   function openLoginModal(){
-    if(currentUser){ return; } // already logged in; header icon handles the logged-in state
-    switchAuthView('login');
-    document.getElementById('loginModal').classList.add('open');
+    if(currentUser){ return; } // already logged in
+    // Code login lives on its own page; come back here afterwards.
+    const here = (location.pathname.split('/').pop() || 'index.html') + location.search;
+    window.location.href = 'login-code.html?next=' + encodeURIComponent(here);
   }
   function openSellModal(){ document.getElementById('sellModal').classList.add('open'); }
   function closeSellModal(){ document.getElementById('sellModal').classList.remove('open'); }
@@ -1978,7 +1980,7 @@
   // ---- Crown VIP Subscription ($9.99/mo) ----
   // Goes through the exact same cart/checkout flow as everything else on the
   // site — there's no separate payment system for this. Once you actually
-  // receive the $9.99 (PayPal/GCash, same as regular orders) and mark that
+  // receive the $9.99 (PayPal, same as regular orders) and mark that
   // order completed, run the grant_vip SQL function for their email to flip
   // them to VIP.
   function addVIPToCart(){
@@ -2067,10 +2069,10 @@
     } catch(e){ cart = []; }
   }
 
-  function addToCart(key, name, game, price, minQty, isMutation){
+  function addToCart(key, name, game, price, minQty, isMutation, isLocked){
     minQty = minQty || 1;
     const existing = cart.find(i => i.key === key);
-    if(existing){ existing.qty++; } else { cart.push({key, name, game, price, qty:minQty, min:minQty, mutation:!!isMutation}); }
+    if(existing){ if(!existing.locked){ existing.qty++; } } else { cart.push({key, name, game, price, qty:minQty, min:minQty, mutation:!!isMutation, locked:!!isLocked}); }
     saveCartToStorage();
     renderCart();
   }
@@ -2085,10 +2087,25 @@
   function changeQty(key, delta){
     const item = cart.find(i => i.key === key);
     if(!item) return;
+    if(item.locked) return; // free gifts / prizes stay at qty 1
     if(delta < 0 && item.qty <= item.min){ return; } // can't go below the minimum order qty from the minus button
     item.qty += delta;
     saveCartToStorage();
     renderCart();
+  }
+  // Small pop-up message at the bottom of the screen.
+  function showCartToast(msg){
+    let toast = document.getElementById('cartToast');
+    if(!toast){
+      toast = document.createElement('div');
+      toast.id = 'cartToast';
+      toast.style.cssText = 'position:fixed; left:50%; bottom:24px; transform:translateX(-50%); background:#0F1B3D; color:#fff; font-weight:800; font-size:13.5px; padding:12px 20px; border-radius:24px; box-shadow:0 8px 24px rgba(0,0,0,0.25); z-index:9999; max-width:90vw; text-align:center; transition:opacity .25s ease;';
+      document.body.appendChild(toast);
+    }
+    toast.textContent = msg;
+    toast.style.opacity = '1';
+    clearTimeout(toast._hide);
+    toast._hide = setTimeout(() => { toast.style.opacity = '0'; }, 3200);
   }
   function removeFromCart(key){
     cart = cart.filter(i => i.key !== key);
@@ -2111,11 +2128,11 @@
           <div class="cart-item">
             <div class="cart-item-info">
               <div class="cart-item-name">${i.name}</div>
-              <div class="cart-item-qty">
+              ${i.locked ? `<div class="cart-item-qty"><span style="font-size:11.5px; font-weight:800; color:#1E8E3E;">🎁 Free gift · qty 1</span></div>` : `<div class="cart-item-qty">
                 <button onclick="changeQty('${i.key}', -1)" ${i.qty<=i.min ? 'disabled style="opacity:0.35; cursor:not-allowed;"' : ''}>−</button>
                 <span>${i.qty}</span>
                 <button onclick="changeQty('${i.key}', 1)">+</button>
-              </div>
+              </div>`}
             </div>
             <div class="cart-item-price">${formatMoney(i.price * i.qty)}</div>
             <button class="cart-item-remove" onclick="removeFromCart('${i.key}')" title="Remove">🗑️</button>
@@ -2313,6 +2330,14 @@
       paypalContainer.style.pointerEvents = 'auto';
     }
 
+    // Optional tip step (tip.js) — resets to "No tip" each time.
+    currentTipAmount = 0;
+    TipPicker.mount('tipPicker', {
+      getBase: () => checkoutAmountsUSD().base,
+      getTotal: () => checkoutAmountsUSD().total,
+      onChange: (tip) => { currentTipAmount = tip; },
+    });
+
     renderPayPalButtons();
   }
   let robloxLookupTimer = null;
@@ -2398,9 +2423,27 @@
     let walletDiscount = 0;
     const canUseWallet = currentUser && walletBalance > 0 && useWalletCredit;
     if(canUseWallet){ walletDiscount = Math.min(walletBalance, afterDiscount + fee); }
-    const totalUSD = Math.max(afterDiscount + fee - walletDiscount, 0);
+    const tip = currentTipAmount || 0;
+    const totalUSD = Math.max(afterDiscount + fee + tip - walletDiscount, 0);
 
-    return { roblox, email, avatarUrl, itemsJson, totalUSD, walletDiscount };
+    return { roblox, email, avatarUrl, itemsJson, totalUSD, walletDiscount, tip };
+  }
+
+  // Same math as buildCheckoutPayload(), without the form checks — the tip
+  // step uses it for percentages and the "You'll pay" amount.
+  let currentTipAmount = 0;
+  function checkoutAmountsUSD(){
+    const subtotal = cart.reduce((s,i) => s + i.price * i.qty, 0);
+    const discount = (appliedPromoCode === 'BUYRBLX' && subtotal > 0) ? subtotal * 0.10 : 0;
+    const afterDiscount = subtotal - discount;
+    let fee = 0;
+    if(afterDiscount > 0){
+      if(afterDiscount < 5) fee = 0.75;
+      else if(afterDiscount <= 15) fee = 1.00;
+      else fee = 1.50;
+    }
+    const walletDiscount = (currentUser && walletBalance > 0 && useWalletCredit) ? Math.min(walletBalance, afterDiscount + fee) : 0;
+    return { base: afterDiscount, total: Math.max(afterDiscount + fee + (currentTipAmount || 0) - walletDiscount, 0) };
   }
 
   let paypalButtonsRendered = false;
@@ -2419,6 +2462,7 @@
           checkoutShowError('This order totals $0 — free items only go through Submit, not PayPal. Please add a paid item, or contact support.');
           return actions.reject();
         }
+        TipPicker.lock(); // the tip can't change while PayPal is open
         return actions.order.create({
           purchase_units: [{ amount: { value: payload.totalUSD.toFixed(2), currency_code: 'USD' } }]
         });
@@ -2454,9 +2498,12 @@
           checkoutShowError('Something went wrong finishing your order. If you were charged, please contact support.');
         }
         processingNote.style.display = 'none';
+        TipPicker.unlock();
       },
+      onCancel: function(){ TipPicker.unlock(); },
       onError: function(err){
         console.error('PayPal button error:', err);
+        TipPicker.unlock();
         checkoutShowError('PayPal ran into an error. Please try again.');
       }
     }).render('#paypal-button-container');
@@ -2466,7 +2513,7 @@
   // the real order in Supabase, spends wallet credit, marks reward claims,
   // and pings Discord.
   async function finalizeOrder(paypalOrderId, payload){
-    const { roblox, email, avatarUrl, itemsJson, totalUSD, walletDiscount } = payload;
+    const { roblox, email, avatarUrl, itemsJson, totalUSD, walletDiscount, tip } = payload;
 
     const { data: order, error } = await supabaseClient
       .from('orders')
@@ -2482,7 +2529,8 @@
         payment_status: 'paid',
         paypal_order_id: paypalOrderId,
         wallet_amount_used: walletDiscount || 0,
-        paypal_amount_charged: totalUSD
+        paypal_amount_charged: totalUSD,
+        tip_amount: tip || 0
       }])
       .select()
       .single();

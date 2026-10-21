@@ -161,7 +161,7 @@
     const { data: { session } } = await supabaseClient.auth.getSession();
     currentUser = session ? session.user : null;
     if(!currentUser){
-      document.getElementById('accessGate').innerHTML = '<p class="sub">Please <a href="login.html" style="color:#3B82F6;">log in</a> to view your account.</p>';
+      document.getElementById('accessGate').innerHTML = '<p class="sub">Please <a href="login-code.html" style="color:#3B82F6;">log in</a> to view your account.</p>';
       return;
     }
     document.getElementById('accessGate').style.display = 'none';

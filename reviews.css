@@ -269,3 +269,25 @@
   .rv-card, .rv-pick.bump, .rv-thanks-icon, .rv-confetti i, .rv-skeleton{ animation: none; }
   .rv-bar i{ transition: none; }
 }
+
+/* ---------- feedback cards (below the reviews on shop pages) ---------- */
+.fb-duo{ display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:14px; max-width:880px; margin:34px auto 0; padding:0 6vw; }
+@media (max-width:640px){ .fb-duo{ grid-template-columns:1fr; } }
+.fb-card{ position:relative; overflow:hidden; display:flex; flex-direction:column; gap:6px; text-decoration:none; color:#0F1B3D;
+  padding:20px 18px 18px; border-radius:22px; border:1.5px solid transparent;
+  background:linear-gradient(#fff, #fff) padding-box, linear-gradient(135deg, var(--fb1), var(--fb2)) border-box;
+  box-shadow:0 14px 30px -22px rgba(15,27,61,0.55); transition:transform .18s ease, box-shadow .18s ease; }
+.fb-card:hover{ transform:translateY(-4px); box-shadow:0 22px 40px -22px rgba(47,95,224,0.7); }
+.fb-card::after{ content:""; position:absolute; right:-40px; top:-40px; width:130px; height:130px; border-radius:50%; background:radial-gradient(circle, var(--fbglow), transparent 70%); }
+.fb-bug{ --fb1:#FF7A29; --fb2:#FF4D4D; --fbglow:rgba(255,122,41,0.22); }
+.fb-wish{ --fb1:#2F5FE0; --fb2:#7B5CFF; --fbglow:rgba(123,92,255,0.22); }
+.fb-ico{ width:48px; height:48px; border-radius:16px; display:flex; align-items:center; justify-content:center; font-size:24px; color:#fff;
+  background:linear-gradient(135deg, var(--fb1), var(--fb2)); box-shadow:0 10px 20px -10px var(--fb1); animation:fbBob 3s ease-in-out infinite; }
+.fb-wish .fb-ico{ animation-delay:.6s; }
+.fb-title{ font:800 18px 'Baloo 2', sans-serif; margin-top:6px; }
+.fb-sub{ font-size:13px; font-weight:600; color:#6B7A99; line-height:1.5; }
+.fb-btn{ align-self:flex-start; margin-top:6px; color:#fff; font:800 13px 'Baloo 2', sans-serif; padding:8px 16px; border-radius:999px;
+  background:linear-gradient(90deg, var(--fb1), var(--fb2)); transition:padding .15s ease; }
+.fb-card:hover .fb-btn{ padding-right:22px; }
+@keyframes fbBob{ 0%,100%{ transform:translateY(0) rotate(0); } 50%{ transform:translateY(-5px) rotate(-6deg); } }
+@media (prefers-reduced-motion: reduce){ .fb-ico{ animation:none; } }
