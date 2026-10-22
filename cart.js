@@ -10,8 +10,8 @@
 // addToCart(...), toggleCart() etc. straight from onclick attributes.
 //
 // Discounts: only one applies per order — a typed code, a personal reward
-// code (loyalty / win-back), or the daily 5% (once per 24 hours after use,
-// orders of $2+). The order row records which one in discount_code_used;
+// code (loyalty / win-back), or the daily 5% (unlocks after $10 of completed
+// orders; then once per 24 hours after use, orders of $2+). The order row records which one in discount_code_used;
 // 'DAILY5' starts the 24-hour countdown in the database.
 
 document.body.insertAdjacentHTML('beforeend', `
@@ -325,6 +325,10 @@ function calculateProcessingFee(price){
   return Math.round(fee * 100) / 100;
 }
 
+// Not unlocked yet: the daily 5% needs $10 of completed orders first.
+function dailyLocked(){
+  return !!(dailyDiscount && dailyDiscount.unlocked === false);
+}
 function dailyReady(subtotal){
   return !!(currentUser && dailyDiscount && dailyDiscount.available && subtotal >= dailyDiscount.min_spend);
 }
@@ -408,11 +412,18 @@ function renderRewards(subtotal, active){
   if(!currentUser){
     cards.push(`<button class="ct-rw login" onclick="openLoginModal()">
       <span class="ct-rw-ico">🎁</span>
-      <span class="ct-rw-txt"><span class="ct-rw-title">Log in for 5% off every day</span><span class="ct-rw-sub">Plus cashback on every order</span></span>
+      <span class="ct-rw-txt"><span class="ct-rw-title">Log in for rewards</span><span class="ct-rw-sub">5% off every day after $10 spent, plus cashback</span></span>
       <span class="ct-rw-side">›</span></button>`);
   } else if(dailyDiscount){
     const pct = dailyDiscount.percent, min = dailyDiscount.min_spend;
-    if(!dailyDiscount.available){
+    if(dailyLocked()){
+      const goal = dailyDiscount.unlock_spend, spent = Number(dailyDiscount.spent) || 0;
+      cards.push(`<div class="ct-rw progress">
+        <span class="ct-rw-ico">🔒</span>
+        <span class="ct-rw-txt"><span class="ct-rw-title">Spend ${ctMoney(ctRound(goal - spent))} more to unlock ${pct}% off every day</span>
+          <span class="ct-rw-sub">${ctMoney(spent)} of ${ctMoney(goal)} spent · counts once an order is completed</span>
+          <div class="ct-bar"><i style="width:${Math.max(4, Math.min(100, spent / goal * 100))}%"></i></div></span></div>`);
+    } else if(!dailyDiscount.available){
       cards.push(`<button class="ct-rw cooldown" onclick="showDailyCountdown()">
         <span class="ct-rw-ico">⏳</span>
         <span class="ct-rw-txt"><span class="ct-rw-title">Daily ${pct}% used</span><span class="ct-rw-sub">Comes back 24h after you used it</span></span>
@@ -472,7 +483,10 @@ async function showDailyDiscountStatus(){
   if(!currentUser){ showCartToast('Log in to get 5% off every day ⚡'); openLoginModal(); return; }
   await loadCartRewards();
   if(!dailyDiscount){ showCartToast("Couldn't check right now — please try again."); return; }
-  if(dailyDiscount.available){
+  if(dailyLocked()){
+    const left = ctRound(dailyDiscount.unlock_spend - (Number(dailyDiscount.spent) || 0));
+    showCartToast(`🔒 Spend ${ctMoney(left)} more to unlock 5% off every day`);
+  } else if(dailyDiscount.available){
     showCartToast(`⚡ Your 5% is ready — it applies by itself on orders of ${ctMoney(dailyDiscount.min_spend)}+`, { label:'Open cart', onClick: () => toggleCart(true) });
   } else {
     showDailyCountdown();
@@ -486,7 +500,7 @@ function closeDailyCountdown(){
 // One timer keeps every countdown on screen live.
 let ctTickRefreshing = false;
 function ctTick(){
-  if(!dailyDiscount || dailyDiscount.available) return;
+  if(!dailyDiscount || dailyDiscount.available || dailyLocked()) return;
   const ms = ctMsUntilDaily();
   document.querySelectorAll('[data-ct-countdown]').forEach(el => { el.textContent = ctCountdownText(ms); });
   const p = ctCountdownParts(ms);
