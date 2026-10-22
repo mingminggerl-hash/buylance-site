@@ -9,11 +9,11 @@ Static HTML shop for Roblox items (formerly "Buylance"), backed by Supabase proj
 - **More games/bundles** (Blox Fruits, Da Hood, Jailbreak, MM2 bundles) — later.
 - **PayPal is in sandbox mode** (`verify-paypal` uses api-m.sandbox.paypal.com) — owner will switch to live before real selling.
 - **Adopt Me pictures** — owner is adding them; ask for real image files, not pasted base64.
-- **Cloudflare proxy (orange cloud)** for caching — once GitHub's HTTPS certificate is issued and "Enforce HTTPS" is on; then set Cloudflare SSL/TLS mode to Full.
 
 ## Gotchas
+- Cloudflare (owner's account, no connector): SSL/TLS = Full, the 4 apex A records are Proxied (2026-10-22); `www` CNAME and the Resend records (send, rsend, resend._domainkey, _dmarc) stay DNS only. GitHub Pages may show DNS warnings because of the proxy — expected.
 - Emails send from `noreply@buyrblx.com` via Resend: they only work once buyrblx.com is bought and verified in Resend.
-- Supabase Auth → URL Configuration still needs `https://buyrblx.com` added (dashboard only).
+- Supabase Auth → URL Configuration has `https://buyrblx.com/**` and `https://www.buyrblx.com/**` (owner added 2026-10-22).
 - Promo code `BUYRBLX` was renamed from `BUYLANCE`; redemption checks look for both.
 - DB → email edge functions authenticate with an `x-email-secret` header from `private.email_hook_headers()` (vault secret `email_hook_secret`); the functions run with verify_jwt off and check it via `check_email_hook_secret`.
 - Table grants were stripped at some point (new tables don't get default grants — even `service_role` needs an explicit `grant ... to service_role` for edge functions to use them); grant only what the site uses. Buyers may update only `profiles(roblox_username, roblox_avatar_url, roblox_id, vip_cancelled)` and `orders(discord_thread_id, last_buyer_activity_at)`. `guard_order_insert` keeps browser-created orders from starting as delivered/completed.
