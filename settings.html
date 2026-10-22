@@ -306,7 +306,9 @@
     }).join('');
   }
 
-  // VIP is a 30-day pass (no auto-renew) with one VIP wheel spin per month.
+  // Crown VIP is a PayPal subscription ($9.99/month) until the buyer cancels.
+  // Cancelling stops the next charge; VIP stays until the paid month ends.
+  const vipDate = (iso) => new Date(iso).toLocaleDateString(undefined, { month:'short', day:'numeric', year:'numeric' });
   async function loadVIPStatus(){
     const container = document.getElementById('vipStatusContainer');
     const { data: vip } = await supabaseClient.rpc('get_vip_status');
@@ -317,7 +319,7 @@
       container.innerHTML = `
         <div class="card">
           <p class="sub">You're not a VIP member right now.</p>
-          <p class="sub" style="margin-top:6px;">Crown VIP is $9.99 for 30 days: a VIP spin wheel (win an MM2 Candy, Luger, Sugar or Bat) and a 👑 VIP badge.</p>
+          <p class="sub" style="margin-top:6px;">Crown VIP is $9.99/month (renews automatically, cancel anytime): a VIP wheel spin every month and a 👑 VIP badge.</p>
           <a href="index.html#rewards" style="color:#A855F7; font-weight:800; font-size:13px;">Get VIP →</a>
           ${spinBtn}
         </div>
@@ -325,17 +327,36 @@
       return;
     }
 
-    const until = new Date(vip.vip_until);
-    const daysLeft = Math.max(1, Math.ceil((until - Date.now()) / 86400000));
+    const renewing = vip.auto_renew && vip.renews_at;
     container.innerHTML = `
       <div class="card" style="border-color:var(--vip);">
-        <h4 style="color:var(--vip);">👑 Crown VIP Pass</h4>
-        <p class="sub">Status: <b style="color:#10B981;">Active</b> — until <b>${until.toLocaleDateString(undefined, { month:'short', day:'numeric', year:'numeric' })}</b> (${daysLeft} day${daysLeft === 1 ? '' : 's'} left)</p>
-        <p class="sub" style="margin-top:8px;">${vip.spins > 0 ? 'Your VIP spin is ready!' : "You've used this month's VIP spin."} The pass doesn't renew by itself — you can get the next month once this one ends.</p>
+        <h4 style="color:var(--vip);">👑 Crown VIP — $9.99/month</h4>
+        <p class="sub">Status: <b style="color:#10B981;">Active</b></p>
+        <p class="sub" style="margin-top:6px;">${renewing
+          ? `Renews automatically on <b>${vipDate(vip.renews_at)}</b> — you'll get a new VIP spin each month.`
+          : `Auto-renew is <b>off</b>. Your VIP ends on <b>${vipDate(vip.vip_until)}</b>.`}</p>
+        <p class="sub" style="margin-top:6px;">${vip.spins > 0 ? 'Your VIP spin is ready!' : "You've used this month's VIP spin."}</p>
         ${spinBtn}
+        ${renewing ? '<button class="action red" id="vipCancelBtn" style="margin-top:12px;" onclick="cancelVIP()">Cancel auto-renew</button>' : ''}
+        <div id="vipMsg" class="sub" style="margin-top:8px;"></div>
       </div>
     `;
   }
+
+  window.cancelVIP = async function(){
+    if(!confirm("Cancel auto-renew? You won't be charged again, and you keep VIP until the end of the month you paid for.")) return;
+    const btn = document.getElementById('vipCancelBtn');
+    btn.disabled = true;
+    btn.textContent = 'Cancelling…';
+    const { data, error } = await supabaseClient.functions.invoke('paypal-vip', { body: { action: 'cancel' } });
+    if(error || !data || !data.ok){
+      btn.disabled = false;
+      btn.textContent = 'Cancel auto-renew';
+      document.getElementById('vipMsg').textContent = "Couldn't cancel right now — please try again, or cancel in your PayPal account (Settings → Payments → Automatic payments).";
+      return;
+    }
+    loadVIPStatus();
+  };
 
   window.requestEmailChange = async function(){
     const newEmail = document.getElementById('newEmailInput').value.trim();

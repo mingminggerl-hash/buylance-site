@@ -751,7 +751,7 @@
 </style>
 <script src="https://www.paypal.com/sdk/js?client-id=AQvXxaPmRMQk9sfoo9AcSJs26LuWGE2RsUYCzhagWOk6fDXVqOApJBwfHtAYWeaI9rP4K0JRjRaR5_I2&currency=USD"></script>
 <link rel="stylesheet" href="reviews.css?v=be83a25a">
-<link rel="stylesheet" href="cart.css?v=74462ef9">
+<link rel="stylesheet" href="cart.css?v=9c799787">
 </head>
 <body>
 
@@ -4310,8 +4310,8 @@
     <span class="perk-tag">$9.99/MO</span>
     <div class="perk-icon">👑</div>
     <h3>Crown VIP Pass</h3>
-    <p>30 days of VIP: a <b>VIP spin wheel</b> to win an MM2 Candy, Luger, Sugar or Bat, a 👑 VIP badge on your profile, and priority access to new item drops.</p>
-    <button class="perk-btn" id="vipPerkBtn" onclick="addVIPToCart()">Unlock VIP — $9.99 / 30 days</button>
+    <p>$9.99/month, renews automatically — cancel anytime. Every month: a <b>VIP wheel spin</b> (win an MM2 Candy, 2x Luger, 2x Sugar or Bat), a 👑 VIP badge on your profile, and priority access to new item drops.</p>
+    <button class="perk-btn" id="vipPerkBtn" onclick="addVIPToCart()">Unlock VIP — $9.99 / month</button>
   </div>
 </div>
 
@@ -4581,7 +4581,7 @@
 <script src="supabase-config.js?v=aee8e303"></script>
 <script src="visit.js?v=1bc5ef85"></script>
 <script src="tip.js?v=12cbe3cf"></script>
-<script src="cart.js?v=e11bc42d"></script>
+<script src="cart.js?v=1ec11c77"></script>
 <script src="reviews.js?v=44e07f25"></script>
 
 <script>
@@ -4599,52 +4599,6 @@
 </script>
 
 <script>
-  // Instant-claim the $20+ free MM2 gift — no popup form. Clicking the perk
-  // button checks eligibility straight from Supabase and, if eligible, drops
-  // the free item into the cart and opens the cart drawer. If not eligible
-  // (under $20 spent, or already claimed), the click is blocked with an alert
-  // instead of adding anything.
-  //
-  // Calls the Postgres function 'check_20_reward_eligibility' on Supabase,
-  // which looks at whoever is currently logged in (no email needs to be
-  // passed) and returns JSON like:
-  //   { eligible: true }
-  //   { eligible: false, reason: 'not_enough_spent', spent: 12.50 }
-  //   { eligible: false, reason: 'already_claimed' }
-  async function claimGiftInstantly(){
-    if(!currentUser){
-      alert('Please log in first so we can check your total spent!');
-      openLoginModal();
-      return;
-    }
-
-    const { data, error } = await supabaseClient.rpc('check_20_reward_eligibility');
-
-    if(error || !data){
-      alert('Error checking eligibility. Please try again.');
-      return;
-    }
-
-    if(!data.eligible){
-      if(data.reason === 'not_enough_spent'){
-        const threshold = data.threshold || 20.00;
-        const remaining = (threshold - data.spent).toFixed(2);
-        alert(`🔒 Locked! You've spent $${data.spent.toFixed(2)} total. Spend $${remaining} more to unlock your free MM2 gift!`);
-      } else if(data.reason === 'already_claimed'){
-        alert('❌ You have already claimed your 1-time appreciation gift!');
-      } else {
-        alert('You are not eligible for this gift yet.');
-      }
-      return;
-    }
-
-    // Eligible — auto-add the free item and pop the cart open.
-    if(cart.some(i => i.key === 'free-mm2-reward')){ showCartToast('🎁 Your free gift is already in your cart!'); toggleCart(); return; }
-    addToCart('free-mm2-reward', 'MM2 FREE $20 SPENT', '🎁 Reward', 0.00, 1, false, true);
-    toggleCart();
-    showCartToast('🎁 Free MM2 gift added to your cart — check out to claim it!');
-  }
-
   function openLoginModal(){
     if(currentUser){ return; } // already logged in
     // Code login lives on its own page; come back here afterwards.
