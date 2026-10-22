@@ -714,7 +714,7 @@
   @keyframes ocNudge{ 0%,88%,100%{ transform:translateY(0); } 92%{ transform:translateY(-6px); } 96%{ transform:translateY(0); } }
   @media (prefers-reduced-motion: reduce){ .ongoing-card{ animation:none; } }
 </style>
-<link rel="stylesheet" href="cart.css?v=01b4af19">
+<link rel="stylesheet" href="cart.css?v=74462ef9">
 </head>
 <body>
 
@@ -2013,8 +2013,8 @@
     <span class="perk-tag">$9.99/MO</span>
     <div class="perk-icon">👑</div>
     <h3>Crown VIP Pass</h3>
-    <p>2x Luck on every spin, +1 Bonus Legendary Spin, and priority access to new item drops.</p>
-    <button class="perk-btn" onclick="addVIPToCart()">Unlock VIP — $9.99/mo</button>
+    <p>30 days of VIP: a <b>VIP spin wheel</b> to win an MM2 Candy, Luger, Sugar or Bat, a 👑 VIP badge on your profile, and priority access to new item drops.</p>
+    <button class="perk-btn" id="vipPerkBtn" onclick="addVIPToCart()">Unlock VIP — $9.99 / 30 days</button>
   </div>
 </div>
 
@@ -2285,7 +2285,7 @@
 <script src="visit.js?v=1bc5ef85"></script>
 <script src="reviews.js?v=44e07f25"></script>
 <script src="tip.js?v=12cbe3cf"></script>
-<script src="cart.js?v=67b66655"></script>
+<script src="cart.js?v=e11bc42d"></script>
 
 <script>
   var currentUser = null; // shared login state across all script blocks
@@ -2882,22 +2882,6 @@
   }
   function closeCashbackModal(){
     document.getElementById('cashbackInfoModal').classList.remove('open');
-  }
-
-  // ---- Crown VIP Subscription ($9.99/mo) ----
-  // Goes through the exact same cart/checkout flow as everything else on the
-  // site — there's no separate payment system for this. Once you actually
-  // receive the $9.99 (PayPal, same as regular orders) and mark that
-  // order completed, run the grant_vip SQL function for their email to flip
-  // them to VIP.
-  function addVIPToCart(){
-    if(!currentUser){
-      alert('Please log in first!');
-      openLoginModal();
-      return;
-    }
-    addToCart('vip-pass-1mo', 'Crown VIP Pass (1 Month)', '👑 Crown VIP', 9.99, 1, false);
-    toggleCart();
   }
 
   // "Claim Your Spin" checks first: only buyers with a spin waiting go to

@@ -175,7 +175,7 @@
     document.getElementById('currentRobloxDisplay').textContent = profile && profile.roblox_username ? '@' + profile.roblox_username : 'Not set';
 
     loadOrders();
-    loadVIPStatus(profile);
+    loadVIPStatus();
     loadMailbox();
     loadWalletHistory();
 
@@ -306,37 +306,36 @@
     }).join('');
   }
 
-  function loadVIPStatus(profile){
+  // VIP is a 30-day pass (no auto-renew) with one VIP wheel spin per month.
+  async function loadVIPStatus(){
     const container = document.getElementById('vipStatusContainer');
-    const isVip = profile && profile.is_vip;
-    const cancelled = profile && profile.vip_cancelled;
+    const { data: vip } = await supabaseClient.rpc('get_vip_status');
+    const spinBtn = vip && vip.spins > 0
+      ? `<a href="spin_wheel_vip.html" style="display:inline-block; margin-top:10px; padding:10px 18px; border-radius:999px; background:linear-gradient(135deg,#FFB800,#FF4F8B); color:#fff; font-weight:900; font-size:13px; text-decoration:none;">🎡 Spin your VIP wheel</a>` : '';
 
-    if(!isVip){
+    if(!vip || !vip.active){
       container.innerHTML = `
         <div class="card">
-          <p class="sub">You're not a VIP member yet.</p>
-          <a href="index.html#perks" style="color:#A855F7; font-weight:800; font-size:13px;">See VIP Perks →</a>
+          <p class="sub">You're not a VIP member right now.</p>
+          <p class="sub" style="margin-top:6px;">Crown VIP is $9.99 for 30 days: a VIP spin wheel (win an MM2 Candy, Luger, Sugar or Bat) and a 👑 VIP badge.</p>
+          <a href="index.html#rewards" style="color:#A855F7; font-weight:800; font-size:13px;">Get VIP →</a>
+          ${spinBtn}
         </div>
       `;
       return;
     }
 
+    const until = new Date(vip.vip_until);
+    const daysLeft = Math.max(1, Math.ceil((until - Date.now()) / 86400000));
     container.innerHTML = `
       <div class="card" style="border-color:var(--vip);">
-        <h4 style="color:var(--vip);">👑 Crown VIP Pass ($9.99/mo)</h4>
-        <p class="sub">Status: <b style="color:${cancelled ? '#EF4444' : '#10B981'};">${cancelled ? 'Cancelling — active until end of period' : 'Active'}</b></p>
-        <p class="sub" style="margin-top:8px;">${cancelled ? "You've cancelled — you'll keep your 2x Luck and perks until your current period ends, then it won't renew." : 'Cancelling keeps your perks active until the end of your current billing period.'}</p>
-        ${cancelled ? '' : '<button class="action red" style="margin-top:10px;" onclick="cancelVIP()">Cancel Next Billing Cycle</button>'}
+        <h4 style="color:var(--vip);">👑 Crown VIP Pass</h4>
+        <p class="sub">Status: <b style="color:#10B981;">Active</b> — until <b>${until.toLocaleDateString(undefined, { month:'short', day:'numeric', year:'numeric' })}</b> (${daysLeft} day${daysLeft === 1 ? '' : 's'} left)</p>
+        <p class="sub" style="margin-top:8px;">${vip.spins > 0 ? 'Your VIP spin is ready!' : "You've used this month's VIP spin."} The pass doesn't renew by itself — you can get the next month once this one ends.</p>
+        ${spinBtn}
       </div>
     `;
   }
-
-  window.cancelVIP = async function(){
-    if(!confirm("Cancel VIP? You'll keep your perks until the end of this period, then it won't renew.")) return;
-    await supabaseClient.from('profiles').update({ vip_cancelled: true }).eq('id', currentUser.id);
-    const { data: profile } = await supabaseClient.from('profiles').select('*').eq('id', currentUser.id).single();
-    loadVIPStatus(profile);
-  };
 
   window.requestEmailChange = async function(){
     const newEmail = document.getElementById('newEmailInput').value.trim();
