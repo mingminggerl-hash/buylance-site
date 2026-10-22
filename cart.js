@@ -69,49 +69,76 @@ document.body.insertAdjacentHTML('beforeend', `
   </aside>
 </div>
 
-<div class="modal-overlay" id="checkoutModal">
-  <div class="modal-box">
-    <button class="modal-close" onclick="closeCheckoutModal()">✕</button>
+<div class="modal-overlay ct-co-overlay" id="checkoutModal">
+  <div class="modal-box ct-co">
+    <button class="ct-co-x" onclick="closeCheckoutModal()" title="Close">✕</button>
     <div id="checkoutForm">
-      <h3>🛒 Ready to Check Out</h3>
-      <p class="sub">Pay securely with PayPal below — your order is created automatically once payment is confirmed.</p>
-      <div class="ct-co-sum" id="ctCoSum"></div>
-      <label>Roblox Username</label>
-      <div id="checkoutRobloxKnown" style="display:none; align-items:center; gap:10px; margin-top:4px; padding:10px 12px; background:#F7F9FF; border-radius:10px;">
-        <img id="checkoutRobloxAvatarImg" src="" alt="" style="width:40px; height:40px; border-radius:50%; background:#E4E9F7;">
-        <div>
-          <div id="checkoutRobloxDisplayName" style="font-weight:800; font-size:13px;"></div>
-          <div id="checkoutRobloxHandle" style="font-size:11.5px; color:var(--muted); font-weight:600;"></div>
+      <div class="ct-co-head">
+        <div class="ct-co-orbs"><i></i><i></i><i></i></div>
+        <div class="ct-co-badge">🔒 Secure checkout</div>
+        <div class="ct-co-title">Almost yours! 🎮</div>
+        <div class="ct-co-amount" id="ctCoAmount">$0.00</div>
+        <div class="ct-co-meta" id="ctCoMeta"></div>
+        <div class="ct-co-steps">
+          <span class="done"><b>✓</b>Cart</span><i class="done"></i>
+          <span class="now"><b>2</b>Pay</span><i></i>
+          <span><b>3</b>Receive</span>
         </div>
       </div>
-      <div id="checkoutRobloxMissing" style="display:none; font-size:12px; color:#C0392B; font-weight:700; margin-top:6px; line-height:1.5;">
-        You haven't set a Roblox username on your account yet.
-        <a href="settings.html" style="color:var(--brand-blue); font-weight:800;">Set it in Settings →</a>
-      </div>
-      <div style="font-size:11px; color:var(--muted); font-weight:600; margin-top:6px;">
-        This is pulled from your account. If it's ever wrong, just let us know in the order chat and we'll sort it out.
-      </div>
-      <div style="background:#EEF3FF; border-radius:10px; padding:12px 14px; margin-top:14px; font-size:11.5px; color:var(--muted); font-weight:600; line-height:1.6;">
-        <b style="color:var(--ink);">⏱️ NOTE:</b> Delivery usually takes 5–15 minutes after payment — but it's not guaranteed. Delays can happen from Roblox trade cooldowns or account restrictions. If it's taking longer than usual, that just means your order needs a bit more time to process — we haven't forgotten about you.
-      </div>
-      <div id="mutationWarningBox" style="display:none; background:#FFF4E5; border:1px solid #FFD79A; border-radius:10px; padding:12px 14px; margin-top:10px; font-size:11.5px; color:var(--ink); font-weight:600; line-height:1.6;">
-        <b>⚠️ We noticed you're ordering a Grow a Garden 1 pet with a mutation.</b><br>
-        Note: please read this — mutation pets are harder to stock and harder to find a seller for, so they usually take more time to source than pets without a mutation. We don't always have every mutation in stock, but we'll get it to you if we do.
-        <div style="margin-top:8px; font-weight:800;">
-          <span id="mutationTimerCounting">Please take a moment to read — you can submit in <span id="mutationTimerCount">5</span>s.</span>
-          <span id="mutationTimerDone" style="display:none;">✅ Thanks for reading — you're good to submit.</span>
+      <div class="ct-co-body">
+        <details class="ct-co-items" id="ctCoItemsBox">
+          <summary><span id="ctCoItemsLabel">Your items</span><span class="chev">▾</span></summary>
+          <div id="ctCoItems"></div>
+        </details>
+
+        <div class="ct-co-label">🎯 Delivering to</div>
+        <div id="checkoutRobloxKnown" class="ct-co-who" style="display:none;">
+          <img id="checkoutRobloxAvatarImg" src="" alt="">
+          <div style="flex:1; min-width:0;">
+            <div id="checkoutRobloxDisplayName" class="ct-co-who-name"></div>
+            <div id="checkoutRobloxHandle" class="ct-co-who-handle"></div>
+          </div>
+          <span class="ct-co-ok">✓ Verified</span>
+        </div>
+        <div id="checkoutRobloxMissing" class="ct-co-missing" style="display:none;">
+          You haven't set a Roblox username on your account yet.
+          <a href="settings.html">Set it in Settings →</a>
+        </div>
+        <div class="ct-co-hint">Wrong account? Just tell us in the order chat and we'll sort it out.</div>
+
+        <div class="ct-co-note">
+          <span class="ct-co-note-ico">⚡</span>
+          <div style="flex:1;">
+            <b>Usually delivered in 5–15 minutes</b>
+            <div class="ct-co-note-more" id="ctCoNoteMore">Not guaranteed — Roblox trade cooldowns or account limits can slow things down. If it's taking longer, your order just needs a bit more time. We haven't forgotten about you.</div>
+          </div>
+          <button type="button" class="ct-co-more" onclick="this.parentNode.classList.toggle('open'); this.textContent = this.parentNode.classList.contains('open') ? 'Less' : 'More';">More</button>
+        </div>
+
+        <div id="mutationWarningBox" class="ct-co-warn" style="display:none;">
+          <b>⚠️ You're ordering a Grow a Garden 1 pet with a mutation.</b><br>
+          Mutation pets are harder to stock and harder to find a seller for, so they usually take more time to source. We don't always have every mutation in stock, but we'll get it to you if we do.
+          <div style="margin-top:8px; font-weight:800;">
+            <span id="mutationTimerCounting">Please take a moment to read — you can pay in <span id="mutationTimerCount">5</span>s.</span>
+            <span id="mutationTimerDone" style="display:none;">✅ Thanks for reading — you're good to go.</span>
+          </div>
+        </div>
+
+        <div id="checkoutFormError" class="ct-co-error" style="display:none;"></div>
+        <div id="tipPicker"></div>
+        <div class="ct-co-label" style="margin-top:16px;">💳 Pay with</div>
+        <div id="paypal-button-container" class="ct-co-pay"></div>
+        <div id="paypalProcessingNote" class="ct-co-processing" style="display:none;"><span class="ct-spin"></span> Confirming your payment — please don't close this window…</div>
+        <div class="ct-co-trust">
+          <span>🛡️ Buyer protection</span><span>💬 Live order chat</span><span>💰 2% cashback</span>
         </div>
       </div>
-      <div id="checkoutFormError" style="display:none; color:#C0392B; font-size:12.5px; font-weight:700; margin-top:10px;"></div>
-      <div id="tipPicker"></div>
-      <div id="paypal-button-container" style="margin-top:14px;"></div>
-      <div id="paypalProcessingNote" style="display:none; text-align:center; font-size:12.5px; color:var(--muted); font-weight:700; margin-top:8px;">Confirming your payment — please don't close this window…</div>
     </div>
     <div class="modal-success ct-success" id="checkoutSuccess">
       <div class="big">🎉</div>
       <h3 id="ctSuccessTitle">Order placed!</h3>
       <p class="sub">Payment received! Your order is on its way — we'll deliver in-game shortly.</p>
-      <a id="checkoutOrderChatLink" href="#" style="display:inline-block; margin-top:10px; background:var(--brand-blue); color:#fff; text-decoration:none; font-weight:800; font-size:13px; padding:10px 18px; border-radius:10px;">💬 Open Order Chat</a>
+      <a id="checkoutOrderChatLink" href="#" class="ct-success-btn">💬 Open Order Chat</a>
     </div>
   </div>
 </div>`);
@@ -478,6 +505,29 @@ function showDailyCountdown(){
   document.body.appendChild(wrap);
   ctTick();
 }
+// Small fun popup for "not yet" messages, with an optional progress bar.
+//   ctInfoPop({ icon, title, text, progress: { value, goal }, button })
+function ctInfoPop(o){
+  closeDailyCountdown();
+  const wrap = document.createElement('div');
+  wrap.className = 'ct-pop-wrap';
+  wrap.id = 'ctPopWrap';
+  wrap.onclick = (e) => { if(e.target === wrap) closeDailyCountdown(); };
+  const p = o.progress;
+  const pct = p ? Math.max(3, Math.min(100, p.value / p.goal * 100)) : 0;
+  wrap.innerHTML = `
+    <div class="ct-pop ct-info-pop" role="dialog">
+      <div class="ct-pop-clock" style="animation:ctFloat 2.6s ease-in-out infinite;">${o.icon || '🔒'}</div>
+      <h4>${ctEsc(o.title)}</h4>
+      ${p ? `<div class="ct-info-bar"><i style="width:0"></i></div>
+        <div class="ct-info-nums"><span>${ctMoney(p.value)} spent</span><span>${ctMoney(p.goal)}</span></div>` : ''}
+      <p class="${p ? 'ct-info-big' : ''}">${ctEsc(o.text)}</p>
+      <button type="button" onclick="closeDailyCountdown()">${ctEsc(o.button || 'Got it 👍')}</button>
+    </div>`;
+  document.body.appendChild(wrap);
+  if(p) requestAnimationFrame(() => requestAnimationFrame(() => { wrap.querySelector('.ct-info-bar i').style.width = pct + '%'; }));
+}
+
 // "Check My Daily 5%" button: ready → toast, used → countdown popup.
 async function showDailyDiscountStatus(){
   if(!currentUser){ showCartToast('Log in to get 5% off every day ⚡'); openLoginModal(); return; }
@@ -613,11 +663,12 @@ function renderCart(){
 }
 
 // Counts the total up/down instead of jumping.
-let ctShownTotal = null;
 function ctAnimateTotal(target){
-  const el = document.getElementById('cartTotal');
-  const from = ctShownTotal;
-  ctShownTotal = target;
+  ctAnimateNumber(document.getElementById('cartTotal'), target);
+}
+function ctAnimateNumber(el, target){
+  const from = el._shown === undefined ? null : el._shown;
+  el._shown = target;
   cancelAnimationFrame(el._raf);
   if(from === null || from === target || target === 0 || ctReducedMotion()){ el.textContent = ctMoney(target); return; }
   const start = performance.now(), dur = 380;
@@ -769,12 +820,13 @@ async function openCheckoutModal(){
   document.getElementById('checkoutForm').style.display = 'block';
   document.getElementById('checkoutSuccess').classList.remove('show');
   document.getElementById('checkoutModal').classList.add('open');
+  document.documentElement.style.overflow = 'hidden';
+  document.getElementById('checkoutModal').scrollTop = 0;
   checkoutClearError();
   loadCheckoutRobloxInfo();
 
-  const t = computeCartTotals();
-  const qty = cart.reduce((s,i) => s + i.qty, 0);
-  document.getElementById('ctCoSum').innerHTML = `🛍️ ${qty} item${qty === 1 ? '' : 's'}${t.discountInfo ? ` · ${ctEsc(t.discountInfo.label)} −${t.discountInfo.percent}%` : ''}<b>${ctMoney(t.total)}</b>`;
+  renderCheckoutSummary();
+  document.getElementById('ctCoItemsBox').open = false;
 
   // Grow a Garden 1 mutation pets: make the buyer read the note for 5s.
   const box = document.getElementById('mutationWarningBox');
@@ -814,14 +866,41 @@ async function openCheckoutModal(){
   TipPicker.mount('tipPicker', {
     getBase: () => checkoutAmountsUSD().base,
     getTotal: () => checkoutAmountsUSD().total,
-    onChange: (tip) => { currentTipAmount = tip; renderCart(); },
+    onChange: (tip) => { currentTipAmount = tip; renderCart(); renderCheckoutSummary(); },
   });
 
   renderPayPalButtons();
 }
 
+// Big amount + item list at the top of the checkout popup.
+function renderCheckoutSummary(){
+  const t = computeCartTotals();
+  const qty = cart.reduce((s,i) => s + i.qty, 0);
+  ctAnimateNumber(document.getElementById('ctCoAmount'), t.total);
+  const bits = [`${qty} item${qty === 1 ? '' : 's'}`];
+  if(t.discountInfo) bits.push(`${ctEsc(t.discountInfo.label)} −${t.discountInfo.percent}%`);
+  if(t.tip > 0) bits.push(`💖 ${ctMoney(t.tip)} tip`);
+  const saved = ctRound(t.discount + t.walletDiscount);
+  document.getElementById('ctCoMeta').innerHTML = bits.join(' · ') + (saved > 0 ? ` <span class="ct-co-save">You save ${ctMoney(saved)}</span>` : '');
+  document.getElementById('ctCoItemsLabel').textContent = `🛍️ Your items (${qty})`;
+  const row = (label, value, cls) => `<div class="ct-co-row ${cls || ''}"><span>${label}</span><span>${value}</span></div>`;
+  document.getElementById('ctCoItems').innerHTML =
+    cart.map(i => `<div class="ct-co-item">
+      <span class="ct-co-thumb">${i.img ? `<img src="${ctEsc(i.img)}" alt="">` : (i.locked ? '🎁' : ctEsc(ctGameIcon(i.game)))}</span>
+      <span class="ct-co-iname">${ctEsc(i.name)}${i.qty > 1 ? ` <em>×${i.qty}</em>` : ''}</span>
+      <b>${i.price ? ctMoney(i.price * i.qty) : 'FREE'}</b></div>`).join('') +
+    '<div class="ct-co-rows">' +
+    row('Subtotal', ctMoney(t.subtotal)) +
+    (t.discount > 0 ? row(`${ctEsc(t.discountInfo.label)} (−${t.discountInfo.percent}%)`, '−' + ctMoney(t.discount), 'green') : '') +
+    row('Processing fee', ctMoney(t.fee), 'small') +
+    (t.tip > 0 ? row('Tip 💖', ctMoney(t.tip), 'green') : '') +
+    (t.walletDiscount > 0 ? row('Cashback used', '−' + ctMoney(t.walletDiscount), 'green') : '') +
+    row('<b>Total</b>', `<b>${ctMoney(t.total)}</b>`, 'total') + '</div>';
+}
+
 function closeCheckoutModal(){
   document.getElementById('checkoutModal').classList.remove('open');
+  document.documentElement.style.overflow = '';
   document.getElementById('checkoutForm').style.display = 'block';
   document.getElementById('checkoutSuccess').classList.remove('show');
   if(mutationTimerInterval){ clearInterval(mutationTimerInterval); mutationTimerInterval = null; }
