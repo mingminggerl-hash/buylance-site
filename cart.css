@@ -224,16 +224,100 @@
 .cart-count.ct-bump, .ct-head-ico.ct-bump{ animation:ctBump .45s cubic-bezier(.3,1.6,.5,1); }
 .seller-cart.ct-added{ background:#16A34A !important; color:#fff !important; }
 
-/* ---------- checkout popup polish ---------- */
-#checkoutModal{ z-index:710; }
-#checkoutModal .modal-box{ border-radius:24px; }
-.ct-co-sum{ display:flex; align-items:center; gap:10px; margin:10px 0 4px; padding:10px 12px; border-radius:14px; background:#F6F8FF; border:1px solid #E1E8FB; font-size:12.5px; font-weight:700; color:#4A5878; }
-.ct-co-sum b{ margin-left:auto; font:800 16px 'Baloo 2', sans-serif; color:#0F1B3D; }
-.ct-success{ position:relative; overflow:hidden; }
+/* ---------- checkout popup ---------- */
+/* The overlay itself scrolls, so the PayPal card form (an iframe) can grow
+   and the mouse wheel scrolls the popup instead of the page behind it. */
+#checkoutModal.ct-co-overlay{ z-index:710; overflow-y:auto; overscroll-behavior:contain; align-items:flex-start; padding:24px 16px; backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px); }
+#checkoutModal.open .ct-co{ animation:ctPopIn .4s cubic-bezier(.2,.9,.25,1.15) both; }
+#checkoutModal .modal-box.ct-co{ margin:auto; max-width:440px; padding:0; border-radius:26px; overflow:hidden; box-shadow:0 40px 80px -30px rgba(15,27,61,.6); font-family:'Nunito Sans', sans-serif; }
+.ct-co-x{ position:absolute; top:12px; right:12px; z-index:3; width:32px; height:32px; border-radius:50%; border:none; cursor:pointer; background:rgba(255,255,255,.22); color:#fff; font-size:14px; font-weight:900; transition:transform .2s ease, background .15s ease; }
+.ct-co-x:hover{ transform:rotate(90deg); background:rgba(255,255,255,.35); }
+#checkoutSuccess.show ~ .ct-co-x, .ct-co:has(#checkoutSuccess.show) .ct-co-x{ background:#EEF2FF; color:#6B7A99; }
+
+.ct-co-head{ position:relative; overflow:hidden; text-align:center; color:#fff; padding:22px 20px 18px;
+  background:linear-gradient(135deg, #2F5FE0 0%, #6A5CFF 55%, #FF4F8B 100%); }
+.ct-co-orbs i{ position:absolute; border-radius:50%; background:rgba(255,255,255,.13); animation:ctFloat 6s ease-in-out infinite; }
+.ct-co-orbs i:nth-child(1){ width:140px; height:140px; left:-50px; top:-60px; }
+.ct-co-orbs i:nth-child(2){ width:90px; height:90px; right:-20px; bottom:-30px; animation-delay:-2s; }
+.ct-co-orbs i:nth-child(3){ width:40px; height:40px; right:70px; top:16px; animation-delay:-4s; }
+.ct-co-head > *:not(.ct-co-orbs){ position:relative; }
+.ct-co-badge{ display:inline-block; font-size:10.5px; font-weight:900; letter-spacing:.5px; text-transform:uppercase; padding:4px 10px; border-radius:999px; background:rgba(255,255,255,.2); }
+.ct-co-title{ font:800 19px 'Baloo 2', sans-serif; margin-top:8px; }
+.ct-co-amount{ font:800 44px 'Baloo 2', sans-serif; line-height:1; margin-top:2px; text-shadow:0 6px 18px rgba(0,0,0,.18); }
+.ct-co-meta{ font-size:12px; font-weight:800; opacity:.95; margin-top:6px; }
+.ct-co-save{ display:inline-block; margin-left:4px; padding:2px 8px; border-radius:999px; background:#fff; color:#16A34A; font-size:11px; }
+.ct-co-steps{ display:flex; align-items:center; justify-content:center; gap:6px; margin-top:14px; font-size:11px; font-weight:800; }
+.ct-co-steps span{ display:flex; align-items:center; gap:5px; opacity:.7; }
+.ct-co-steps span b{ width:20px; height:20px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,.25); font-size:10.5px; }
+.ct-co-steps span.done, .ct-co-steps span.now{ opacity:1; }
+.ct-co-steps span.done b{ background:#22C55E; }
+.ct-co-steps span.now b{ background:#fff; color:#5B4CF0; box-shadow:0 0 0 4px rgba(255,255,255,.3); animation:ctPulse 1.6s ease-in-out infinite; }
+.ct-co-steps i{ width:22px; height:2px; border-radius:2px; background:rgba(255,255,255,.35); }
+.ct-co-steps i.done{ background:#22C55E; }
+
+.ct-co-body{ padding:16px 18px 18px; background:#fff; }
+.ct-co-label{ font-size:11px; font-weight:900; letter-spacing:.5px; text-transform:uppercase; color:#8A96B3; margin:14px 0 7px; }
+
+.ct-co-items{ border:1px solid #E1E8FB; border-radius:16px; background:#F8FAFF; }
+.ct-co-items summary{ list-style:none; cursor:pointer; display:flex; align-items:center; padding:11px 14px; font-size:13px; font-weight:800; }
+.ct-co-items summary::-webkit-details-marker{ display:none; }
+.ct-co-items summary .chev{ margin-left:auto; color:#6B7A99; transition:transform .2s ease; }
+.ct-co-items[open] summary .chev{ transform:rotate(180deg); }
+#ctCoItems{ padding:0 12px 10px; animation:ctFade .25s ease; }
+.ct-co-item{ display:flex; align-items:center; gap:10px; padding:6px 2px; font-size:12.5px; font-weight:700; }
+.ct-co-thumb{ width:34px; height:34px; border-radius:10px; flex-shrink:0; display:flex; align-items:center; justify-content:center; background:#fff; border:1px solid #E1E8FB; font-size:17px; overflow:hidden; }
+.ct-co-thumb img{ width:100%; height:100%; object-fit:contain; }
+.ct-co-iname{ flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.ct-co-iname em{ font-style:normal; color:#6B7A99; }
+.ct-co-rows{ border-top:1px dashed #D7E0F7; margin-top:6px; padding-top:6px; }
+.ct-co-row{ display:flex; justify-content:space-between; font-size:12px; font-weight:700; color:#4A5878; padding:2px 2px; }
+.ct-co-row.green{ color:#16A34A; }
+.ct-co-row.small{ color:#8A96B3; }
+.ct-co-row.total{ font-size:13.5px; color:#0F1B3D; margin-top:2px; }
+
+.ct-co-who{ display:flex; align-items:center; gap:12px; padding:10px 12px; border-radius:16px; background:linear-gradient(135deg, #F2F6FF, #F7F2FF); border:1px solid #DDE5FB; }
+.ct-co-who img{ width:46px; height:46px; border-radius:50%; background:#E4E9F7; border:3px solid #fff; box-shadow:0 4px 12px -4px rgba(47,95,224,.6); }
+.ct-co-who-name{ font:800 15px 'Baloo 2', sans-serif; line-height:1.1; }
+.ct-co-who-handle{ font-size:11.5px; font-weight:700; color:#6B7A99; }
+.ct-co-ok{ font-size:10.5px; font-weight:900; color:#16A34A; background:#DCFCE7; padding:4px 9px; border-radius:999px; white-space:nowrap; }
+.ct-co-missing{ padding:10px 12px; border-radius:14px; background:#FFF1F0; color:#C0392B; font-size:12.5px; font-weight:700; line-height:1.5; }
+.ct-co-missing a{ color:#2F5FE0; font-weight:900; }
+.ct-co-hint{ font-size:11px; font-weight:600; color:#8A96B3; margin-top:6px; }
+
+.ct-co-note{ display:flex; align-items:flex-start; gap:10px; margin-top:14px; padding:11px 12px; border-radius:16px; background:#FFF8EC; border:1px solid #FFE3B5; font-size:12.5px; color:#7A4B00; }
+.ct-co-note b{ font-weight:900; }
+.ct-co-note-ico{ font-size:18px; line-height:1; }
+.ct-co-note-more{ display:none; font-size:11.5px; font-weight:600; line-height:1.55; margin-top:4px; }
+.ct-co-note.open .ct-co-note-more{ display:block; animation:ctFade .25s ease; }
+.ct-co-more{ border:none; background:#FFE7BF; color:#7A4B00; font-size:11px; font-weight:900; padding:4px 10px; border-radius:999px; cursor:pointer; }
+.ct-co-warn{ margin-top:10px; padding:12px 14px; border-radius:16px; background:#FFF4E5; border:1px solid #FFD79A; font-size:11.5px; font-weight:600; line-height:1.6; color:#0F1B3D; }
+.ct-co-error{ margin-top:12px; padding:10px 12px; border-radius:12px; background:#FFF1F0; color:#C0392B; font-size:12.5px; font-weight:800; animation:ctShake .4s ease; }
+.ct-co-pay{ min-height:50px; }
+.ct-co-processing{ display:flex; align-items:center; justify-content:center; gap:8px; margin-top:8px; font-size:12.5px; font-weight:800; color:#2F5FE0; }
+.ct-spin{ width:16px; height:16px; border-radius:50%; border:2.5px solid #C9D6FB; border-top-color:#2F5FE0; animation:ctRotate .8s linear infinite; }
+.ct-co-trust{ display:flex; justify-content:center; flex-wrap:wrap; gap:6px 12px; margin-top:12px; padding-top:12px; border-top:1px solid #EEF2FB; font-size:10.5px; font-weight:800; color:#8A96B3; }
+
+.ct-success{ position:relative; overflow:hidden; padding:34px 22px 28px !important; }
 .ct-success > :not(.ct-confetti){ position:relative; z-index:1; }
+.ct-success h3{ font:800 22px 'Baloo 2', sans-serif; }
 .ct-success h3, .ct-success p{ text-shadow:0 0 6px #fff, 0 0 12px #fff; }
-.ct-success .big{ display:inline-block; animation:ctPopIn .6s cubic-bezier(.2,.9,.25,1.4) both; }
+.ct-success .big{ display:inline-block; font-size:54px !important; animation:ctPopIn .6s cubic-bezier(.2,.9,.25,1.4) both; }
+.ct-success-btn{ display:inline-block; margin-top:12px; padding:12px 22px; border-radius:999px; color:#fff; text-decoration:none; font:800 14px 'Baloo 2', sans-serif;
+  background:linear-gradient(135deg, #2F5FE0, #7B5CFF); box-shadow:0 12px 24px -12px rgba(47,95,224,.9); }
 .ct-confetti{ position:absolute; top:-10px; width:8px; height:14px; border-radius:2px; opacity:0; animation:ctConfetti 1.8s ease-out forwards; }
+
+/* tip picker inside the new popup */
+#checkoutModal .tp-box{ border-radius:16px; }
+
+/* ---------- info popup (spin check etc.) ---------- */
+.ct-info-pop p.ct-info-big{ font:800 15px 'Baloo 2', sans-serif; opacity:1; margin-top:12px; }
+.ct-info-bar{ height:10px; border-radius:99px; background:rgba(255,255,255,.22); margin:14px 4px 4px; overflow:hidden; }
+.ct-info-bar i{ display:block; height:100%; border-radius:inherit; background:linear-gradient(90deg, #FFE27A, #FFB238); transition:width .8s cubic-bezier(.2,.9,.25,1); }
+.ct-info-nums{ display:flex; justify-content:space-between; font-size:11px; font-weight:800; opacity:.85; padding:0 4px; }
+
+@keyframes ctPulse{ 0%,100%{ box-shadow:0 0 0 4px rgba(255,255,255,.3); } 50%{ box-shadow:0 0 0 7px rgba(255,255,255,.12); } }
+@keyframes ctRotate{ to{ transform:rotate(360deg); } }
+@keyframes ctShake{ 0%,100%{ transform:none; } 25%{ transform:translateX(-5px); } 75%{ transform:translateX(5px); } }
 
 @keyframes ctSlideIn{ from{ opacity:0; transform:translateX(30px) scale(.96); } to{ opacity:1; transform:none; } }
 @keyframes ctBump{ 0%{ transform:scale(1); } 40%{ transform:scale(1.35); } 100%{ transform:scale(1); } }
@@ -251,5 +335,5 @@
 
 @media (prefers-reduced-motion: reduce){
   .ct-drawer, .ct-item, .ct-toast{ transition:none; }
-  .ct-item.ct-in, .ct-empty-ico, .ct-rw.on, .ct-rw.on::after, .ct-bar i, .ct-go::after, .ct-pop, .ct-pop-clock, .ct-confetti{ animation:none; }
+  .ct-item.ct-in, .ct-empty-ico, .ct-co-orbs i, .ct-co-steps span.now b, #checkoutModal.open .ct-co, .ct-rw.on, .ct-rw.on::after, .ct-bar i, .ct-go::after, .ct-pop, .ct-pop-clock, .ct-confetti{ animation:none; }
 }
