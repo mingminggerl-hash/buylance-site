@@ -277,7 +277,9 @@
     }
     const { data: profile } = await supabaseClient.from('profiles').select('is_admin').eq('id', currentUser.id).single();
     if(!profile || !profile.is_admin){
-      document.getElementById('accessGate').innerHTML = '<p class="sub">You don\'t have access to this page.</p>';
+      const who = String(currentUser.email || 'this account').replace(/[&<>"']/g, c => '&#' + c.charCodeAt(0) + ';');
+      document.getElementById('accessGate').innerHTML = `<p class="sub">You're logged in as <b>${who}</b>, which isn't the seller account.<br>Log out and log in with your seller email to accept and deliver orders.</p>
+        <button onclick="supabaseClient.auth.signOut().then(() => location.href = 'login-code.html?next=' + encodeURIComponent(location.pathname.split('/').pop() + location.search))" style="margin-top:12px; background:#2F5FE0; color:#fff; border:none; border-radius:10px; padding:10px 18px; font-weight:800; cursor:pointer;">Log out &amp; switch account</button>`;
       return;
     }
     document.getElementById('accessGate').style.display = 'none';

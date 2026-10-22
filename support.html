@@ -207,6 +207,15 @@
   .subject-chip{ cursor:pointer; background:#F4F7FF; border:1.5px solid var(--card-border); color:var(--ink); font:800 12.5px 'Nunito Sans', sans-serif; padding:8px 12px; border-radius:999px; transition:all .15s ease; }
   .subject-chip:hover{ border-color:var(--brand-blue); }
   .subject-chip.on{ background:linear-gradient(90deg, #2F5FE0, #7B5CFF); border-color:transparent; color:#fff; box-shadow:0 6px 14px -8px rgba(47,95,224,0.9); }
+  .step-head{ display:flex; align-items:center; gap:8px; margin:16px 0 8px; }
+  .step-head label{ margin:0; }
+  .step-num{ width:22px; height:22px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(135deg, #2F5FE0, #7B5CFF); color:#fff; font:800 12px 'Baloo 2', sans-serif; }
+  .pick-hint{ margin-top:12px; font-size:12px; font-weight:800; color:var(--muted); animation:hintBob 1.6s ease-in-out infinite; }
+  .msg-step{ display:none; }
+  .msg-step.show{ display:block; animation:stepIn .4s cubic-bezier(.2,.9,.25,1.1) both; }
+  @keyframes stepIn{ from{ opacity:0; transform:translateY(12px); } to{ opacity:1; transform:none; } }
+  @keyframes hintBob{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-3px); } }
   #message{ border-radius:14px; border-width:1.5px; background:#FBFCFF; transition:border-color .15s ease, box-shadow .15s ease; }
   #message:focus{ outline:none; border-color:var(--brand-blue); box-shadow:0 0 0 4px rgba(47,95,224,0.12); background:#fff; }
   .msg-count{ text-align:right; font-size:11px; font-weight:700; color:var(--muted); margin-top:4px; }
@@ -283,8 +292,9 @@
     <h1>✉️ Send us a message</h1>
     <p class="sub">Tip: for an order that's already placed, your <b>order chat</b> is the fastest way to reach your seller.</p>
 
-    <label>What's it about?</label>
+    <div class="step-head"><span class="step-num">1</span><label>What's it about?</label></div>
     <div class="subject-chips" id="subjectChips"></div>
+    <div class="pick-hint" id="pickHint">👆 Pick one to continue</div>
     <select id="subject" style="display:none;">
       <option>Order problem</option>
       <option>Payment question</option>
@@ -295,13 +305,15 @@
       <option>Other</option>
     </select>
 
-    <label>Your Message</label>
-    <textarea id="message" rows="5" maxlength="1500" placeholder="Tell us what happened — order number and Roblox username help us answer faster 🙂"></textarea>
-    <div class="msg-count" id="msgCount">0 / 1500</div>
+    <div class="msg-step" id="msgStep">
+      <div class="step-head"><span class="step-num">2</span><label id="msgLabel">Your Message</label></div>
+      <textarea id="message" rows="5" maxlength="1500" placeholder="Tell us what happened — order number and Roblox username help us answer faster 🙂"></textarea>
+      <div class="msg-count" id="msgCount">0 / 1500</div>
 
-    <div class="error" id="errorMsg"></div>
-    <button class="submit" id="submitBtn" onclick="submitTicket()">Send Message 🚀</button>
-    <div class="reply-time">⏱️ We usually reply within a few hours</div>
+      <div class="error" id="errorMsg"></div>
+      <button class="submit" id="submitBtn" onclick="submitTicket()">Send Message 🚀</button>
+      <div class="reply-time">⏱️ We usually reply within a few hours</div>
+    </div>
   </div>
 
   <div class="card" id="ticketsCard" style="display:none;">
@@ -327,25 +339,48 @@
     return 'just now';
   }
 
-  // Subject chips drive the hidden <select> that submitTicket() reads.
+  // Two steps: pick a topic first (chips drive the hidden <select> that
+  // submitTicket() reads), then the message box appears with a matching prompt.
+  const TOPIC_PROMPTS = {
+    'Order problem':    ['What went wrong with your order?', 'Your order number (e.g. #17), your Roblox username, and what happened…'],
+    'Payment question': ["What's your payment question?", 'e.g. PayPal says I paid but I don\'t see my order…'],
+    'Rewards & codes':  ['Which reward or code?', "Tell us the code or reward and what's not working…"],
+    'Account issue':    ["What's going on with your account?", 'Login problem, wrong Roblox username, a warning…'],
+    'Restock question': ['What item are you looking for?', "Item name and game — we'll let you know when it's back…"],
+    'Is this legit?':   ['Ask us anything 🙂', 'How delivery works, how trades stay safe, anything you want to know…'],
+    'Other':            ['How can we help?', "Tell us what's up…"],
+  };
+  let pickedTopic = null;
   function renderSubjectChips(){
     const select = document.getElementById('subject');
     const wrap = document.getElementById('subjectChips');
     if(!select || !wrap) return;
-    wrap.innerHTML = [...select.options].map(o => `<button type="button" class="subject-chip ${o.selected ? 'on' : ''}" data-v="${escapeHtml(o.value)}">${escapeHtml(o.value)}</button>`).join('');
-    wrap.querySelectorAll('.subject-chip').forEach(b => b.addEventListener('click', () => { select.value = b.dataset.v; renderSubjectChips(); }));
+    wrap.innerHTML = [...select.options].map(o => `<button type="button" class="subject-chip ${o.value === pickedTopic ? 'on' : ''}" data-v="${escapeHtml(o.value)}">${escapeHtml(o.value)}</button>`).join('');
+    wrap.querySelectorAll('.subject-chip').forEach(b => b.addEventListener('click', () => selectTopic(b.dataset.v)));
+    const step = document.getElementById('msgStep');
+    if(step) step.classList.toggle('show', !!pickedTopic);
+    const hint = document.getElementById('pickHint');
+    if(hint) hint.style.display = pickedTopic ? 'none' : 'block';
+  }
+  function selectTopic(topic){
+    const first = !pickedTopic;
+    pickedTopic = topic;
+    document.getElementById('subject').value = topic;
+    renderSubjectChips();
+    const [label, placeholder] = TOPIC_PROMPTS[topic] || TOPIC_PROMPTS['Other'];
+    document.getElementById('msgLabel').textContent = label;
+    const msg = document.getElementById('message');
+    msg.placeholder = placeholder;
+    if(first) setTimeout(() => msg.focus({ preventScroll:true }), 350);
   }
   window.pickTopic = function(topic){
-    const select = document.getElementById('subject');
-    if(select) select.value = topic;
-    renderSubjectChips();
+    selectTopic(topic);
     const msg = document.getElementById('message');
-    if(msg){ msg.scrollIntoView({ behavior:'smooth', block:'center' }); setTimeout(() => msg.focus(), 300); }
+    if(msg) msg.scrollIntoView({ behavior:'smooth', block:'center' });
   };
-  document.addEventListener('DOMContentLoaded', () => {
-    renderSubjectChips();
-    const msg = document.getElementById('message');
-    if(msg) msg.addEventListener('input', () => { document.getElementById('msgCount').textContent = `${msg.value.length} / 1500`; });
+  document.addEventListener('DOMContentLoaded', renderSubjectChips);
+  document.addEventListener('input', (e) => {
+    if(e.target.id === 'message') document.getElementById('msgCount').textContent = `${e.target.value.length} / 1500`;
   });
 
   async function init(){
@@ -416,7 +451,7 @@
     const original = card.innerHTML;
     card.innerHTML = `<div class="sent-burst"><span class="big">🎉</span><b>Message sent!</b><span>We'll reply right here — you'll also get an email.</span>
       <button class="submit" style="margin-top:14px;" id="sendAnother">Send another message</button></div>`;
-    document.getElementById('sendAnother').onclick = () => { card.innerHTML = original; renderSubjectChips(); };
+    document.getElementById('sendAnother').onclick = () => { card.innerHTML = original; pickedTopic = null; document.getElementById('msgCount').textContent = '0 / 1500'; renderSubjectChips(); };
   }
 
   window.flagTicketUrgent = async function(ticketId, subject, message){
