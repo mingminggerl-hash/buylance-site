@@ -5,7 +5,6 @@ Static HTML shop for Roblox items (formerly "Buylance"), backed by Supabase proj
 
 ## Owner's backlog — bring these up when they ask "what next?" or for suggestions
 - **"How it works" section** on the homepage: 3 steps (buy → trade/join in-game → receive) + usual delivery time. Owner said they'd do it themselves; remind them.
-- **Link previews / SEO**: no og:title, og:image, meta description or favicon on any page. Needs a logo/banner image from the owner.
 - **Trust**: Trustpilot page + order counter — later, once there's an audience.
 - **More games/bundles** (Blox Fruits, Da Hood, Jailbreak, MM2 bundles) — later.
 - **PayPal is in sandbox mode** (`verify-paypal` uses api-m.sandbox.paypal.com) — owner will switch to live before real selling.
@@ -27,6 +26,7 @@ Static HTML shop for Roblox items (formerly "Buylance"), backed by Supabase proj
 - Reviews: stars limited to 1–5 (`reviews_stars_range`). The old `submit_review(text,int,text)` now just returns order_required, and policy "Users can post one review" now needs a completed order (DROP kept timing out on the approval popup; both are harmless as is).
 - Pages load local .js/.css as `file.js?v=<hash>` so browsers don't keep old copies. **After editing any .js/.css, run `python3 tools/version-assets.py`** (updates the ?v= in every page).
 - 🥷/🪙 were replaced with 🧠/💰 — Unicode 13+ emoji render as boxes on older Windows; avoid them.
+- Branding: logo → `favicon.ico`, `favicon-32.png`, `icon-192.png`, `apple-touch-icon.png`; banner → `og-image.jpg` (1200×630, used by og:image/twitter:image). Every page has icon tags; public pages have description/og/twitter tags + canonical, private/admin pages have `noindex`. New pages need the same head block. `sitemap.xml` + `robots.txt` at the root.
 - Product pictures live in `img/<hash>.webp` (max 600px, shown ~216px), with `loading="lazy"`. New pictures go in `img/` as files — never base64 in the HTML.
 - Visitor counter: `visit.js` calls `count_visit()` once per browser per day (`site_visits` table, Manila date); admin dashboard shows it via `get_visit_stats()`.
 - pg_cron `auto-resolve-stale-orders` (hourly, `private.auto_resolve_stale_orders()`): delivered 3+ days without confirm/dispute → completed; in_progress + seller reminded + buyer silent 7 days → cancelled and total + wallet used credited to wallet (owner approved this rule).
