@@ -482,6 +482,12 @@
       `;
       return;
     }
+    // The seller opening a buyer's order page goes to the seller view instead,
+    // so they can accept/deliver (and don't chat as the buyer).
+    if(order.user_id !== currentUser.id){
+      const { data: me } = await supabaseClient.from('profiles').select('is_admin').eq('id', currentUser.id).maybeSingle();
+      if(me && me.is_admin){ window.location.replace('admin-order.html?id=' + encodeURIComponent(order.id)); return; }
+    }
     renderSummary(order);
     await loadMessages();
     subscribeRealtime();
