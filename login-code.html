@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase-config.js"></script>
+<script src="visit.js"></script>
 <style>
   :root{
     --bg-top:#EEF3FF; --ink:#0F1B3D; --brand-blue:#2F5FE0;
@@ -217,7 +218,9 @@
         await supabaseClient.rpc('set_marketing_opt_in', { p_opt_in: wantsMarketing });
       } catch(e){ /* non-critical, don't block login over this */ }
 
-      window.location.href = 'index.html';
+      // Return to the page that sent them here (our own pages only).
+      const next = new URLSearchParams(location.search).get('next') || '';
+      window.location.href = /^[a-z0-9_-]+\.html(\?[a-z0-9=&_%-]*)?$/i.test(next) ? next : 'index.html';
     } catch(e){
       btn.disabled = false;
       btn.textContent = 'Verify & Log In';

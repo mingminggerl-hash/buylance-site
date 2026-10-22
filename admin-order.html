@@ -63,6 +63,12 @@
   .attn-badge.done{ background:#E9F9EE; color:var(--success); }
   .attn-badge.off{ background:#F1F1F1; color:var(--muted); }
   .detail-attn{ font-size:15px; padding:10px 18px; margin:0 0 10px; }
+  .history-search{ width:100%; margin:0 0 10px !important; border-radius:999px !important; padding:9px 14px !important; }
+  .history-more{ width:100%; margin-top:6px; border:1px dashed var(--brand-blue); background:#F7F9FF; color:var(--brand-blue); font:800 12.5px 'Nunito Sans', sans-serif; padding:9px; border-radius:12px; cursor:pointer; }
+  .visits-grid{ display:grid; grid-template-columns:repeat(4, 1fr); gap:6px; }
+  .visits-grid div{ background:#F7F9FF; border:1px solid var(--card-border); border-radius:12px; padding:8px 4px; text-align:center; }
+  .visits-grid b{ display:block; font:800 18px 'Baloo 2', sans-serif; color:var(--brand-blue); }
+  .visits-grid span{ font-size:10.5px; font-weight:800; color:var(--muted); }
   .orders-empty{ text-align:center; padding:18px 8px; color:var(--muted); font-weight:700; font-size:13px; }
   @keyframes hotPulse{ 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.06); } }
   @keyframes rowGlow{ 0%,100%{ box-shadow:0 0 0 0 rgba(255,122,41,0.0); } 50%{ box-shadow:0 0 0 5px rgba(255,122,41,0.18); } }
@@ -186,6 +192,13 @@
 
 <div class="layout" id="dashboardLayout" style="display:none;">
   <div class="col-orders">
+    <div class="card visits-card">
+      <h2>👀 Visitors</h2>
+      <div class="visits-grid" id="visitsGrid">
+        <div><b>–</b><span>Today</span></div><div><b>–</b><span>7 days</span></div>
+        <div><b>–</b><span>30 days</span></div><div><b>–</b><span>All time</span></div>
+      </div>
+    </div>
     <div class="card">
       <h2>📦 Orders</h2>
       <div class="orders-tabs" id="ordersTabs"></div>
@@ -259,7 +272,7 @@
     const { data: { session } } = await supabaseClient.auth.getSession();
     currentUser = session ? session.user : null;
     if(!currentUser){
-      document.getElementById('accessGate').innerHTML = '<p class="sub">Please <a href="login.html">log in</a> to access the seller dashboard.</p>';
+      document.getElementById('accessGate').innerHTML = '<p class="sub">Please <a href="login-code.html">log in</a> to access the seller dashboard.</p>';
       return;
     }
     const { data: profile } = await supabaseClient.from('profiles').select('is_admin').eq('id', currentUser.id).single();
@@ -271,6 +284,7 @@
     document.getElementById('dashboardLayout').style.display = 'flex';
     await loadOrdersList();
     if(preselectId) selectOrder(preselectId);
+    loadVisitStats();
 
     // Live-refresh the order list whenever anything changes
     supabaseClient
@@ -306,24 +320,90 @@
   }
 
   let currentOrdersTab = 'active';
-  let allOrders = [];
+  let allOrders = [];          // active + finished in the last 7 days
+  let historyOrders = [];      // older finished orders, loaded 50 at a time
+  let historyTotal = 0;
+  let historyLoading = false;
+  let historySearch = '';
+  const HISTORY_PAGE = 50;
+  const LIST_COLUMNS = 'id, order_number, status, total_amount, roblox_username, user_email, created_at, completed_at, updated_at';
   const baseTitle = document.title;
+
+  function weekAgoIso(){ return new Date(Date.now() - HISTORY_AFTER_DAYS * 86400000).toISOString(); }
+  // Finished orders older than 7 days (same rule as orderTab()).
+  function historyQuery(columns, opts){
+    const since = weekAgoIso();
+    return supabaseClient.from('orders').select(columns, opts)
+      .not('status', 'in', `(${ACTIVE_STATUSES.join(',')})`)
+      .or(`completed_at.lt.${since},and(completed_at.is.null,updated_at.lt.${since})`);
+  }
 
   window.setOrdersTab = function(tab){
     currentOrdersTab = tab;
     renderOrdersList();
+    if(tab === 'history' && !historyOrders.length) loadHistoryPage(true);
   };
 
+  // Only what's needed day to day: everything still open plus this week's
+  // finished orders. History is fetched separately, page by page, so the
+  // dashboard stays fast even with thousands of old orders.
+  // Daily unique visitors counted by visit.js on the shop pages.
+  async function loadVisitStats(){
+    const { data, error } = await supabaseClient.rpc('get_visit_stats');
+    if(error || !data) return;
+    const cells = [[data.today, 'Today'], [data.week, '7 days'], [data.month, '30 days'], [data.total, 'All time']];
+    document.getElementById('visitsGrid').innerHTML = cells.map(([n, label]) => `<div><b>${Number(n).toLocaleString()}</b><span>${label}</span></div>`).join('');
+  }
+
   async function loadOrdersList(){
-    const { data: orders } = await supabaseClient.from('orders').select('*').order('created_at', { ascending: false });
+    const since = weekAgoIso();
+    const [{ data: orders }, { count }] = await Promise.all([
+      supabaseClient.from('orders').select(LIST_COLUMNS)
+        .or(`status.in.(${ACTIVE_STATUSES.join(',')}),completed_at.gte.${since},and(completed_at.is.null,updated_at.gte.${since})`)
+        .order('created_at', { ascending: false }).limit(1000),
+      historyQuery('id', { count: 'exact', head: true })
+    ]);
     allOrders = orders || [];
+    historyTotal = count || 0;
     renderOrdersList();
+  }
+
+  async function loadHistoryPage(reset){
+    if(historyLoading) return;
+    historyLoading = true;
+    if(reset) historyOrders = [];
+    let q = historyQuery(LIST_COLUMNS).order('created_at', { ascending: false })
+      .range(historyOrders.length, historyOrders.length + HISTORY_PAGE - 1);
+    const term = historySearch.trim().replace(/^#/, '');
+    if(/^\d+$/.test(term)) q = q.eq('order_number', Number(term));
+    else if(term) q = q.or(`roblox_username.ilike.%${term.replace(/[%,()]/g, '')}%,user_email.ilike.%${term.replace(/[%,()]/g, '')}%`);
+    const { data } = await q;
+    historyOrders = historyOrders.concat(data || []);
+    historyLoading = false;
+    renderOrdersList();
+  }
+
+  let historySearchTimer = null;
+  window.onHistorySearch = function(value){
+    historySearch = value;
+    clearTimeout(historySearchTimer);
+    historySearchTimer = setTimeout(() => loadHistoryPage(true), 350);
+  };
+
+  function orderRowHtml(o){
+    const rowCls = NEEDS_YOU.includes(o.status) ? 'needs-you' : (o.status === 'in_progress' ? 'working' : '');
+    return `
+      <div class="order-row ${rowCls} ${o.id === activeOrderId ? 'active' : ''}" onclick="selectOrder('${o.id}')">
+        <div class="num">#${o.order_number} — ${escapeHtml(o.roblox_username || 'unknown')}</div>
+        <div class="who">${formatMoney(o.total_amount)} — ${escapeHtml(o.user_email || '')}</div>
+        ${attnBadge(o.status)}
+      </div>`;
   }
 
   function renderOrdersList(){
     const list = document.getElementById('ordersList');
-    const counts = { active:0, recent:0, history:0 };
-    allOrders.forEach(o => counts[orderTab(o)]++);
+    const counts = { active:0, recent:0, history: historyTotal };
+    allOrders.forEach(o => { const t = orderTab(o); if(t !== 'history') counts[t]++; });
     const waitingCount = allOrders.filter(o => NEEDS_YOU.includes(o.status)).length;
     document.title = waitingCount ? `(${waitingCount}) 🔥 Waiting for you | ${baseTitle}` : baseTitle;
 
@@ -332,6 +412,23 @@
       const hot = key === 'active' && waitingCount > 0;
       return `<button class="orders-tab ${currentOrdersTab === key ? 'active' : ''}" onclick="setOrdersTab('${key}')">${label}<span class="count ${hot ? 'hot' : ''}">${counts[key]}</span></button>`;
     }).join('');
+
+    if(currentOrdersTab === 'history'){
+      const search = `<input type="text" class="history-search" placeholder="🔍 Search #number, username or email" value="${escapeHtml(historySearch)}" oninput="onHistorySearch(this.value)">`;
+      const rows = historyOrders.map(orderRowHtml).join('');
+      const more = (!historySearch && historyOrders.length < historyTotal)
+        ? `<button class="history-more" onclick="loadHistoryPage(false)">${historyLoading ? 'Loading…' : `Load more (${historyTotal - historyOrders.length} left)`}</button>` : '';
+      const empty = !historyOrders.length ? `<div class="orders-empty">${historyLoading ? 'Loading…' : historySearch ? 'No matching orders.' : 'No orders here yet.'}</div>` : '';
+      // Keep the search box (and its cursor) when only the results change.
+      const existing = list.querySelector('.history-search');
+      if(existing){
+        list.querySelectorAll(':scope > :not(.history-search)').forEach(n => n.remove());
+        existing.insertAdjacentHTML('afterend', rows + empty + more);
+      } else {
+        list.innerHTML = search + rows + empty + more;
+      }
+      return;
+    }
 
     const shown = allOrders.filter(o => orderTab(o) === currentOrdersTab);
     if(currentOrdersTab === 'active'){
@@ -342,15 +439,7 @@
       list.innerHTML = `<div class="orders-empty">${currentOrdersTab === 'active' ? '🎉 Nothing waiting — all caught up!' : 'No orders here yet.'}</div>`;
       return;
     }
-    list.innerHTML = shown.map(o => {
-      const rowCls = NEEDS_YOU.includes(o.status) ? 'needs-you' : (o.status === 'in_progress' ? 'working' : '');
-      return `
-      <div class="order-row ${rowCls} ${o.id === activeOrderId ? 'active' : ''}" onclick="selectOrder('${o.id}')">
-        <div class="num">#${o.order_number} — ${escapeHtml(o.roblox_username || 'unknown')}</div>
-        <div class="who">${formatMoney(o.total_amount)} — ${escapeHtml(o.user_email || '')}</div>
-        ${attnBadge(o.status)}
-      </div>`;
-    }).join('');
+    list.innerHTML = shown.map(orderRowHtml).join('');
   }
 
   window.selectOrder = async function(orderId){

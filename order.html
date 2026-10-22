@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase-config.js"></script>
+<script src="visit.js"></script>
 <style>
   :root{
     --bg-top:#EEF3FF; --ink:#0F1B3D; --brand-blue:#2F5FE0;
@@ -207,6 +208,26 @@
   @keyframes presencePulse{ 0%,100%{ box-shadow:0 0 0 0 rgba(34,197,94,0.6); } 50%{ box-shadow:0 0 0 5px rgba(34,197,94,0); } }
   @keyframes bellSwing{ 0%,60%,100%{ transform:rotate(0); } 70%{ transform:rotate(-18deg); } 80%{ transform:rotate(16deg); } 90%{ transform:rotate(-8deg); } }
 
+  /* Order-complete review + shop again */
+  .review-prompt{ margin-top:16px; padding:18px; border-radius:16px; text-align:center; background:linear-gradient(135deg, #F7F9FF, #FFF7EE); border:1px solid var(--card-border); }
+  .rp-title{ font:800 16px 'Baloo 2', sans-serif; }
+  .rp-sub{ font-size:12px; font-weight:700; color:var(--muted); margin-top:2px; }
+  .rp-stars{ display:flex; justify-content:center; gap:6px; margin-top:10px; }
+  .rp-stars button{ border:none; background:none; cursor:pointer; font-size:36px; line-height:1; color:#DDE4F0; transition:transform .12s ease, color .12s ease; }
+  .rp-stars button:hover{ transform:scale(1.15); }
+  .rp-stars button.on{ color:#FFB800; text-shadow:0 0 12px rgba(255,184,0,0.55); }
+  .rp-label{ font:800 13.5px 'Baloo 2', sans-serif; color:#FF7A29; min-height:20px; margin-top:4px; }
+  #rpMore textarea{ margin-top:10px; border-radius:12px; resize:vertical; }
+  .rp-submit{ margin-top:10px; border:none; cursor:pointer; border-radius:999px; padding:10px 22px; color:#fff; font:800 14px 'Baloo 2', sans-serif; background:linear-gradient(90deg, #2F5FE0, #7B5CFF); }
+  .rp-submit:disabled{ opacity:.6; }
+  .shop-again{ text-align:center; padding:8px 4px; }
+  .sa-emoji{ font-size:44px; animation:heroPop 1.8s ease-in-out infinite; }
+  .sa-title{ font:800 18px 'Baloo 2', sans-serif; margin-top:4px; }
+  .sa-sub{ font-size:13px; font-weight:700; color:var(--muted); margin-top:2px; }
+  .sa-btn{ display:inline-block; margin-top:12px; text-decoration:none; color:#fff; font:800 15px 'Baloo 2', sans-serif; padding:11px 26px; border-radius:999px;
+    background:linear-gradient(90deg, #FF7A29, #FF9A3D); box-shadow:0 10px 22px -10px rgba(255,122,41,0.9); transition:transform .15s ease; }
+  .sa-btn:hover{ transform:translateY(-2px); }
+
   .toast{ position:fixed; left:50%; bottom:26px; transform:translateX(-50%) translateY(20px); opacity:0; pointer-events:none; z-index:9999;
     background:#0F1B3D; color:#fff; font-weight:800; font-size:13px; padding:11px 18px; border-radius:999px; box-shadow:0 12px 30px rgba(15,27,61,0.35); transition:all .25s ease; }
   .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
@@ -268,7 +289,7 @@
 <script>
   const urlParams = new URLSearchParams(window.location.search);
   const orderId = urlParams.get('id');
-  const REMIND_COOLDOWN_MS = 5 * 60 * 1000;
+  const REMIND_COOLDOWN_MS = 30 * 60 * 1000;
   let currentUser = null;
   let currentOrder = null;
   const SELLER_ROBLOX_USERNAME = 'Jethro_poter';
@@ -368,10 +389,16 @@
         const { data: needsReview } = await supabaseClient.rpc('order_needs_review', { p_order_id: order.id });
         if(needsReview){
           reviewPromptHtml = `
-            <div id="starReviewPrompt" style="margin-top:16px; padding:16px; background:#F7F9FF; border:1px solid var(--card-border); border-radius:14px; text-align:center;">
-              <p style="font-weight:800; font-size:14px; margin-bottom:10px;">If it's okay with you, we'd love to hear your thoughts about us 🙂</p>
-              <div id="quickStars" style="font-size:30px; letter-spacing:4px; cursor:pointer;">
-                ${[1,2,3,4,5].map(n => `<span data-star="${n}" onclick="submitQuickStarReview(${n})">☆</span>`).join('')}
+            <div id="starReviewPrompt" class="review-prompt">
+              <p class="rp-title">How was your order? ⭐</p>
+              <p class="rp-sub">Your review shows on our site with your Roblox name.</p>
+              <div id="quickStars" class="rp-stars" role="radiogroup" aria-label="Your rating">
+                ${[1,2,3,4,5].map(n => `<button type="button" data-star="${n}" aria-label="${n} star${n > 1 ? 's' : ''}" onclick="pickQuickStars(${n})">★</button>`).join('')}
+              </div>
+              <div class="rp-label" id="rpLabel">Tap a star</div>
+              <div id="rpMore" style="display:none;">
+                <textarea id="rpText" maxlength="600" rows="3" placeholder="Tell other buyers how it went (optional)"></textarea>
+                <button type="button" class="rp-submit" id="rpSubmit" onclick="submitQuickStarReview()">Post review</button>
               </div>
             </div>
           `;
@@ -418,7 +445,13 @@
       actionsCard.innerHTML = `<h2>🛑 Your Report Is Under Review</h2><p class="sub">We're looking into it — you'll hear back here shortly.</p>`;
     } else if(order.status === 'completed'){
       actionsCard.style.display = 'block';
-      actionsCard.innerHTML = `<div class="center">🎉<br><b>Order complete — thank you!</b></div>`;
+      actionsCard.innerHTML = `
+        <div class="shop-again">
+          <div class="sa-emoji">🎉</div>
+          <div class="sa-title">Order complete — thank you!</div>
+          <div class="sa-sub">Want to shop with us again?</div>
+          <a class="sa-btn" href="index.html">🛒 Shop again</a>
+        </div>`;
     } else {
       actionsCard.style.display = 'none';
     }
@@ -437,7 +470,7 @@
     if(!currentUser){
       document.getElementById('orderSummaryCard').innerHTML = `
         <a href="index.html" class="back-home-link">← Back to Home</a>
-        <p class="sub">Please <a href="login.html">log in</a> to view this order.</p>
+        <p class="sub">Please <a href="login-code.html">log in</a> to view this order.</p>
       `;
       return;
     }
@@ -955,7 +988,7 @@
   }
 
   // "Remind seller" button or typing !remind: drops a note in the chat and
-  // @mentions the owner in this order's Discord thread. 5-minute cooldown.
+  // @mentions the owner in this order's Discord thread. 30-minute cooldown.
   window.remindSeller = async function(){
     if(!currentOrder || !currentUser) return;
     if(!['waiting_for_seller', 'in_progress', 'delivered', 'disputed'].includes(currentOrder.status)){
@@ -1004,26 +1037,39 @@
     }, "Yes, I got it");
   };
 
-  window.submitQuickStarReview = async function(stars){
-    // Fill stars visually right away, before the network call finishes
-    document.querySelectorAll('#quickStars span').forEach(s => {
-      s.textContent = Number(s.dataset.star) <= stars ? '★' : '☆';
-      s.style.color = Number(s.dataset.star) <= stars ? '#F2B705' : '';
-    });
+  const QUICK_STAR_LABELS = ['', 'Terrible 😞', 'Not great 😕', 'Okay 🙂', 'Great 😄', 'Amazing! 🤩'];
+  let quickStars = 0;
+
+  window.pickQuickStars = function(stars){
+    quickStars = stars;
+    document.querySelectorAll('#quickStars button').forEach(s => s.classList.toggle('on', Number(s.dataset.star) <= stars));
+    document.getElementById('rpLabel').textContent = QUICK_STAR_LABELS[stars];
+    document.getElementById('rpMore').style.display = 'block';
+  };
+
+  window.submitQuickStarReview = async function(){
+    if(!quickStars) return;
+    const btn = document.getElementById('rpSubmit');
+    btn.disabled = true;
+    btn.textContent = 'Posting…';
     try {
       const { data, error } = await supabaseClient.rpc('submit_review', {
         p_order_id: currentOrder.id,
         p_name: currentOrder.roblox_username || 'Buyer',
-        p_stars: stars,
-        p_review_text: ''
+        p_stars: quickStars,
+        p_review_text: document.getElementById('rpText').value.trim()
       });
       if(error) throw error;
+      if(data && !data.ok && data.error !== 'already_reviewed') throw new Error(data.error);
       const prompt = document.getElementById('starReviewPrompt');
       if(prompt){
-        prompt.innerHTML = '<p style="font-weight:800; font-size:14px; color:var(--success);">🙏 Thanks so much for the feedback!</p>';
+        prompt.innerHTML = '<p class="rp-title">🙏 Thanks so much — your review is live!</p>';
       }
     } catch(e){
-      console.warn('Quick star review failed:', e);
+      console.warn('Review failed:', e);
+      btn.disabled = false;
+      btn.textContent = 'Post review';
+      showToast('Could not post your review — please try again.');
     }
   };
 

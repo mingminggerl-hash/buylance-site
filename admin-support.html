@@ -132,7 +132,7 @@
     const { data: { session } } = await supabaseClient.auth.getSession();
     currentUser = session ? session.user : null;
     if(!currentUser){
-      document.getElementById('accessGate').innerHTML = '<p class="sub">Please <a href="login.html">log in</a> to access this page.</p>';
+      document.getElementById('accessGate').innerHTML = '<p class="sub">Please <a href="login-code.html">log in</a> to access this page.</p>';
       return;
     }
     const { data: profile } = await supabaseClient.from('profiles').select('is_admin').eq('id', currentUser.id).single();
