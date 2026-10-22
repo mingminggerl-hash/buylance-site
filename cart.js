@@ -225,6 +225,7 @@ function changeQty(key, delta){
   const item = cart.find(i => i.key === key);
   if(!item || item.locked) return;           // prizes/gifts stay at qty 1
   if(delta < 0 && item.qty <= item.min) return;
+  if(delta > 0 && item.key === VIP_KEY){ showCartToast('👑 One VIP pass at a time — it lasts 30 days'); return; }
   item.qty += delta;
   ctBumpKey = key;
   saveCartToStorage();
@@ -996,6 +997,7 @@ function renderPayPalButtons(){
 // spends wallet credit, marks the discount used, and pings Discord.
 async function finalizeOrder(paypalOrderId, payload){
   const { roblox, email, avatarUrl, itemsJson, totalUSD, walletDiscount, tip, fee, discount, discountInfo } = payload;
+  const boughtVip = cart.some(i => i.key === VIP_KEY);
 
   const { data: order, error } = await supabaseClient
     .from('orders')
@@ -1070,6 +1072,7 @@ async function finalizeOrder(paypalOrderId, payload){
   document.getElementById('checkoutSuccess').classList.add('show');
   document.getElementById('checkoutOrderChatLink').href = 'order.html?id=' + order.id;
   ctConfetti(document.getElementById('checkoutSuccess'));
+  if(boughtVip) ctAfterVipPurchase();
 }
 
 function ctConfetti(host){
@@ -1096,3 +1099,86 @@ async function sendDiscordOrderWebhook(order){
     console.warn('Discord notification failed (order is still saved fine):', e);
   }
 }
+
+// ---------- Crown VIP pass ----------
+// $9.99 for 30 days + one VIP wheel spin. It switches on by itself once the
+// PayPal payment is verified (database trigger order_vip_activate), and can't
+// be bought again while it's active.
+const VIP_KEY = 'vip-pass-1mo';
+let vipStatus = null; // { active, vip_until, spins } from get_vip_status
+
+async function ctLoadVip(){
+  try {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if(!session){ vipStatus = null; ctPaintVip(); return; }
+    const { data } = await supabaseClient.rpc('get_vip_status');
+    vipStatus = data && data.ok ? data : null;
+  } catch(e){ vipStatus = null; }
+  ctPaintVip();
+}
+function ctVipDate(iso){
+  return new Date(iso).toLocaleDateString(undefined, { month:'short', day:'numeric', year:'numeric' });
+}
+function ctVipDaysLeft(){
+  return vipStatus && vipStatus.vip_until ? Math.max(1, Math.ceil((new Date(vipStatus.vip_until) - Date.now()) / 86400000)) : 0;
+}
+// Badge next to the username + the VIP card's button text.
+function ctPaintVip(){
+  const active = !!(vipStatus && vipStatus.active);
+  const badge = document.getElementById('headerUserBadge');
+  let chip = document.getElementById('ctVipChip');
+  if(badge && active && !chip){
+    chip = document.createElement('span');
+    chip.id = 'ctVipChip';
+    chip.className = 'ct-vip-chip';
+    chip.textContent = '👑 VIP';
+    badge.appendChild(chip);
+  } else if(chip && !active){
+    chip.remove();
+  }
+  const btn = document.getElementById('vipPerkBtn');
+  if(btn){
+    if(active && vipStatus.spins > 0){ btn.textContent = '🎡 Spin your VIP wheel!'; btn.classList.add('ct-vip-ready'); }
+    else if(active){ btn.textContent = `👑 You're VIP · ${ctVipDaysLeft()} day${ctVipDaysLeft() === 1 ? '' : 's'} left`; btn.classList.remove('ct-vip-ready'); }
+    else { btn.textContent = 'Unlock VIP — $9.99 / 30 days'; btn.classList.remove('ct-vip-ready'); }
+  }
+}
+
+async function addVIPToCart(){
+  if(typeof currentUser === 'undefined' || !currentUser){
+    showCartToast('Log in first to get VIP 👑');
+    openLoginModal();
+    return;
+  }
+  await ctLoadVip();
+  if(vipStatus && vipStatus.active){
+    if(vipStatus.spins > 0){ window.location.href = 'spin_wheel_vip.html'; return; }
+    ctInfoPop({
+      icon: '👑',
+      title: "You're already VIP!",
+      text: `Your pass is active until ${ctVipDate(vipStatus.vip_until)} (${ctVipDaysLeft()} days left). You can get your next month once it ends.`,
+    });
+    return;
+  }
+  if(cart.some(i => i.key === VIP_KEY)){
+    showCartToast('👑 VIP is already in your cart');
+    toggleCart(true);
+    return;
+  }
+  addToCart(VIP_KEY, 'Crown VIP Pass (1 Month)', '👑 Crown VIP', 9.99, 1, false);
+  toggleCart(true);
+}
+
+// Right after paying for VIP: swap the success popup's button to the wheel.
+async function ctAfterVipPurchase(){
+  const link = document.getElementById('checkoutOrderChatLink');
+  const title = document.getElementById('ctSuccessTitle');
+  title.textContent = "👑 You're VIP!";
+  link.textContent = '🎡 Spin your VIP wheel';
+  link.href = 'spin_wheel_vip.html';
+  ctLoadVip();
+}
+
+if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ctLoadVip);
+else ctLoadVip();
+supabaseClient.auth.onAuthStateChange((event) => { if(event === 'SIGNED_IN' || event === 'SIGNED_OUT') ctLoadVip(); });

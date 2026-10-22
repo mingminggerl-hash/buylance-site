@@ -295,6 +295,17 @@
       .subscribe();
   }
 
+  // Whether PayPal really confirmed this payment (verify-paypal records it).
+  // Orders from before the check existed have no answer, so show nothing.
+  const PAYMENT_CHECK_SINCE = new Date('2026-10-22T06:00:00Z');
+  function paymentCheckHtml(order){
+    const box = (bg, color, text) => `<div style="margin-top:8px; padding:8px 12px; border-radius:10px; background:${bg}; color:${color}; font-size:12.5px; font-weight:800;">${text}</div>`;
+    if(order.payment_method === 'vip_spin') return box('#F3EDFF', '#6B21A8', '🎁 Free VIP spin prize — no payment needed');
+    if(order.payment_verified) return box('#DCFCE7', '#166534', '✅ PayPal payment verified');
+    if(new Date(order.created_at) < PAYMENT_CHECK_SINCE) return '';
+    return box('#FFF1F0', '#B42318', '⚠️ Payment NOT verified — check your PayPal before delivering');
+  }
+
   // Admin's view of each status: who has to act next.
   const ADMIN_BADGES = {
     waiting_for_seller: { cls:'hot',    ico:'🔥', text:'WAITING FOR YOU — accept it' },
@@ -617,6 +628,7 @@
       </div>
       ${items}
       <div class="total-line">Total: ${formatMoney(order.total_amount)}</div>
+      ${paymentCheckHtml(order)}
       ${paymentBreakdownHtml}
       ${actionsHtml}
       ${convertHtml}

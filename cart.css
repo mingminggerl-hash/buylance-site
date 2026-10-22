@@ -337,3 +337,9 @@
   .ct-drawer, .ct-item, .ct-toast{ transition:none; }
   .ct-item.ct-in, .ct-empty-ico, .ct-co-orbs i, .ct-co-steps span.now b, #checkoutModal.open .ct-co, .ct-rw.on, .ct-rw.on::after, .ct-bar i, .ct-go::after, .ct-pop, .ct-pop-clock, .ct-confetti{ animation:none; }
 }
+
+/* ---------- VIP ---------- */
+.ct-vip-chip{ display:inline-flex; align-items:center; margin-left:2px; padding:2px 8px; border-radius:999px; white-space:nowrap;
+  background:linear-gradient(135deg, #FFD54A, #FF9A1F); color:#5A3300; font:900 10.5px 'Nunito Sans', sans-serif; letter-spacing:.3px;
+  box-shadow:0 3px 10px -3px rgba(255,154,31,.9); animation:ctPop .35s ease both; }
+.perk-btn.ct-vip-ready{ background:linear-gradient(135deg, #FFB800, #FF4F8B) !important; animation:ctPulse 1.6s ease-in-out infinite; }
