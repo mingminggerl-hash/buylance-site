@@ -92,7 +92,7 @@
 <a class="back" href="index.html#rewards">← Back to shop</a>
 <div class="crown-badge">👑 Crown VIP</div>
 <h1>VIP Wheel</h1>
-<p class="lead">One spin with every VIP month — your prize is delivered like a normal order.</p>
+<p class="lead">A new spin every month your VIP renews — your prize is delivered like a normal order.</p>
 
 <div class="wheel-wrap">
   <div class="wheel-glow"></div>
@@ -124,13 +124,13 @@
 </div>
 
 <script>
-  // Prizes and their real odds — must match spin_vip_wheel() in Supabase,
+  // Prizes, how many you get, and their real odds — must match spin_vip_wheel() in Supabase,
   // which picks the winner. This page only draws the wheel and animates it.
   const PRIZES = {
-    Candy: { img: 'img/9563fa7a636b6df7.webp', odds: 40, color: '#FF5D7A' },
-    Luger: { img: 'img/322a96e8f0f78e93.webp', odds: 35, color: '#FFB21F' },
-    Sugar: { img: 'img/402d1065bc46d4eb.webp', odds: 15, color: '#2FB37A' },
-    Bat:   { img: 'img/d4c9c5995989c4bb.webp', odds: 10, color: '#7B5CFF' },
+    Candy: { img: 'img/9563fa7a636b6df7.webp', odds: 40, qty: 1, color: '#FF5D7A' },
+    Luger: { img: 'img/322a96e8f0f78e93.webp', odds: 35, qty: 2, color: '#FFB21F' },
+    Sugar: { img: 'img/402d1065bc46d4eb.webp', odds: 15, qty: 2, color: '#2FB37A' },
+    Bat:   { img: 'img/d4c9c5995989c4bb.webp', odds: 10, qty: 1, color: '#7B5CFF' },
   };
   // Wheel layout the owner picked: 2 Sugar, 2 Luger, 1 Bat, 1 Candy.
   const SLICES = ['Sugar', 'Luger', 'Bat', 'Sugar', 'Luger', 'Candy'];
@@ -142,10 +142,11 @@
   const btn = document.getElementById('spinBtn');
   const statusEl = document.getElementById('status');
   const images = {};
+  const label = (name) => (PRIZES[name].qty > 1 ? PRIZES[name].qty + 'x ' : '') + name;
   let rotation = 0, spinning = false;
 
   document.getElementById('oddsGrid').innerHTML = Object.entries(PRIZES)
-    .map(([name, p]) => `<div class="odd"><img src="${p.img}" alt=""><b>${name}</b><span>${p.odds}%</span></div>`).join('');
+    .map(([name, p]) => `<div class="odd"><img src="${p.img}" alt=""><b>${label(name)}</b><span>${p.odds}%</span></div>`).join('');
 
   const bulbs = document.getElementById('bulbs');
   for(let i = 0; i < 18; i++){
@@ -188,9 +189,9 @@
       ctx.textAlign = 'center';
       ctx.font = `800 ${Math.round(R * 0.085)}px "Baloo 2", sans-serif`;
       ctx.lineWidth = 6; ctx.strokeStyle = 'rgba(0,0,0,.35)';
-      ctx.strokeText(name.toUpperCase(), 0, -R * 0.84);
+      ctx.strokeText(label(name).toUpperCase(), 0, -R * 0.84);
       ctx.fillStyle = '#fff';
-      ctx.fillText(name.toUpperCase(), 0, -R * 0.84);
+      ctx.fillText(label(name).toUpperCase(), 0, -R * 0.84);
       ctx.restore();
     });
   }
@@ -260,15 +261,17 @@
       btn.textContent = vip.spins > 1 ? `🎡 SPIN! (${vip.spins} spins)` : '🎡 SPIN!';
       btn.disabled = false;
       btn.onclick = doSpin;
-      statusEl.textContent = vip.active ? `👑 VIP active until ${until}` : '';
+      statusEl.textContent = vip.active && until ? (vip.auto_renew ? `👑 VIP active · renews monthly` : `👑 VIP active until ${until}`) : '';
     } else if(vip.active){
       btn.textContent = '✅ Spin used this month';
-      statusEl.innerHTML = `Your VIP is active until <b>${until}</b>. You'll get a new spin with your next VIP month.`;
+      statusEl.innerHTML = vip.auto_renew && vip.renews_at
+        ? `Your next spin comes when your VIP renews on <b>${new Date(vip.renews_at).toLocaleDateString(undefined, { month:'short', day:'numeric', year:'numeric' })}</b>.`
+        : `Your VIP is active until <b>${until}</b>. Renew VIP after that for a new spin.`;
     } else {
       btn.textContent = '👑 Get VIP to spin';
       btn.disabled = false;
       btn.onclick = () => { location.href = 'index.html#rewards'; };
-      statusEl.textContent = 'Every Crown VIP month ($9.99) comes with one spin.';
+      statusEl.textContent = 'Crown VIP ($9.99/month) comes with a new spin every month.';
     }
   }
 
@@ -290,7 +293,8 @@
     spinTo(data.prize, () => {
       spinning = false;
       document.getElementById('winImg').src = PRIZES[data.prize].img;
-      document.getElementById('winName').textContent = 'MM2 ' + data.prize + '!';
+      const qty = data.qty || PRIZES[data.prize].qty;
+      document.getElementById('winName').textContent = (qty > 1 ? qty + 'x ' : '') + 'MM2 ' + data.prize + '!';
       document.getElementById('winBtn').href = 'order.html?id=' + encodeURIComponent(data.order_id);
       document.getElementById('win').classList.add('open');
       confetti();

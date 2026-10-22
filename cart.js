@@ -183,6 +183,8 @@ function saveCartToStorage(){
 }
 function loadCartFromStorage(){
   try { cart = JSON.parse(localStorage.getItem(CART_STORAGE_KEY)) || []; } catch(e){ cart = []; }
+  // VIP is a PayPal subscription now; drop old one-time VIP pass items.
+  cart = cart.filter(i => i.key !== 'vip-pass-1mo');
 }
 
 // ---------- adding / changing items ----------
@@ -1100,12 +1102,13 @@ async function sendDiscordOrderWebhook(order){
   }
 }
 
-// ---------- Crown VIP pass ----------
-// $9.99 for 30 days + one VIP wheel spin. It switches on by itself once the
-// PayPal payment is verified (database trigger order_vip_activate), and can't
-// be bought again while it's active.
+// ---------- Crown VIP (monthly PayPal subscription) ----------
+// $9.99 every month until the buyer cancels; each paid month adds 30 days of
+// VIP + one VIP wheel spin. The paypal-vip edge function talks to PayPal and
+// an hourly check picks up renewals. Old one-time "VIP pass" cart items
+// (VIP_KEY) are no longer sold and get dropped from carts.
 const VIP_KEY = 'vip-pass-1mo';
-let vipStatus = null; // { active, vip_until, spins } from get_vip_status
+let vipStatus = null; // get_vip_status(): { active, vip_until, spins, auto_renew, renews_at }
 
 async function ctLoadVip(){
   try {
@@ -1138,12 +1141,15 @@ function ctPaintVip(){
   }
   const btn = document.getElementById('vipPerkBtn');
   if(btn){
-    if(active && vipStatus.spins > 0){ btn.textContent = '🎡 Spin your VIP wheel!'; btn.classList.add('ct-vip-ready'); }
-    else if(active){ btn.textContent = `👑 You're VIP · ${ctVipDaysLeft()} day${ctVipDaysLeft() === 1 ? '' : 's'} left`; btn.classList.remove('ct-vip-ready'); }
-    else { btn.textContent = 'Unlock VIP — $9.99 / 30 days'; btn.classList.remove('ct-vip-ready'); }
+    btn.classList.toggle('ct-vip-ready', active && vipStatus.spins > 0);
+    if(active && vipStatus.spins > 0) btn.textContent = '🎡 Spin your VIP wheel!';
+    else if(active && vipStatus.auto_renew && vipStatus.renews_at) btn.textContent = `👑 You're VIP · renews ${ctVipDate(vipStatus.renews_at)}`;
+    else if(active) btn.textContent = `👑 You're VIP · ${ctVipDaysLeft()} day${ctVipDaysLeft() === 1 ? '' : 's'} left`;
+    else btn.textContent = 'Unlock VIP — $9.99 / month';
   }
 }
 
+// The VIP card's button.
 async function addVIPToCart(){
   if(typeof currentUser === 'undefined' || !currentUser){
     showCartToast('Log in first to get VIP 👑');
@@ -1156,27 +1162,137 @@ async function addVIPToCart(){
     ctInfoPop({
       icon: '👑',
       title: "You're already VIP!",
-      text: `Your pass is active until ${ctVipDate(vipStatus.vip_until)} (${ctVipDaysLeft()} days left). You can get your next month once it ends.`,
+      text: vipStatus.auto_renew && vipStatus.renews_at
+        ? `Your VIP renews by itself on ${ctVipDate(vipStatus.renews_at)} — with a new VIP spin. You can cancel anytime in Settings → VIP.`
+        : `Your VIP is active until ${ctVipDate(vipStatus.vip_until)}. You can start your next month once it ends.`,
     });
     return;
   }
-  if(cart.some(i => i.key === VIP_KEY)){
-    showCartToast('👑 VIP is already in your cart');
-    toggleCart(true);
-    return;
-  }
-  addToCart(VIP_KEY, 'Crown VIP Pass (1 Month)', '👑 Crown VIP', 9.99, 1, false);
-  toggleCart(true);
+  openVipSubscribe();
 }
 
-// Right after paying for VIP: swap the success popup's button to the wheel.
-async function ctAfterVipPurchase(){
-  const link = document.getElementById('checkoutOrderChatLink');
-  const title = document.getElementById('ctSuccessTitle');
-  title.textContent = "👑 You're VIP!";
-  link.textContent = '🎡 Spin your VIP wheel';
-  link.href = 'spin_wheel_vip.html';
-  ctLoadVip();
+// PayPal's subscription buttons need their own copy of the PayPal script
+// (vault=true&intent=subscription), loaded under the name "paypalSub".
+let ctPaypalSubLoading = null;
+function ctLoadPaypalSub(){
+  if(window.paypalSub) return Promise.resolve();
+  if(ctPaypalSubLoading) return ctPaypalSubLoading;
+  const main = document.querySelector('script[src*="paypal.com/sdk/js"]');
+  const clientId = main ? new URL(main.src).searchParams.get('client-id') : '';
+  ctPaypalSubLoading = new Promise((resolve, reject) => {
+    const sc = document.createElement('script');
+    sc.src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(clientId)}&vault=true&intent=subscription&currency=USD`;
+    sc.setAttribute('data-namespace', 'paypalSub');
+    sc.onload = resolve;
+    sc.onerror = () => { ctPaypalSubLoading = null; reject(new Error('PayPal failed to load')); };
+    document.head.appendChild(sc);
+  });
+  return ctPaypalSubLoading;
+}
+
+function closeVipSubscribe(){
+  const w = document.getElementById('ctVipWrap');
+  if(w) w.remove();
+  document.documentElement.style.overflow = '';
+}
+async function openVipSubscribe(){
+  closeVipSubscribe();
+  const wrap = document.createElement('div');
+  wrap.className = 'ct-pop-wrap ct-vip-wrap';
+  wrap.id = 'ctVipWrap';
+  wrap.onclick = (e) => { if(e.target === wrap) closeVipSubscribe(); };
+  wrap.innerHTML = `
+    <div class="ct-vip-sheet" role="dialog" aria-label="Crown VIP">
+      <button class="ct-co-x" onclick="closeVipSubscribe()" title="Close">✕</button>
+      <div class="ct-vip-top">
+        <div class="ct-co-orbs"><i></i><i></i><i></i></div>
+        <div class="ct-vip-crown">👑</div>
+        <div class="ct-co-title">Crown VIP</div>
+        <div class="ct-co-amount">$9.99<small>/month</small></div>
+        <div class="ct-co-meta">Renews automatically · cancel anytime</div>
+      </div>
+      <div class="ct-co-body">
+        <div class="ct-vip-perk"><span>🎡</span><div><b>1 VIP wheel spin every month</b><small>Win an MM2 Candy, 2x Luger, 2x Sugar or Bat</small></div></div>
+        <div class="ct-vip-perk"><span>👑</span><div><b>VIP badge on your profile</b><small>Shows next to your name</small></div></div>
+        <div class="ct-vip-perk"><span>⚡</span><div><b>Priority access to new item drops</b><small>Be first when new stock lands</small></div></div>
+        <div class="ct-co-label" style="margin-top:16px;">💳 Subscribe with PayPal</div>
+        <div id="ctVipPay" class="ct-co-pay"><div class="ct-co-processing"><span class="ct-spin"></span> Loading PayPal…</div></div>
+        <div id="ctVipErr" class="ct-co-error" style="display:none;"></div>
+        <div class="ct-vip-fine">You'll be charged $9.99 now and every month after, until you cancel in Settings → VIP (or in your PayPal account). Cancelling stops the next charge — you keep VIP until the end of the month you paid for.</div>
+      </div>
+    </div>`;
+  document.body.appendChild(wrap);
+  document.documentElement.style.overflow = 'hidden';
+
+  const showErr = (msg) => { const e = document.getElementById('ctVipErr'); if(e){ e.textContent = msg; e.style.display = 'block'; } };
+  try {
+    const [{ data: plan }] = await Promise.all([
+      supabaseClient.functions.invoke('paypal-vip', { body: { action: 'plan' } }),
+      ctLoadPaypalSub(),
+    ]);
+    if(!plan || !plan.plan_id) throw new Error('VIP plan not set up');
+    const box = document.getElementById('ctVipPay');
+    if(!box) return;
+    box.innerHTML = '';
+    window.paypalSub.Buttons({
+      style: { label: 'subscribe', shape: 'pill' },
+      createSubscription: (data, actions) => actions.subscription.create({ plan_id: plan.plan_id, custom_id: currentUser.id }),
+      onApprove: async (data) => {
+        box.innerHTML = '<div class="ct-co-processing"><span class="ct-spin"></span> Activating your VIP — please don\'t close this…</div>';
+        const { data: res, error } = await supabaseClient.functions.invoke('paypal-vip', { body: { action: 'activate', subscriptionID: data.subscriptionID } });
+        if(error || !res || !res.ok){
+          showErr("Your PayPal subscription went through, but we couldn't switch VIP on yet. Please contact support with your PayPal receipt — we'll sort it out right away.");
+          box.innerHTML = '';
+          return;
+        }
+        await ctLoadVip();
+        const sheet = document.querySelector('#ctVipWrap .ct-vip-sheet');
+        sheet.innerHTML = `<div class="ct-success" style="text-align:center;">
+          <div class="big">👑</div><h3>You're VIP!</h3>
+          <p class="sub">Your VIP spin is ready — go win something!</p>
+          <a class="ct-success-btn" href="spin_wheel_vip.html">🎡 Spin your VIP wheel</a></div>`;
+        ctConfetti(sheet.querySelector('.ct-success'));
+      },
+      onError: (err) => { console.error('PayPal subscription error:', err); showErr('PayPal ran into an error. Please try again.'); },
+    }).render('#ctVipPay');
+  } catch(e){
+    console.warn('VIP subscribe failed to load:', e);
+    showErr("Couldn't load VIP checkout right now — please try again in a moment.");
+    const box = document.getElementById('ctVipPay');
+    if(box) box.innerHTML = '';
+  }
+}
+
+// "Collect Your Gift Now" — the free MM2 gift at $20 spent (one time).
+async function claimGiftInstantly(){
+  if(typeof currentUser === 'undefined' || !currentUser){
+    showCartToast('Log in first so we can check your total spent 🎁');
+    openLoginModal();
+    return;
+  }
+  const { data, error } = await supabaseClient.rpc('check_20_reward_eligibility');
+  if(error || !data){ showCartToast("Couldn't check your gift right now — please try again."); return; }
+  if(!data.eligible){
+    if(data.reason === 'not_enough_spent'){
+      const goal = data.threshold || 20, spent = Number(data.spent) || 0;
+      ctInfoPop({
+        icon: '🎁',
+        title: 'Free gift unlocks at $20 spent',
+        text: `Spend ${ctMoney(Math.max(goal - spent, 0))} more to unlock your free MM2 Gun or Knife!`,
+        progress: { value: spent, goal: goal },
+        button: 'Keep shopping 🛒',
+      });
+    } else if(data.reason === 'already_claimed'){
+      ctInfoPop({ icon: '✅', title: 'Gift already claimed', text: "You've already claimed your one-time thank-you gift — thanks for shopping with us!" });
+    } else {
+      ctInfoPop({ icon: '🎁', title: 'Not yet!', text: "You're not eligible for this gift yet." });
+    }
+    return;
+  }
+  if(cart.some(i => i.key === 'free-mm2-reward')){ showCartToast('🎁 Your free gift is already in your cart!'); toggleCart(true); return; }
+  addToCart('free-mm2-reward', 'MM2 FREE $20 SPENT', '🎁 Reward', 0.00, 1, false, true);
+  toggleCart(true);
+  showCartToast('🎁 Free MM2 gift added to your cart — check out to claim it!');
 }
 
 if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ctLoadVip);
