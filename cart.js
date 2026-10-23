@@ -343,15 +343,18 @@ function showSpinPrizeBanner(itemName){
 }
 
 // ---------- money math ----------
-// Deterministic processing fee: the same amount always gives the same fee,
-// scaling $0.50 → $1.50 (cap at $20+) with a few cents of jitter.
+// Processing fee on every order. Small orders: $0.50 -> $1.50 (reaches $1.50
+// at $20), deterministic per amount with a few cents of jitter. Bigger orders:
+// 4.5% + $0.30 once that's more, so PayPal's own fee (4.4% + ~$0.30) is
+// covered (owner's call 2026-10-23).
 function calculateProcessingFee(price){
-  const MIN_FEE = 0.50, MAX_FEE = 1.50, CAP_AT_PRICE = 20;
-  let fee = MIN_FEE + (MAX_FEE - MIN_FEE) * Math.min(price / CAP_AT_PRICE, 1);
+  const MIN_FEE = 0.50, SMALL_MAX = 1.50, CAP_AT_PRICE = 20;
+  let fee = MIN_FEE + (SMALL_MAX - MIN_FEE) * Math.min(price / CAP_AT_PRICE, 1);
   let hash = 0;
   const str = price.toFixed(2);
   for(let i = 0; i < str.length; i++) hash = (hash * 31 + str.charCodeAt(i)) >>> 0;
-  fee = Math.min(fee + (hash % 8) / 100, MAX_FEE);
+  fee = Math.min(fee + (hash % 8) / 100, SMALL_MAX);
+  fee = Math.max(fee, price * 0.045 + 0.30);
   return Math.round(fee * 100) / 100;
 }
 

@@ -869,7 +869,7 @@
 </div>
 
 <div class="trust-pill">
-  <span class="stars">★★★★★</span> Trusted Marketplace, Fast Handoffs
+  <span class="stars">★★★★★</span> Trusted Marketplace, Fast Handoffs<span id="orderCounter" style="display:none;"> · <b style="color:var(--ink);"><span id="orderCounterNum">0</span>+ orders delivered</b></span>
 </div>
 
 <section class="hero">
@@ -2305,7 +2305,7 @@
 <script src="visit.js?v=1bc5ef85"></script>
 <script src="reviews.js?v=44e07f25"></script>
 <script src="tip.js?v=12cbe3cf"></script>
-<script src="cart.js?v=1ec11c77"></script>
+<script src="cart.js?v=8e684df3"></script>
 
 <script>
   var currentUser = null; // shared login state across all script blocks
@@ -2884,6 +2884,24 @@
       button: 'Keep shopping 🛒',
     });
   }
+
+  // "N+ orders delivered" next to the stars — real count from the database,
+  // shown once it reaches the minimum set in app_settings (order_counter_min_show).
+  (async function loadOrderCounter(){
+    try {
+      const { data } = await supabaseClient.rpc('get_public_order_count');
+      if(!data || data.count < data.min_show) return;
+      const shown = data.count >= 100 ? Math.floor(data.count / 10) * 10 : data.count;
+      const el = document.getElementById('orderCounterNum');
+      document.getElementById('orderCounter').style.display = 'inline';
+      const t0 = performance.now();
+      (function tick(now){
+        const k = Math.min((now - t0) / 1200, 1);
+        el.textContent = Math.round(shown * (1 - Math.pow(1 - k, 3))).toLocaleString();
+        if(k < 1) requestAnimationFrame(tick);
+      })(t0);
+    } catch(e){}
+  })();
 
   // ---- $50 Milestone Spin ----
   // Instant-claim, no popup form. Calls a Postgres function
