@@ -400,3 +400,64 @@
   background:linear-gradient(135deg, #2F5FE0, #6E5BFF); box-shadow:0 12px 24px -12px rgba(47,95,224,.9); }
 .ct-fb.bug .ct-fb-send{ background:linear-gradient(135deg, #FF7A29, #FF4F6B); }
 .ct-fb-send:disabled{ opacity:.6; }
+
+/* ---------- "Why Shop With BuyRBLX?" perks (all shop pages) ---------- */
+.perks.pk-grid{ display:grid; grid-template-columns:repeat(3, 1fr); gap:18px; max-width:1040px; }
+@media (max-width:860px){ .perks.pk-grid{ grid-template-columns:repeat(2, 1fr); } }
+@media (max-width:560px){ .perks.pk-grid{ grid-template-columns:1fr; } }
+.perk-card.pk{
+  --pk1:#2F5FE0; --pk2:#6E5BFF; --pkbg:#EEF3FF;
+  display:flex; flex-direction:column; overflow:hidden; border-radius:22px; padding:24px 22px 22px;
+  border:1px solid #E1E8FB; background:#fff; box-shadow:0 18px 34px -30px rgba(15,27,61,.55);
+  transition:transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+}
+.perk-card.pk::before{ content:''; position:absolute; left:0; right:0; top:0; height:5px; background:linear-gradient(90deg, var(--pk1), var(--pk2)); }
+.perk-card.pk::after{ content:''; position:absolute; right:-40px; top:-40px; width:130px; height:130px; border-radius:50%;
+  background:radial-gradient(circle, var(--pkbg) 0%, transparent 70%); pointer-events:none; }
+.perk-card.pk:hover{ transform:translateY(-4px); border-color:var(--pk1); box-shadow:0 24px 40px -26px rgba(15,27,61,.6); }
+.perk-card.pk .perk-icon{ position:relative; z-index:1; width:52px; height:52px; border-radius:16px; font-size:26px;
+  background:linear-gradient(135deg, var(--pk1), var(--pk2)); box-shadow:0 10px 20px -10px var(--pk1); }
+.perk-card.pk h3{ position:relative; z-index:1; font:800 19px 'Baloo 2', sans-serif; margin-bottom:6px; color:#0F1B3D; }
+.perk-card.pk p{ position:relative; z-index:1; flex:1; font-size:13.5px; line-height:1.55; }
+.perk-card.pk .perk-tag{ z-index:2; top:18px; right:16px; background:linear-gradient(135deg, var(--pk1), var(--pk2)); letter-spacing:.4px; }
+.perk-card.pk .perk-btn, .perk-card.pk .perk-btn-row{ position:relative; z-index:1; margin-top:16px; }
+.perk-card.pk .perk-btn{ width:100%; border-radius:999px; padding:12px; font:800 14px 'Baloo 2', sans-serif; color:#fff;
+  background:linear-gradient(135deg, var(--pk1), var(--pk2)); box-shadow:0 12px 22px -14px var(--pk1); transition:transform .15s ease; }
+.perk-card.pk .perk-btn:hover{ transform:translateY(-2px); filter:none; }
+.perk-card.pk .perk-btn-row{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.perk-card.pk .perk-btn-row button{ border-radius:999px; padding:11px 8px; font:800 13px 'Baloo 2', sans-serif; }
+.perk-card.pk .perk-btn-fill{ background:linear-gradient(135deg, var(--pk1), var(--pk2)); color:#fff; border:none; }
+.perk-card.pk .perk-btn-outline{ background:#fff; color:var(--pk1); border:1.5px solid var(--pk1); }
+.perk-card.pk.pk-gift{ --pk1:#FF7A29; --pk2:#FF4F8B; --pkbg:#FFE9DE; }
+.perk-card.pk.pk-cash{ --pk1:#16A34A; --pk2:#22C55E; --pkbg:#DCFCE7; }
+.perk-card.pk.pk-daily{ --pk1:#F59E0B; --pk2:#FF7A29; --pkbg:#FEF3C7; }
+.perk-card.pk.pk-spin{ --pk1:#7B5CFF; --pk2:#C056FF; --pkbg:#EDE7FF; }
+.perk-card.pk.pk-fast{ --pk1:#2F5FE0; --pk2:#22B8F0; --pkbg:#E0F2FE; }
+.perk-card.pk.pk-help{ --pk1:#E0457B; --pk2:#7B5CFF; --pkbg:#FCE7F3; }
+
+/* VIP: wide premium banner under the six perks */
+.perk-card.pk-vip{
+  grid-column:1 / -1; position:relative; overflow:hidden; display:flex; align-items:center; gap:24px; flex-wrap:wrap;
+  padding:28px 30px; border-radius:26px; border:none; color:#fff;
+  background:linear-gradient(120deg, #1B1446 0%, #3B2A7A 45%, #6A3FD6 100%);
+  box-shadow:0 30px 60px -34px rgba(59,42,122,.95);
+}
+.pk-vip-glow{ position:absolute; inset:0; pointer-events:none;
+  background:radial-gradient(circle at 85% 20%, rgba(255,213,74,.35), transparent 40%), radial-gradient(circle at 10% 110%, rgba(255,79,139,.35), transparent 45%);
+  animation:pkVipPulse 4s ease-in-out infinite alternate; }
+@keyframes pkVipPulse{ from{ opacity:.7; } to{ opacity:1; } }
+.pk-vip-left{ position:relative; flex:1 1 360px; }
+.pk-vip-right{ position:relative; flex:0 0 auto; display:flex; flex-direction:column; align-items:center; gap:8px; }
+.pk-vip-badge{ display:inline-block; padding:5px 12px; border-radius:999px; font:900 11px 'Nunito Sans', sans-serif; letter-spacing:.8px;
+  color:#5A3300; background:linear-gradient(135deg, #FFE27A, #FFB800); box-shadow:0 8px 18px -8px rgba(255,184,0,.9); }
+.pk-vip h3, .perk-card.pk-vip h3{ font:800 28px 'Baloo 2', sans-serif; margin:10px 0 6px; color:#fff; }
+.perk-card.pk-vip h3 small{ font-size:15px; opacity:.8; margin-left:2px; }
+.perk-card.pk-vip p{ color:#DCD4FF; font-size:14px; line-height:1.6; font-weight:600; max-width:560px; }
+.perk-card.pk-vip p b{ color:#FFE27A; }
+.perk-card.pk-vip .perk-btn{ margin:0; padding:15px 28px; border-radius:999px; border:none; cursor:pointer; white-space:nowrap;
+  font:800 16px 'Baloo 2', sans-serif; color:#5A3300; background:linear-gradient(135deg, #FFE27A, #FFB800 55%, #FF8A1F);
+  box-shadow:0 14px 28px -12px rgba(255,170,40,1); transition:transform .15s ease; }
+.perk-card.pk-vip .perk-btn:hover{ transform:translateY(-2px) scale(1.02); filter:none; }
+.pk-vip-note{ font-size:11.5px; font-weight:800; color:#BFB3F5; }
+@media (max-width:560px){ .perk-card.pk-vip{ padding:24px 20px; } .pk-vip-right{ width:100%; } .perk-card.pk-vip .perk-btn{ width:100%; } }
+@media (prefers-reduced-motion: reduce){ .pk-vip-glow{ animation:none; } }

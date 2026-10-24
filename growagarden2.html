@@ -683,7 +683,7 @@
 </style>
 <script src="https://www.paypal.com/sdk/js?client-id=AQvXxaPmRMQk9sfoo9AcSJs26LuWGE2RsUYCzhagWOk6fDXVqOApJBwfHtAYWeaI9rP4K0JRjRaR5_I2&currency=USD"></script>
 <link rel="stylesheet" href="reviews.css?v=be83a25a">
-<link rel="stylesheet" href="cart.css?v=cbc19779">
+<link rel="stylesheet" href="cart.css?v=5ca60a03">
 </head>
 <body>
 
@@ -1156,45 +1156,57 @@
   <h2>Why Shop With <span class="hl">BuyRBLX</span>?</h2>
   <p>Perks that come standard with every order</p>
 </div>
-<div class="perks">
-  <div class="perk-card">
-    <div class="perk-icon">🎡</div>
-    <h3>Reached $20 Total Spent? Here's a Free Gift to Show Our Appreciation!</h3>
-    <p>We love rewarding our buyers! Once your total orders on the site hit $20+, you automatically unlock a guaranteed free MM2 Gun or Knife. Tap the button and it goes straight into your cart!</p>
-    <button class="perk-btn" onclick="claimGiftInstantly()">Collect Your Gift Now</button>
+<div class="perks pk-grid">
+  <div class="perk-card pk pk-gift">
+    <div class="perk-icon">🎁</div>
+    <h3>Free MM2 Gift at $20</h3>
+    <p>Once your orders reach $20 in total, you unlock a guaranteed free MM2 Gun or Knife — tap below and it drops straight into your cart.</p>
+    <button class="perk-btn" onclick="claimGiftInstantly()">Collect Your Gift</button>
   </div>
-  <div class="perk-card">
-    <div class="perk-icon">💸</div>
+  <div class="perk-card pk pk-cash">
+    <div class="perk-icon">💰</div>
     <h3>2% Cashback</h3>
-    <p>Earn 2% back on every single order! Your earnings stack automatically in your wallet and can be used as a discount toward your next buy.</p>
+    <p>Every order puts 2% back in your wallet. It stacks up and you can use it as a discount on your next buy.</p>
     <div class="perk-btn-row">
-      <button class="perk-btn-outline" onclick="openCashbackModal('what')">What is Cashback?</button>
-      <button class="perk-btn-fill" onclick="openCashbackModal('use')">How to Use Credit</button>
+      <button class="perk-btn-outline" onclick="openCashbackModal('what')">What is it?</button>
+      <button class="perk-btn-fill" onclick="openCashbackModal('use')">How to use</button>
     </div>
   </div>
-  <div class="perk-card">
-    <span class="perk-tag">$50+</span>
-    <div class="perk-icon">🌟</div>
-    <h3>$50 Milestone Spin</h3>
-    <p>Unlock a free spin every time your account spending increases by $50. The more you order, the more spins you collect!</p>
-    <button class="perk-btn" onclick="claimMilestoneSpin()">Claim Your Spin</button>
-  </div>
-  <div class="perk-card">
+  <div class="perk-card pk pk-daily">
+    <span class="perk-tag">DAILY</span>
     <div class="perk-icon">⚡</div>
-    <h3>Instant Delivery</h3>
-    <p>Most orders land in your account within 5–15 minutes.</p>
+    <h3>5% Off Every Day</h3>
+    <p>Spent $10 in total? One order a day ($2+) gets 5% off automatically. Used it? It's back 24 hours later.</p>
+    <button class="perk-btn" onclick="showDailyDiscountStatus()">Check My Daily 5%</button>
   </div>
-  <div class="perk-card">
-    <div class="perk-icon">🧑</div>
-    <h3>Dedicated Support</h3>
-    <p>Message us anytime — expect a reply within 12–48 hours as we sort things out for you.</p>
+  <div class="perk-card pk pk-spin">
+    <span class="perk-tag">$50+</span>
+    <div class="perk-icon">🎡</div>
+    <h3>$50 Milestone Spin</h3>
+    <p>Every $50 you spend unlocks a free spin on the Gun or Knife wheel. The more you order, the more you spin!</p>
+    <button class="perk-btn" onclick="openMilestoneSpin()">Claim Your Spin</button>
   </div>
-  <div class="perk-card" id="vipPerkCard">
-    <span class="perk-tag">$9.99/MO</span>
-    <div class="perk-icon">👑</div>
-    <h3>Crown VIP Pass</h3>
-    <p>$9.99/month, renews automatically — cancel anytime. Every month you get a <b>VIP wheel spin</b> (your first one right after you subscribe), a 👑 VIP badge on your profile, and priority access to new item drops.</p>
-    <button class="perk-btn" id="vipPerkBtn" onclick="addVIPToCart()">Unlock VIP — $9.99 / month</button>
+  <div class="perk-card pk pk-fast">
+    <div class="perk-icon">🚀</div>
+    <h3>Fast Delivery</h3>
+    <p>Most orders land in your Roblox account within 5–15 minutes, with a live chat to follow every step.</p>
+  </div>
+  <div class="perk-card pk pk-help">
+    <div class="perk-icon">💬</div>
+    <h3>Real Human Support</h3>
+    <p>Message us anytime — a real person replies and sorts it out for you.</p>
+  </div>
+  <div class="perk-card pk-vip" id="vipPerkCard">
+    <div class="pk-vip-glow"></div>
+    <div class="pk-vip-left">
+      <div class="pk-vip-badge">👑 CROWN VIP</div>
+      <h3>Go VIP for $9.99<small>/month</small></h3>
+      <p>A <b>VIP wheel spin every month</b> — your first one right after you subscribe — a 👑 badge next to your name, and first access to new item drops. Renews monthly, cancel anytime.</p>
+    </div>
+    <div class="pk-vip-right">
+      <button class="perk-btn" id="vipPerkBtn" onclick="addVIPToCart()">Unlock VIP — $9.99 / month</button>
+      <div class="pk-vip-note">🔒 Secure PayPal subscription</div>
+    </div>
   </div>
 </div>
 
@@ -1464,7 +1476,7 @@
 <script src="supabase-config.js?v=aee8e303"></script>
 <script src="visit.js?v=1bc5ef85"></script>
 <script src="tip.js?v=12cbe3cf"></script>
-<script src="cart.js?v=bef891b2"></script>
+<script src="cart.js?v=2cff21ff"></script>
 <script src="reviews.js?v=44e07f25"></script>
 
 <script>
