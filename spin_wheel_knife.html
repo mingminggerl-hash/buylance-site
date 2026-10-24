@@ -106,6 +106,12 @@
   @keyframes fall{ to{ transform:translateY(110vh) rotate(720deg); } }
   @media (prefers-reduced-motion: reduce){ .wheel-glow, .bulbs i, .spin-btn::after, .win-rays, .win-img, .stars{ animation:none; } }
 
+  .luck-badge{ margin-top:8px; padding:4px 12px; border-radius:999px; font-size:11px; font-weight:900; letter-spacing:.6px; text-transform:uppercase; position:relative;
+    color:#FFE9A8; background:rgba(255,213,74,.12); border:1px solid rgba(255,213,74,.45); }
+  .luck-badge.on{ color:#3B2100; background:linear-gradient(135deg, #FFE27A, #FFB800); border-color:#FFE27A; box-shadow:0 0 18px rgba(255,200,60,.55); animation:luckGlow 2s ease-in-out infinite alternate; }
+  @keyframes luckGlow{ to{ box-shadow:0 0 28px rgba(255,200,60,.9); } }
+  .odd.special{ background:linear-gradient(160deg, rgba(255,213,74,.28), rgba(255,79,139,.18)); box-shadow:inset 0 0 0 1.5px #FFD54A; }
+  .odd .tag{ display:block; font-size:9px; font-weight:900; letter-spacing:.6px; color:#FFE27A; text-transform:uppercase; }
   .odd .emo{ display:block; height:44px; font-size:32px; line-height:44px; }
 </style>
 </head>
@@ -113,6 +119,7 @@
 <div class="stars"></div>
 <a class="back" id="backLink" href="spin_wheel_choose.html">← Back to Gun / Knife choice</a>
 <div class="crown-badge">🎡 $50 Milestone Spin</div>
+<div class="luck-badge" id="luckBadge">👑 VIP 2x Luck</div>
 <h1>🔪 Knife Wheel</h1>
 <p class="lead">You earn a spin every $50 you spend — your prize lands in your cart for free.</p>
 
@@ -129,9 +136,9 @@
 <div class="status" id="status"></div>
 
 <div class="odds">
-  <h3>🎯 Real odds for every spin</h3>
+  <h3>🎯 Odds per spin</h3>
   <div class="odds-grid" id="oddsGrid"></div>
-  <p>Each spin is picked by our server — every item has the same 25% chance.</p>
+  <p>Each spin is picked by our server. ⭐ = special item.</p>
 </div>
 
 <div class="win" id="win">
@@ -146,8 +153,8 @@
 </div>
 
 <script>
-  // Prizes must match spin_wheel() in Supabase, which picks the winner
-  // (25% each). This page only draws the wheel and animates to the result.
+  // Prizes and odds must match spin_wheel() in Supabase, which picks the winner
+  // (special item 10%, the others 30%). This page only draws the wheel and animates to the result.
   const PRIZES = {
     'Nebula': { img: '', emoji: '🌌', filter: 'none', color: '#7B5CFF' },
     'Eggblade': { img: '', emoji: '🥚', filter: 'none', color: '#FFB21F' },
@@ -155,6 +162,8 @@
     'Saw': { img: '', emoji: '🔪', filter: 'none', color: '#E5484D' }
   };
   const SLICES = Object.keys(PRIZES);
+  const SPECIAL = 'Nebula';
+  const ODDS = name => name === SPECIAL ? 10 : 30;
   const THIS_CATEGORY = 'knife';
 
   const canvas = document.getElementById('wheel');
@@ -171,7 +180,7 @@
     return p.img ? `<img class="${cls}" src="${p.img}" alt="" style="filter:${p.filter}">` : `<span class="emo ${cls}">${p.emoji}</span>`;
   }
   document.getElementById('oddsGrid').innerHTML = SLICES
-    .map(name => `<div class="odd">${picHtml(name, '')}<b>${name}</b><span>25%</span></div>`).join('');
+    .map(name => `<div class="odd${name === SPECIAL ? ' special' : ''}">${name === SPECIAL ? '<i class="tag">⭐ Special</i>' : ''}${picHtml(name, '')}<b>${name}</b><span>${ODDS(name)}%</span></div>`).join('');
 
   const bulbs = document.getElementById('bulbs');
   for(let i = 0; i < 18; i++){
@@ -274,6 +283,12 @@
     }
   }
 
+  // VIP 2x luck is real (the server rolls twice for VIPs); the page only shows the badge.
+  async function showLuckBadge(){
+    const { data: vip } = await supabaseClient.rpc('get_vip_status');
+    if(vip && vip.active){ const b = document.getElementById('luckBadge'); b.classList.add('on'); b.textContent = '👑 VIP 2x Luck · Active'; }
+  }
+
   let currentUser = null;
   async function init(){
     const { data: { session } } = await supabaseClient.auth.getSession();
@@ -284,6 +299,7 @@
       btn.onclick = () => { location.href = 'login-code.html?next=spin_wheel_knife.html'; };
       return;
     }
+    showLuckBadge();
     const { data: status, error } = await supabaseClient.rpc('get_spin_status', { p_user_id: currentUser.id });
     if(error || !status){ statusEl.textContent = "Couldn't load your spins — please refresh."; return; }
     if(status.category !== THIS_CATEGORY){
