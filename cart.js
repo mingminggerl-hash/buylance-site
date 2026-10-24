@@ -1215,7 +1215,7 @@ async function openVipSubscribe(){
         <div class="ct-co-meta">Renews automatically · cancel anytime</div>
       </div>
       <div class="ct-co-body">
-        <div class="ct-vip-perk"><span>🎡</span><div><b>1 VIP wheel spin every month</b><small>Win an MM2 Candy, 2x Luger, 2x Sugar or Bat</small></div></div>
+        <div class="ct-vip-perk"><span>🎡</span><div><b>1 VIP wheel spin every month</b><small>Spin instantly right after you subscribe</small></div></div>
         <div class="ct-vip-perk"><span>👑</span><div><b>VIP badge on your profile</b><small>Shows next to your name</small></div></div>
         <div class="ct-vip-perk"><span>⚡</span><div><b>Priority access to new item drops</b><small>Be first when new stock lands</small></div></div>
         <div class="ct-co-label" style="margin-top:16px;">💳 Subscribe with PayPal</div>
@@ -1301,3 +1301,63 @@ async function claimGiftInstantly(){
 if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ctLoadVip);
 else ctLoadVip();
 supabaseClient.auth.onAuthStateChange((event) => { if(event === 'SIGNED_IN' || event === 'SIGNED_OUT') ctLoadVip(); });
+
+// ---------- search: nothing found ----------
+function ctNoResultsHtml(query){
+  return `<div class="ct-noresults">
+    <div class="ct-noresults-ico">🔎</div>
+    <b>No items found for "${ctEsc(query)}"</b>
+    <span>Typo? Try another search — or can't find the item you're looking for?</span>
+    <a href="#" onclick="openFeedback('request'); return false;">📩 Tell us what you want</a>
+  </div>`;
+}
+
+// ---------- "Found something off?" / "Can't find an item?" ----------
+// Saved with submit_feedback() and posted to the Discord support forum
+// (discord-notify "feedback"); discord-cleanup deletes the post after 7 days.
+function closeFeedback(){
+  const w = document.getElementById('ctFbWrap');
+  if(w) w.remove();
+}
+function openFeedback(kind){
+  if(typeof currentUser === 'undefined' || !currentUser){
+    showCartToast('Log in first so we can reply to you 🙂');
+    openLoginModal();
+    return;
+  }
+  closeFeedback();
+  const isBug = kind === 'bug';
+  const wrap = document.createElement('div');
+  wrap.className = 'ct-pop-wrap';
+  wrap.id = 'ctFbWrap';
+  wrap.onclick = (e) => { if(e.target === wrap) closeFeedback(); };
+  wrap.innerHTML = `
+    <div class="ct-fb ${isBug ? 'bug' : 'wish'}" role="dialog">
+      <button class="ct-co-x" onclick="closeFeedback()" title="Close">✕</button>
+      <div class="ct-fb-ico">${isBug ? '🐞' : '🔍'}</div>
+      <h4>${isBug ? 'Found something off?' : "Can't find an item?"}</h4>
+      <p>${isBug ? 'Tell us what looked wrong or confusing — we read every report.' : "Tell us the item or game currency you want — we'll look into adding it."}</p>
+      <textarea id="ctFbText" maxlength="1000" rows="4" placeholder="${isBug ? 'e.g. The checkout button did nothing on my phone' : 'e.g. Blox Fruits Leopard fruit, Da Hood cash'}"></textarea>
+      <div class="ct-fb-err" id="ctFbErr"></div>
+      <button class="ct-fb-send" id="ctFbSend">${isBug ? 'Send report' : 'Send request'} 🚀</button>
+    </div>`;
+  document.body.appendChild(wrap);
+  setTimeout(() => document.getElementById('ctFbText').focus(), 50);
+  document.getElementById('ctFbSend').onclick = async () => {
+    const text = document.getElementById('ctFbText').value.trim();
+    const err = document.getElementById('ctFbErr');
+    if(text.length < 3){ err.textContent = 'Please write a little more.'; return; }
+    const btn = document.getElementById('ctFbSend');
+    btn.disabled = true;
+    btn.textContent = 'Sending…';
+    const { data, error } = await supabaseClient.rpc('submit_feedback', { p_kind: kind, p_message: text, p_page: location.pathname.split('/').pop() || 'index.html' });
+    if(error || !data || !data.ok){
+      btn.disabled = false;
+      btn.textContent = 'Try again';
+      err.textContent = data && data.error === 'too_many' ? "You've sent a few already — please wait a bit." : "Couldn't send — please try again.";
+      return;
+    }
+    try { await supabaseClient.functions.invoke('discord-notify', { body: { event: 'feedback', feedback_id: data.id } }); } catch(e){}
+    wrap.querySelector('.ct-fb').innerHTML = `<div class="ct-fb-ico">🎉</div><h4>Thanks — we got it!</h4><p>${isBug ? "We'll look into it and fix it." : "We'll check if we can add it."}</p><button class="ct-fb-send" onclick="closeFeedback()">Close</button>`;
+  };
+}
