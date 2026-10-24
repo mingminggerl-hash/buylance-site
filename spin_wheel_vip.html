@@ -77,6 +77,10 @@
   .status{ margin-top:12px; font-size:13px; font-weight:800; color:#E4DEFF; text-align:center; min-height:18px; max-width:340px; line-height:1.5; }
   .status a{ color:#FFD54A; }
 
+  .luck-badge{ margin-top:8px; padding:4px 12px; border-radius:999px; font-size:11px; font-weight:900; letter-spacing:.6px; text-transform:uppercase; position:relative;
+    color:#FFE9A8; background:rgba(255,213,74,.12); border:1px solid rgba(255,213,74,.45); }
+  .luck-badge.on{ color:#3B2100; background:linear-gradient(135deg, #FFE27A, #FFB800); border-color:#FFE27A; box-shadow:0 0 18px rgba(255,200,60,.55); animation:luckGlow 2s ease-in-out infinite alternate; }
+  @keyframes luckGlow{ to{ box-shadow:0 0 28px rgba(255,200,60,.9); } }
   .odds{ margin-top:22px; width:min(380px, 100%); padding:14px; border-radius:18px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); position:relative; }
   .odds h3{ margin:0 0 10px; font:800 14px 'Baloo 2', sans-serif; color:#FFE27A; text-align:center; }
   .odds-grid{ display:grid; grid-template-columns:repeat(4, 1fr); gap:8px; }
@@ -111,6 +115,7 @@
 <div class="stars"></div>
 <a class="back" href="index.html#rewards">← Back to shop</a>
 <div class="crown-badge">👑 Crown VIP</div>
+<div class="luck-badge" id="luckBadge">👑 VIP 2x Luck</div>
 <h1>VIP Wheel</h1>
 <p class="lead">A new spin every month your VIP renews — your prize is delivered like a normal order.</p>
 
@@ -127,9 +132,9 @@
 <div class="status" id="status"></div>
 
 <div class="odds">
-  <h3>🎯 Real odds for every spin</h3>
+  <h3>🎯 Odds per spin</h3>
   <div class="odds-grid" id="oddsGrid"></div>
-  <p>Each spin is picked by our server with exactly these chances.</p>
+  <p>Each spin is picked by our server.</p>
 </div>
 
 <div class="win" id="win">
@@ -276,6 +281,8 @@
     }
     const { data: vip, error } = await supabaseClient.rpc('get_vip_status');
     if(error || !vip || !vip.ok){ statusEl.textContent = "Couldn't load your VIP status — please refresh."; return; }
+    // VIP 2x luck is real (spin_vip_wheel rolls twice); the page only shows the badge.
+    if(vip.active){ const b = document.getElementById('luckBadge'); b.classList.add('on'); b.textContent = '👑 VIP 2x Luck · Active'; }
     const until = vip.vip_until ? new Date(vip.vip_until).toLocaleDateString(undefined, { month:'short', day:'numeric', year:'numeric' }) : '';
     if(vip.spins > 0){
       btn.textContent = vip.spins > 1 ? `🎡 SPIN! (${vip.spins} spins)` : '🎡 SPIN!';
