@@ -735,7 +735,7 @@
   @keyframes ocNudge{ 0%,88%,100%{ transform:translateY(0); } 92%{ transform:translateY(-6px); } 96%{ transform:translateY(0); } }
   @media (prefers-reduced-motion: reduce){ .ongoing-card{ animation:none; } }
 </style>
-<link rel="stylesheet" href="cart.css?v=5ca60a03">
+<link rel="stylesheet" href="cart.css?v=543aeae1">
 </head>
 <body>
 
@@ -904,8 +904,8 @@
   <button class="seller-tab" onclick="showSellerTab('tapsim', this)">👆 Tap Sim</button>
   <button class="seller-tab" onclick="showSellerTab('sab', this)">🧠 Steal a Brainrot</button>
 </div>
-<div class="inline-search-wrap" style="position:relative; width:100%; max-width:520px;">
-  <input type="text" id="inlineSearchInput" class="inline-search-input" oninput="inlineLiveSearch(this.value)" onfocus="inlineLiveSearch(this.value)" placeholder="🔍 Search items across games (e.g. Harvester, PSX, Gems)..." style="width:100%; padding:12px 18px; border-radius:25px; border:1.5px solid var(--card-border); font-family:'Nunito Sans', sans-serif; font-size:14px; outline:none; box-shadow:0 2px 8px rgba(0,0,0,0.05); box-sizing:border-box;">
+<div class="inline-search-wrap" style="position:relative; width:100%; max-width:560px;"><span class="isw-ico" aria-hidden="true">🔍</span>
+  <input type="text" id="inlineSearchInput" class="inline-search-input" oninput="inlineLiveSearch(this.value)" onfocus="inlineLiveSearch(this.value)" placeholder="Search any item or game — e.g. Harvester, PS99 gems…" style="width:100%; padding:12px 18px; border-radius:25px; border:1.5px solid var(--card-border); font-family:'Nunito Sans', sans-serif; font-size:14px; outline:none; box-shadow:0 2px 8px rgba(0,0,0,0.05); box-sizing:border-box;">
   <div id="inlineSearchResults" class="inline-search-dropdown" style="display:none; position:absolute; top:100%; left:0; width:100%; background:#fff; border-radius:12px; box-shadow:0 10px 25px rgba(0,0,0,0.15); border:1px solid var(--card-border); margin-top:6px; z-index:1000; max-height:380px; overflow-y:auto; padding:8px; box-sizing:border-box;"></div>
 </div>
 </div>
