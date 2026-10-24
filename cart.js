@@ -1361,3 +1361,32 @@ function openFeedback(kind){
     wrap.querySelector('.ct-fb').innerHTML = `<div class="ct-fb-ico">🎉</div><h4>Thanks — we got it!</h4><p>${isBug ? "We'll look into it and fix it." : "We'll check if we can add it."}</p><button class="ct-fb-send" onclick="closeFeedback()">Close</button>`;
   };
 }
+
+// ---------- $50 milestone spin ----------
+// "Claim Your Spin" checks first: only buyers with a spin waiting go to
+// the wheel page; everyone else sees how far they are from the next $50.
+async function openMilestoneSpin(){
+  if(!currentUser){
+    showCartToast('Log in first so we can check your spins 🎡');
+    openLoginModal();
+    return;
+  }
+  const { data: s, error } = await supabaseClient.rpc('get_spin_status', { p_user_id: currentUser.id });
+  if(error || !s){ showCartToast("Couldn't check your spins — please try again."); return; }
+  if(s.has_spin_available){ window.location.href = 'spin_wheel_choose.html'; return; }
+  if(s.last_won_item && !s.prize_redeemed){
+    ctInfoPop({ icon:'🎁', title:'Your prize is waiting!', text:`You won ${s.last_won_item} — it's in your cart. Check out to claim it, then keep shopping for your next spin.`, button:'Open my cart' });
+    document.querySelector('#ctPopWrap button').onclick = () => { closeDailyCountdown(); toggleCart(true); };
+    return;
+  }
+  const spent = Number(s.total_spent) || 0;
+  const goal = (Math.floor(spent / 50) + 1) * 50;
+  ctInfoPop({
+    icon: '🎡',
+    title: spent < 50 ? 'Spin unlocks at $50 spent' : 'Next spin unlocks soon',
+    text: `Spend ${ctMoney(goal - spent)} more to unlock your ${spent < 50 ? 'first' : 'next'} spin!`,
+    progress: { value: spent, goal: goal },
+    button: 'Keep shopping 🛒',
+  });
+}
+
