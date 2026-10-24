@@ -130,7 +130,7 @@ document.body.insertAdjacentHTML('beforeend', `
         <div id="paypal-button-container" class="ct-co-pay"></div>
         <div id="paypalProcessingNote" class="ct-co-processing" style="display:none;"><span class="ct-spin"></span> Confirming your payment — please don't close this window…</div>
         <div class="ct-co-trust">
-          <span>🛡️ Buyer protection</span><span>💬 Live order chat</span><span>💰 2% cashback</span>
+          <span>🛡️ Buyer protection</span><span>💬 Live order chat</span><span>💰 3% cashback</span>
         </div>
       </div>
     </div>
@@ -1216,6 +1216,7 @@ async function openVipSubscribe(){
       </div>
       <div class="ct-co-body">
         <div class="ct-vip-perk"><span>🎡</span><div><b>1 VIP wheel spin every month</b><small>Spin instantly right after you subscribe</small></div></div>
+        <div class="ct-vip-perk"><span>💰</span><div><b>5% cashback instead of 3%</b><small>On every completed order while you're VIP</small></div></div>
         <div class="ct-vip-perk"><span>👑</span><div><b>VIP badge on your profile</b><small>Shows next to your name</small></div></div>
         <div class="ct-vip-perk"><span>⚡</span><div><b>Priority access to new item drops</b><small>Be first when new stock lands</small></div></div>
         <div class="ct-co-label" style="margin-top:16px;">💳 Subscribe with PayPal</div>

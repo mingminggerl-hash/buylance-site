@@ -491,3 +491,6 @@
 }
 .inline-search-wrap .inline-search-dropdown{ border-radius:18px !important; border:1px solid #E1E8FB !important; padding:8px !important;
   box-shadow:0 24px 50px -20px rgba(15,27,61,.45) !important; margin-top:10px !important; animation:ctFade .18s ease; }
+
+.pk-vipnote{ display:inline-block; vertical-align:middle; margin-left:6px; padding:2px 8px; border-radius:999px; font:900 10.5px 'Nunito Sans', sans-serif;
+  color:#5A3300; background:linear-gradient(135deg, #FFE27A, #FFB800); }
