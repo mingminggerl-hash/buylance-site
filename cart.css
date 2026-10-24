@@ -362,3 +362,41 @@
 .ct-vip-perk small{ display:block; font-size:11.5px; font-weight:700; color:#8A6A2E; }
 .ct-vip-fine{ margin-top:12px; font-size:10.5px; font-weight:600; color:#8A96B3; line-height:1.55; text-align:center; }
 .ct-vip-sheet .ct-success{ padding:40px 22px 30px !important; }
+
+/* ---------- Explore Shop game buttons + search (all shop pages) ---------- */
+#mainSellerTabs{ gap:10px; flex-wrap:wrap; }
+#mainSellerTabs .seller-tab{
+  font:700 14px 'Baloo 2', sans-serif; padding:9px 18px; border-radius:999px; cursor:pointer;
+  background:#fff; color:#0F1B3D; border:1.5px solid #DCE5FB; box-shadow:0 6px 14px -10px rgba(47,95,224,.55);
+  transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease, background .15s ease;
+}
+#mainSellerTabs .seller-tab:hover{ transform:translateY(-2px); border-color:#2F5FE0; box-shadow:0 10px 20px -12px rgba(47,95,224,.8); }
+#mainSellerTabs .seller-tab.active{
+  color:#fff; border-color:transparent; background:linear-gradient(135deg, #2F5FE0, #6E5BFF);
+  box-shadow:0 12px 24px -12px rgba(47,95,224,.95);
+}
+.inline-search-input{ transition:border-color .15s ease, box-shadow .15s ease; }
+.inline-search-input:focus{ border-color:#2F5FE0 !important; box-shadow:0 0 0 4px rgba(47,95,224,.14) !important; }
+.ct-noresults{ display:flex; flex-direction:column; align-items:center; gap:4px; padding:16px 10px; text-align:center; font-family:'Nunito Sans', sans-serif; }
+.ct-noresults-ico{ font-size:26px; }
+.ct-noresults b{ font-size:13.5px; color:#0F1B3D; }
+.ct-noresults span{ font-size:12.5px; font-weight:700; color:#6B7A99; }
+.ct-noresults a{ margin-top:8px; padding:8px 16px; border-radius:999px; text-decoration:none; color:#fff; font:800 13px 'Nunito Sans', sans-serif;
+  background:linear-gradient(135deg, #2F5FE0, #6E5BFF); }
+
+/* feedback popup */
+.ct-fb{ position:relative; width:100%; max-width:380px; text-align:center; padding:26px 22px 22px; border-radius:24px; background:#fff;
+  font-family:'Nunito Sans', sans-serif; color:#0F1B3D; box-shadow:0 30px 60px -20px rgba(15,27,61,.6); animation:ctPopIn .35s cubic-bezier(.2,.9,.25,1.2) both; }
+.ct-fb.bug{ border-top:6px solid #FF6A3D; }
+.ct-fb.wish{ border-top:6px solid #5B5BFF; }
+.ct-fb .ct-co-x{ background:#F1F4FB; color:#6B7A99; }
+.ct-fb-ico{ font-size:40px; }
+.ct-fb h4{ font:800 20px 'Baloo 2', sans-serif; margin-top:4px; }
+.ct-fb p{ font-size:13px; font-weight:700; color:#6B7A99; margin-top:4px; line-height:1.5; }
+.ct-fb textarea{ width:100%; margin-top:14px; padding:12px; border-radius:14px; border:1.5px solid #D7E3FF; font:600 13.5px 'Nunito Sans', sans-serif; resize:vertical; outline:none; }
+.ct-fb textarea:focus{ border-color:#2F5FE0; }
+.ct-fb-err{ min-height:16px; margin-top:6px; font-size:12px; font-weight:800; color:#C0392B; }
+.ct-fb-send{ margin-top:6px; width:100%; padding:13px; border:none; border-radius:999px; cursor:pointer; color:#fff; font:800 15px 'Baloo 2', sans-serif;
+  background:linear-gradient(135deg, #2F5FE0, #6E5BFF); box-shadow:0 12px 24px -12px rgba(47,95,224,.9); }
+.ct-fb.bug .ct-fb-send{ background:linear-gradient(135deg, #FF7A29, #FF4F6B); }
+.ct-fb-send:disabled{ opacity:.6; }

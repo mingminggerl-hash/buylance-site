@@ -733,7 +733,7 @@
 </style>
 <script src="https://www.paypal.com/sdk/js?client-id=AQvXxaPmRMQk9sfoo9AcSJs26LuWGE2RsUYCzhagWOk6fDXVqOApJBwfHtAYWeaI9rP4K0JRjRaR5_I2&currency=USD"></script>
 <link rel="stylesheet" href="reviews.css?v=be83a25a">
-<link rel="stylesheet" href="cart.css?v=9c799787">
+<link rel="stylesheet" href="cart.css?v=cbc19779">
 </head>
 <body>
 
@@ -1014,7 +1014,7 @@
     <span class="perk-tag">$9.99/MO</span>
     <div class="perk-icon">👑</div>
     <h3>Crown VIP Pass</h3>
-    <p>$9.99/month, renews automatically — cancel anytime. Every month: a <b>VIP wheel spin</b> (win an MM2 Candy, 2x Luger, 2x Sugar or Bat), a 👑 VIP badge on your profile, and priority access to new item drops.</p>
+    <p>$9.99/month, renews automatically — cancel anytime. Every month you get a <b>VIP wheel spin</b> (your first one right after you subscribe), a 👑 VIP badge on your profile, and priority access to new item drops.</p>
     <button class="perk-btn" id="vipPerkBtn" onclick="addVIPToCart()">Unlock VIP — $9.99 / month</button>
   </div>
 </div>
@@ -1046,13 +1046,13 @@
 <section id="buyerReviews" class="rv"></section>
 
 <div class="fb-duo" id="itemRequestSection">
-  <a class="fb-card fb-bug" href="https://docs.google.com/forms/d/e/1FAIpQLSdPcrlCnp8B2QYCq5784mMbW8JAx7MrTXh1QjzA6yhA5DLMqQ/viewform?usp=publish-editor" target="_blank" rel="noopener">
+  <a class="fb-card fb-bug" href="#" onclick="openFeedback('bug'); return false;">
     <span class="fb-ico">🐞</span>
     <span class="fb-title">Found something off?</span>
     <span class="fb-sub">A bug, a confusing page, anything that feels weird — tell us and we'll fix it.</span>
     <span class="fb-btn">Report it →</span>
   </a>
-  <a class="fb-card fb-wish" href="https://docs.google.com/forms/d/e/1FAIpQLSdPcrlCnp8B2QYCq5784mMbW8JAx7MrTXh1QjzA6yhA5DLMqQ/viewform?usp=publish-editor" target="_blank" rel="noopener">
+  <a class="fb-card fb-wish" href="#" onclick="openFeedback('request'); return false;">
     <span class="fb-ico">🔍</span>
     <span class="fb-title">Can't find an item?</span>
     <span class="fb-sub">Tell us the item or game currency you want and we'll look into adding it.</span>
@@ -1285,7 +1285,7 @@
 <script src="supabase-config.js?v=aee8e303"></script>
 <script src="visit.js?v=1bc5ef85"></script>
 <script src="tip.js?v=12cbe3cf"></script>
-<script src="cart.js?v=8e684df3"></script>
+<script src="cart.js?v=bef891b2"></script>
 <script src="reviews.js?v=44e07f25"></script>
 
 <script>
@@ -2042,7 +2042,7 @@
     const matches = findMatches(query);
 
     if(matches.length === 0){
-      resultsBox.innerHTML = '<div style="padding:14px; color:var(--muted); font-size:13px; text-align:center;">No items found for "' + query + '".</div>';
+      resultsBox.innerHTML = ctNoResultsHtml(query);
       resultsBox.style.display = 'block';
       return;
     }
@@ -2073,7 +2073,7 @@
     }
     const matches = findMatches(query);
     if(matches.length === 0){
-      resultsBox.innerHTML = '<div style="padding:12px; color:var(--muted); font-size:13px; text-align:center;">No items found for "' + query + '".</div>';
+      resultsBox.innerHTML = ctNoResultsHtml(query);
       resultsBox.style.display = 'block';
       return;
     }
