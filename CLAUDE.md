@@ -5,7 +5,6 @@ Static HTML shop for Roblox items (formerly "Buylance"), backed by Supabase proj
 
 ## Owner's backlog — bring these up when they ask "what next?" or for suggestions
 - **"How it works" section** on the homepage: 3 steps (buy → trade/join in-game → receive) + usual delivery time. Owner said they'd do it themselves; remind them.
-- **Trust**: Trustpilot page — owner creates the business account; then add a review link/widget. Order counter is built (homepage, auto-shows at `order_counter_min_show`).
 - **More games/bundles** (Blox Fruits, Da Hood, Jailbreak, MM2 bundles) — later.
 - **PayPal is in sandbox mode** (`verify-paypal` uses api-m.sandbox.paypal.com) — owner will switch to live before real selling.
 - **Adopt Me pictures** — owner is adding them; ask for real image files, not pasted base64.
@@ -21,6 +20,7 @@ Static HTML shop for Roblox items (formerly "Buylance"), backed by Supabase proj
 - Admin order list: completed orders move from "This week" to "History" after 7 days. Order numbers are never renumbered.
 - Cart + checkout live in one shared file for all 12 shop pages: `cart.js` + `cart.css` (drawer and checkout popup markup are injected by cart.js; pages only keep header buttons calling `toggleCart()` / `addToCart(...)`). All money math is `computeCartTotals()`. Tip step is tip.js.
 - Processing fee (`calculateProcessingFee` in cart.js): $0.50→$1.50 curve for small orders, then 4.5% + $0.30 once that's higher (≈$27+), so PayPal's fee is covered (owner's call 2026-10-23).
+- Trustpilot: domain verified (meta tag in index.html head — keep it). Public page https://www.trustpilot.com/review/buyrblx.com; review button (`/evaluate/buyrblx.com`) on every completed order in order.html + link in the homepage trust pill. Trustpilot rules: no rewards for reviews, ask every buyer.
 - Homepage "N+ orders delivered" counter: `get_public_order_count()` (delivered + completed, excludes vip_spin); hidden until the count reaches `app_settings.order_counter_min_show` (50).
 - Discounts: one per order — typed code (BUYRBLX / personal), personal reward code (loyalty, win-back), or **daily 5%** (`get_daily_discount()`: unlocks once completed orders total $10, then orders of $2+, comes back 24h after use). The order row stores `discount_code_used` / `discount_amount`; `DAILY5` makes trigger `on_order_daily_discount` record a row in `daily_discount_claims`. The old "$10 spent → 5%" reward is off (trigger `on_order_spend_milestone` disabled, owner's call 2026-10-22).
 - Payments: `verify-paypal` records verified PayPal orders in `paypal_payments`; trigger `order_payment_check` sets `orders.payment_verified` (browser can't fake it; server-side inserts mark themselves trusted via `set_config('buyrblx.trusted_insert','1',true)`). Admin order page shows ✅ verified / ⚠️ not verified (orders after 2026-10-22).
