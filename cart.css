@@ -603,3 +603,81 @@ body{ top:0 !important; }
 body > .skiptranslate, .goog-te-banner-frame, iframe.skiptranslate, #goog-gt-tt, .goog-te-balloon-frame,
 .VIpgJd-ZVi9od-ORHb-OEVmcd, .VIpgJd-ZVi9od-aZ2wEe-wOHMyf, .VIpgJd-yAWNEb-L7lbkb{ display:none !important; }
 .goog-text-highlight{ background:none !important; box-shadow:none !important; }
+
+/* ===================== Pay your way ===================== */
+.pay2{ display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:18px; max-width:760px; margin:28px auto 0; padding:0 6vw; }
+.pay2-card{ position:relative; overflow:hidden; border-radius:22px; padding:24px 24px 22px; color:#fff; isolation:isolate;
+  box-shadow:0 22px 40px -22px var(--pc, rgba(0,48,135,.8)); transition:transform .25s ease, box-shadow .25s ease; }
+.pay2-card:hover{ transform:translateY(-4px) rotate(-.4deg); }
+.pay2-pp{ --pc:rgba(0,48,135,.85); background:linear-gradient(135deg, #003087 0%, #0070E0 65%, #00A1E4 100%); }
+.pay2-visa{ --pc:rgba(26,31,113,.85); background:linear-gradient(135deg, #1A1F71 0%, #2B3AB8 60%, #F7B600 160%); }
+.pay2-card::after{ content:''; position:absolute; z-index:-1; width:220px; height:220px; right:-70px; top:-90px; border-radius:50%; background:rgba(255,255,255,.12); }
+.pay2-shine{ position:absolute; inset:0; z-index:-1; background:linear-gradient(115deg, transparent 30%, rgba(255,255,255,.18) 45%, transparent 60%);
+  background-size:250% 100%; background-position:120% 0; transition:background-position .9s ease; }
+.pay2-card:hover .pay2-shine{ background-position:-40% 0; }
+.pay2-logo{ display:flex; align-items:center; gap:10px; font:900 30px/1 'Baloo 2', sans-serif; letter-spacing:.3px; }
+.pay2-pp .pay2-logo b{ color:#fff; font-style:italic; }
+.pay2-pp .pay2-logo i{ color:#9FDBFF; margin-left:-10px; }
+.pay2-visa .pay2-logo{ font-style:italic; letter-spacing:1.5px; }
+.pay2-chip{ width:34px; height:26px; border-radius:6px; background:linear-gradient(135deg, #FFE7A3, #D4A52A); box-shadow:inset 0 0 0 1px rgba(0,0,0,.15); }
+.pay2-text{ margin-top:12px; font-size:13.5px; font-weight:600; line-height:1.55; color:rgba(255,255,255,.88); }
+.pay2-tag{ display:inline-block; margin-top:14px; padding:6px 12px; border-radius:999px; background:rgba(255,255,255,.16); font-size:12px; font-weight:800; }
+.pay2-chips{ display:flex; flex-wrap:wrap; justify-content:center; gap:8px; max-width:760px; margin:16px auto 0; padding:0 6vw; }
+.pay2-chips span{ padding:7px 13px; border-radius:999px; background:#fff; border:1px solid var(--card-border, #D7E3FF); font-size:12.5px; font-weight:800; color:#33415F; }
+@media (max-width:640px){ .pay2{ grid-template-columns:1fr; } }
+
+/* ===================== Safe to use ===================== */
+.safe2{ position:relative; overflow:hidden; isolation:isolate; max-width:980px; margin:70px auto 0; padding:40px 30px 30px; border-radius:28px; text-align:center;
+  background:linear-gradient(150deg, #0E1A45 0%, #1B2C77 55%, #3A2B8F 100%); color:#fff; box-shadow:0 30px 60px -30px rgba(20,30,90,.8); }
+@media (max-width:1040px){ .safe2{ margin-left:5vw; margin-right:5vw; } }
+.safe2-glow{ position:absolute; inset:0; z-index:-1; pointer-events:none;
+  background:radial-gradient(380px 200px at 10% 0%, rgba(79,140,255,.45), transparent 70%), radial-gradient(360px 220px at 95% 100%, rgba(255,79,139,.3), transparent 70%); }
+.safe2-badge{ display:inline-block; padding:6px 14px; border-radius:999px; background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.18); font-size:12px; font-weight:800; letter-spacing:.3px; }
+.safe2-head h2{ margin:12px 0 0; font:800 clamp(24px, 4vw, 36px)/1.15 'Baloo 2', sans-serif; }
+.safe2-head h2 span{ background:linear-gradient(90deg, #7FB2FF, #C59BFF); -webkit-background-clip:text; background-clip:text; color:transparent; }
+.safe2-grid{ display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:14px; margin-top:26px; }
+.safe2-tile{ padding:22px 14px 20px; border-radius:18px; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.1);
+  transition:transform .2s ease, background .2s ease, border-color .2s ease; }
+.safe2-tile:hover{ transform:translateY(-5px); background:rgba(255,255,255,.11); border-color:rgba(255,255,255,.22); }
+.safe2-ico{ width:52px; height:52px; margin:0 auto 12px; border-radius:16px; display:grid; place-items:center; font-size:24px;
+  background:linear-gradient(135deg, var(--a), var(--b)); box-shadow:0 12px 22px -10px var(--b); }
+.safe2-tile h4{ margin:0; font:800 16px 'Baloo 2', sans-serif; }
+.safe2-tile p{ margin:4px 0 0; font-size:12.5px; font-weight:600; color:#B9C4EC; }
+.safe2-note{ display:flex; align-items:center; gap:12px; margin-top:18px; padding:14px 18px; border-radius:16px; text-align:left;
+  background:rgba(255,255,255,.08); font-size:13.5px; font-weight:600; line-height:1.55; color:#DCE3FF; }
+.safe2-note span{ font-size:22px; }
+@media (max-width:720px){ .safe2{ padding:30px 16px 18px; } .safe2-grid{ grid-template-columns:repeat(2, minmax(0, 1fr)); gap:10px; } }
+
+/* ===================== FAQ ===================== */
+.faq{ max-width:820px; margin-top:28px; }
+.faq-item{ background:#fff; border:1px solid #E1E8F8; border-radius:18px; margin-bottom:12px; overflow:hidden;
+  box-shadow:0 10px 24px -20px rgba(20,40,120,.5); transition:border-color .2s ease, box-shadow .2s ease, transform .2s ease; }
+.faq-item:hover{ border-color:#C9D7FF; transform:translateY(-1px); }
+.faq-item.open{ border-color:#9DB5FF; box-shadow:0 18px 36px -20px rgba(47,95,224,.55); }
+.faq-q{ gap:12px; justify-content:flex-start; padding:16px 18px; color:#0F1B3D; font-size:15.5px; }
+.faq-qt{ flex:1; }
+.faq-ico{ flex-shrink:0; width:38px; height:38px; border-radius:12px; display:grid; place-items:center; font-size:18px; background:#F1F5FF; transition:background .2s ease; }
+.faq-item.open .faq-ico{ background:linear-gradient(135deg, #DCE6FF, #E9DFFF); }
+.faq-q .chev{ width:30px; height:30px; background:#F1F5FF; color:#2F5FE0; font:800 20px/1 'Nunito Sans', sans-serif; transition:transform .28s ease, background .2s ease, color .2s ease; }
+.faq-item.open .faq-q .chev{ transform:rotate(45deg); background:linear-gradient(135deg, #2F5FE0, #7B5CFF); color:#fff; }
+.faq-a{ color:#4A5878; font-size:14px; padding:0 18px 0 68px; }
+.faq-item.open .faq-a{ padding:0 22px 18px 68px; }
+.faq-a b{ color:#0F1B3D; }
+.faq-a a{ color:#2F5FE0; font-weight:800; }
+@media (max-width:560px){ .faq-a, .faq-item.open .faq-a{ padding-left:18px; } }
+
+/* ===================== Still have questions ===================== */
+.help2{ position:relative; overflow:hidden; isolation:isolate; text-align:center; padding:38px 26px 32px; border-radius:26px;
+  background:linear-gradient(135deg, #FFF4EA 0%, #FFE9F2 50%, #EEE9FF 100%); border:1px solid #F4DDEA; }
+.help2-glow{ position:absolute; z-index:-1; inset:-40% -10% auto auto; width:300px; height:300px; border-radius:50%; background:radial-gradient(circle, rgba(255,154,31,.3), transparent 65%); }
+.help2-emoji{ width:64px; height:64px; margin:0 auto 12px; border-radius:20px; display:grid; place-items:center; font-size:30px;
+  background:linear-gradient(135deg, #FFB547, #FF5E8A); box-shadow:0 14px 26px -10px rgba(255,94,138,.8); animation:help2Bob 3s ease-in-out infinite; }
+@keyframes help2Bob{ 50%{ transform:translateY(-5px) rotate(-4deg); } }
+.help2 h3{ margin:0 0 8px; font:800 24px 'Baloo 2', sans-serif; color:#0F1B3D; }
+.help2 p{ margin:0 auto 20px; max-width:440px; color:#5B6787; font-size:14px; font-weight:600; line-height:1.6; }
+.help2-btns{ display:flex; flex-wrap:wrap; justify-content:center; gap:10px; }
+.help2-btn{ display:inline-flex; align-items:center; gap:6px; padding:13px 22px; border-radius:14px; text-decoration:none; font:800 15px 'Baloo 2', sans-serif; transition:transform .15s ease, box-shadow .15s ease; }
+.help2-btn:hover{ transform:translateY(-2px); }
+.help2-main{ color:#fff; background:linear-gradient(135deg, #FF9A1F, #FF5E3A); box-shadow:0 12px 24px -10px rgba(255,94,58,.9); }
+.help2-alt{ color:#2F2A6B; background:#fff; border:1px solid #E2DBFA; box-shadow:0 10px 20px -14px rgba(60,40,140,.5); }
+@media (prefers-reduced-motion: reduce){ .help2-emoji{ animation:none; } .pay2-shine{ transition:none; } }
