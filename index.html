@@ -770,7 +770,7 @@
   @keyframes ocNudge{ 0%,88%,100%{ transform:translateY(0); } 92%{ transform:translateY(-6px); } 96%{ transform:translateY(0); } }
   @media (prefers-reduced-motion: reduce){ .ongoing-card{ animation:none; } }
 </style>
-<link rel="stylesheet" href="cart.css?v=812b2d62">
+<link rel="stylesheet" href="cart.css?v=a84a5f7a">
 </head>
 <body>
 
@@ -1497,77 +1497,184 @@
 </p>
 
 <div class="seller-grid" id="sellers-adoptme" style="display:none;">
-  <div class="seller-card bb-card pet-card">
+  <div class="seller-card bb-card pet-card adm-card" data-key="adm-frost-dragon" data-name="Frost Dragon" data-prices="85,90,200,589">
     <div class="item-stage">
-      <img loading="lazy" decoding="async" src="img/f93f73683f1c5519.webp" alt="MFR Bat Dragon" class="bb-photo pet-photo">
+      <img loading="lazy" decoding="async" src="img/d2577cd004b5bc6d.webp" alt="Frost Dragon" class="bb-photo pet-photo">
     </div>
-    <div class="seller-name">MFR Bat Dragon</div>
-    <div class="seller-price"><span class="price-main" data-usd="2800.0">$2,800.00</span></div>
-    <button class="seller-cart" onclick="addToCart('adm-bat-dragon-mfr','MFR Bat Dragon','🐾 Adopt Me',2800.0)">🛒 Add to Cart</button>
+    <div class="seller-name">Frost Dragon</div>
+    <div class="adm-vars" role="group" aria-label="Version"><button type="button" class="adm-var on" onclick="admPick(this,0)">Normal</button><button type="button" class="adm-var" onclick="admPick(this,1)">FR</button><button type="button" class="adm-var" onclick="admPick(this,2)">NFR</button><button type="button" class="adm-var" onclick="admPick(this,3)">MFR</button></div>
+    <div class="seller-price"><span class="price-main" data-usd="85">$85.00</span></div>
+    <button class="seller-cart" onclick="admAdd(this)">🛒 Add to Cart</button>
   </div>
-  <div class="seller-card bb-card pet-card">
+  <div class="seller-card bb-card pet-card adm-card" data-key="adm-frostbite-bear" data-name="Frostbite Bear" data-prices="12,18,60,500">
     <div class="item-stage">
-      <img loading="lazy" decoding="async" src="img/f93f73683f1c5519.webp" alt="NFR Bat Dragon" class="bb-photo pet-photo">
+      <img loading="lazy" decoding="async" src="img/efcae0a776162f98.webp" alt="Frostbite Bear" class="bb-photo pet-photo">
     </div>
-    <div class="seller-name">NFR Bat Dragon</div>
-    <div class="seller-price"><span class="price-main" data-usd="781.0">$781.00</span></div>
-    <button class="seller-cart" onclick="addToCart('adm-bat-dragon-nfr','NFR Bat Dragon','🐾 Adopt Me',781.0)">🛒 Add to Cart</button>
+    <div class="seller-name">Frostbite Bear</div>
+    <div class="adm-vars" role="group" aria-label="Version"><button type="button" class="adm-var on" onclick="admPick(this,0)">Normal</button><button type="button" class="adm-var" onclick="admPick(this,1)">FR</button><button type="button" class="adm-var" onclick="admPick(this,2)">NFR</button><button type="button" class="adm-var" onclick="admPick(this,3)">MFR</button></div>
+    <div class="seller-price"><span class="price-main" data-usd="12">$12.00</span></div>
+    <button class="seller-cart" onclick="admAdd(this)">🛒 Add to Cart</button>
   </div>
-  <div class="seller-card bb-card pet-card">
+  <div class="seller-card bb-card pet-card adm-card" data-key="adm-ballet-swan" data-name="Ballet Swan" data-prices="3.2,4.5,12,40">
     <div class="item-stage">
-      <img loading="lazy" decoding="async" src="img/f93f73683f1c5519.webp" alt="Bat Dragon" class="bb-photo pet-photo">
+      <img loading="lazy" decoding="async" src="img/2fefa7d15b503387.webp" alt="Ballet Swan" class="bb-photo pet-photo">
     </div>
-    <div class="seller-name">Bat Dragon</div>
-    <div class="seller-price"><span class="price-main" data-usd="220.0">$220.00</span></div>
-    <button class="seller-cart" onclick="addToCart('adm-bat-dragon','Bat Dragon','🐾 Adopt Me',220.0)">🛒 Add to Cart</button>
+    <div class="seller-name">Ballet Swan</div>
+    <div class="adm-vars" role="group" aria-label="Version"><button type="button" class="adm-var on" onclick="admPick(this,0)">Normal</button><button type="button" class="adm-var" onclick="admPick(this,1)">FR</button><button type="button" class="adm-var" onclick="admPick(this,2)">NFR</button><button type="button" class="adm-var" onclick="admPick(this,3)">MFR</button></div>
+    <div class="seller-price"><span class="price-main" data-usd="3.2">$3.20</span></div>
+    <button class="seller-cart" onclick="admAdd(this)">🛒 Add to Cart</button>
+  </div>
+  <div class="seller-card bb-card pet-card adm-card" data-key="adm-cerberus" data-name="Cerberus" data-prices="2,3,6.5,20">
+    <div class="item-stage">
+      <img loading="lazy" decoding="async" src="img/1366df437d47706c.webp" alt="Cerberus" class="bb-photo pet-photo">
+    </div>
+    <div class="seller-name">Cerberus</div>
+    <div class="adm-vars" role="group" aria-label="Version"><button type="button" class="adm-var on" onclick="admPick(this,0)">Normal</button><button type="button" class="adm-var" onclick="admPick(this,1)">FR</button><button type="button" class="adm-var" onclick="admPick(this,2)">NFR</button><button type="button" class="adm-var" onclick="admPick(this,3)">MFR</button></div>
+    <div class="seller-price"><span class="price-main" data-usd="2">$2.00</span></div>
+    <button class="seller-cart" onclick="admAdd(this)">🛒 Add to Cart</button>
+  </div>
+  <div class="seller-card bb-card pet-card adm-card" data-key="adm-kitsune" data-name="Kitsune" data-prices="0.9,1.35,3,10">
+    <div class="item-stage">
+      <img loading="lazy" decoding="async" src="img/ce91f0da1442cd45.webp" alt="Kitsune" class="bb-photo pet-photo">
+    </div>
+    <div class="seller-name">Kitsune</div>
+    <div class="adm-vars" role="group" aria-label="Version"><button type="button" class="adm-var on" onclick="admPick(this,0)">Normal</button><button type="button" class="adm-var" onclick="admPick(this,1)">FR</button><button type="button" class="adm-var" onclick="admPick(this,2)">NFR</button><button type="button" class="adm-var" onclick="admPick(this,3)">MFR</button></div>
+    <div class="seller-price"><span class="price-main" data-usd="0.9">$0.90</span></div>
+    <button class="seller-cart" onclick="admAdd(this)">🛒 Add to Cart</button>
+  </div>
+  <div class="seller-card bb-card pet-card adm-card" data-key="adm-unicorn" data-name="Unicorn" data-prices="0.9,2,3.7,13">
+    <div class="item-stage">
+      <img loading="lazy" decoding="async" src="img/557d4059c5c10315.webp" alt="Unicorn" class="bb-photo pet-photo">
+    </div>
+    <div class="seller-name">Unicorn</div>
+    <div class="adm-vars" role="group" aria-label="Version"><button type="button" class="adm-var on" onclick="admPick(this,0)">Normal</button><button type="button" class="adm-var" onclick="admPick(this,1)">FR</button><button type="button" class="adm-var" onclick="admPick(this,2)">NFR</button><button type="button" class="adm-var" onclick="admPick(this,3)">MFR</button></div>
+    <div class="seller-price"><span class="price-main" data-usd="0.9">$0.90</span></div>
+    <button class="seller-cart" onclick="admAdd(this)">🛒 Add to Cart</button>
+  </div>
+  <div class="seller-card bb-card pet-card adm-card" data-key="adm-turtle" data-name="Turtle" data-prices="10,12,20,55">
+    <div class="item-stage">
+      <img loading="lazy" decoding="async" src="img/ce2bc927dac2782d.webp" alt="Turtle" class="bb-photo pet-photo">
+    </div>
+    <div class="seller-name">Turtle</div>
+    <div class="adm-vars" role="group" aria-label="Version"><button type="button" class="adm-var on" onclick="admPick(this,0)">Normal</button><button type="button" class="adm-var" onclick="admPick(this,1)">FR</button><button type="button" class="adm-var" onclick="admPick(this,2)">NFR</button><button type="button" class="adm-var" onclick="admPick(this,3)">MFR</button></div>
+    <div class="seller-price"><span class="price-main" data-usd="10">$10.00</span></div>
+    <button class="seller-cart" onclick="admAdd(this)">🛒 Add to Cart</button>
+  </div>
+  <div class="seller-card bb-card pet-card adm-card" data-key="adm-reindeer" data-name="Reindeer" data-prices="0.7,2,4.5,10">
+    <div class="item-stage">
+      <img loading="lazy" decoding="async" src="img/8b0e949e2385eef2.webp" alt="Reindeer" class="bb-photo pet-photo">
+    </div>
+    <div class="seller-name">Reindeer</div>
+    <div class="adm-vars" role="group" aria-label="Version"><button type="button" class="adm-var on" onclick="admPick(this,0)">Normal</button><button type="button" class="adm-var" onclick="admPick(this,1)">FR</button><button type="button" class="adm-var" onclick="admPick(this,2)">NFR</button><button type="button" class="adm-var" onclick="admPick(this,3)">MFR</button></div>
+    <div class="seller-price"><span class="price-main" data-usd="0.7">$0.70</span></div>
+    <button class="seller-cart" onclick="admAdd(this)">🛒 Add to Cart</button>
+  </div>
+  <div class="seller-card bb-card pet-card adm-card" data-key="adm-purrowl" data-name="Purrowl" data-prices="0.3,2,2.5,4">
+    <div class="item-stage">
+      <img loading="lazy" decoding="async" src="img/1e5951d36133c0cc.webp" alt="Purrowl" class="bb-photo pet-photo">
+    </div>
+    <div class="seller-name">Purrowl</div>
+    <div class="adm-vars" role="group" aria-label="Version"><button type="button" class="adm-var on" onclick="admPick(this,0)">Normal</button><button type="button" class="adm-var" onclick="admPick(this,1)">FR</button><button type="button" class="adm-var" onclick="admPick(this,2)">NFR</button><button type="button" class="adm-var" onclick="admPick(this,3)">MFR</button></div>
+    <div class="seller-price"><span class="price-main" data-usd="0.3">$0.30</span></div>
+    <button class="seller-cart" onclick="admAdd(this)">🛒 Add to Cart</button>
+  </div>
+  <div class="seller-card bb-card pet-card adm-card" data-key="adm-mochi-meow" data-name="Mochi Meow" data-prices="0.2,1.5,2.4,4">
+    <div class="item-stage">
+      <img loading="lazy" decoding="async" src="img/1cec30ade951b4a6.webp" alt="Mochi Meow" class="bb-photo pet-photo">
+    </div>
+    <div class="seller-name">Mochi Meow</div>
+    <div class="adm-vars" role="group" aria-label="Version"><button type="button" class="adm-var on" onclick="admPick(this,0)">Normal</button><button type="button" class="adm-var" onclick="admPick(this,1)">FR</button><button type="button" class="adm-var" onclick="admPick(this,2)">NFR</button><button type="button" class="adm-var" onclick="admPick(this,3)">MFR</button></div>
+    <div class="seller-price"><span class="price-main" data-usd="0.2">$0.20</span></div>
+    <button class="seller-cart" onclick="admAdd(this)">🛒 Add to Cart</button>
+  </div>
+  <div class="seller-card bb-card pet-card adm-card" data-key="adm-toucan" data-name="Toucan" data-prices="0.3,0.7,1.5,4">
+    <div class="item-stage">
+      <img loading="lazy" decoding="async" src="img/0940e4f5c2d18988.webp" alt="Toucan" class="bb-photo pet-photo">
+    </div>
+    <div class="seller-name">Toucan</div>
+    <div class="adm-vars" role="group" aria-label="Version"><button type="button" class="adm-var on" onclick="admPick(this,0)">Normal</button><button type="button" class="adm-var" onclick="admPick(this,1)">FR</button><button type="button" class="adm-var" onclick="admPick(this,2)">NFR</button><button type="button" class="adm-var" onclick="admPick(this,3)">MFR</button></div>
+    <div class="seller-price"><span class="price-main" data-usd="0.3">$0.30</span></div>
+    <button class="seller-cart" onclick="admAdd(this)">🛒 Add to Cart</button>
   </div>
   <div class="seller-card bb-card pet-card">
     <div class="item-stage">
       <img loading="lazy" decoding="async" src="img/e1430deab5e2d2ad.webp" alt="Fly Potion" class="bb-photo pet-photo">
     </div>
     <div class="seller-name">Fly Potion</div>
-    <div class="seller-price"><span class="price-main" data-usd="1.1">$1.10</span></div>
-    <button class="seller-cart" onclick="addToCart('adm-fly-potion','Fly Potion','🐾 Adopt Me',1.1)">🛒 Add to Cart</button>
+    <div class="seller-price"><span class="price-main" data-usd="0.8">$0.80</span></div>
+    <button class="seller-cart" onclick="addToCart('adm-fly-potion','Fly Potion','🐾 Adopt Me',0.8)">🛒 Add to Cart</button>
   </div>
   <div class="seller-card bb-card pet-card">
     <div class="item-stage">
       <img loading="lazy" decoding="async" src="img/e3b7a5c41c88ff3b.webp" alt="Ride Potion" class="bb-photo pet-photo">
     </div>
     <div class="seller-name">Ride Potion</div>
-    <div class="seller-price"><span class="price-main" data-usd="0.7">$0.70</span></div>
-    <button class="seller-cart" onclick="addToCart('adm-ride-potion','Ride Potion','🐾 Adopt Me',0.7)">🛒 Add to Cart</button>
+    <div class="seller-price"><span class="price-main" data-usd="0.5">$0.50</span></div>
+    <button class="seller-cart" onclick="addToCart('adm-ride-potion','Ride Potion','🐾 Adopt Me',0.5)">🛒 Add to Cart</button>
   </div>
   <div class="seller-card bb-card pet-card">
     <div class="item-stage">
-      <img loading="lazy" decoding="async" src="img/ce2bc927dac2782d.webp" alt="MFR Turtle" class="bb-photo pet-photo">
+      <img loading="lazy" decoding="async" src="img/5b4cb03f186e20ec.webp" alt="Aussie Egg" class="bb-photo pet-photo">
     </div>
-    <div class="seller-name">MFR Turtle</div>
-    <div class="seller-price"><span class="price-main" data-usd="155.0">$155.00</span></div>
-    <button class="seller-cart" onclick="addToCart('adm-turtle-mfr','MFR Turtle','🐾 Adopt Me',155.0)">🛒 Add to Cart</button>
+    <div class="seller-name">Aussie Egg</div>
+    <div class="seller-price"><span class="price-main" data-usd="2.4">$2.40</span></div>
+    <button class="seller-cart" onclick="addToCart('adm-aussie-egg','Aussie Egg','🐾 Adopt Me',2.4)">🛒 Add to Cart</button>
   </div>
   <div class="seller-card bb-card pet-card">
     <div class="item-stage">
-      <img loading="lazy" decoding="async" src="img/ce2bc927dac2782d.webp" alt="NFR Turtle" class="bb-photo pet-photo">
+      <img loading="lazy" decoding="async" src="img/dbd1a0f5c4dc1920.webp" alt="Fossil Egg" class="bb-photo pet-photo">
     </div>
-    <div class="seller-name">NFR Turtle</div>
-    <div class="seller-price"><span class="price-main" data-usd="35.0">$35.00</span></div>
-    <button class="seller-cart" onclick="addToCart('adm-turtle-nfr','NFR Turtle','🐾 Adopt Me',35.0)">🛒 Add to Cart</button>
+    <div class="seller-name">Fossil Egg</div>
+    <div class="seller-price"><span class="price-main" data-usd="0.4">$0.40</span></div>
+    <button class="seller-cart" onclick="addToCart('adm-fossil-egg','Fossil Egg','🐾 Adopt Me',0.4)">🛒 Add to Cart</button>
   </div>
   <div class="seller-card bb-card pet-card">
     <div class="item-stage">
-      <img loading="lazy" decoding="async" src="img/ce2bc927dac2782d.webp" alt="Turtle" class="bb-photo pet-photo">
+      <img loading="lazy" decoding="async" src="img/a10c75a0093b4ec9.webp" alt="Ocean Egg" class="bb-photo pet-photo">
     </div>
-    <div class="seller-name">Turtle</div>
-    <div class="seller-price"><span class="price-main" data-usd="12.0">$12.00</span></div>
-    <button class="seller-cart" onclick="addToCart('adm-turtle','Turtle','🐾 Adopt Me',12.0)">🛒 Add to Cart</button>
+    <div class="seller-name">Ocean Egg</div>
+    <div class="seller-price"><span class="price-main" data-usd="0.35">$0.35</span></div>
+    <button class="seller-cart" onclick="addToCart('adm-ocean-egg','Ocean Egg','🐾 Adopt Me',0.35)">🛒 Add to Cart</button>
   </div>
   <div class="seller-card bb-card pet-card">
     <div class="item-stage">
-      <img loading="lazy" decoding="async" src="img/0940e4f5c2d18988.webp" alt="MFR Toucan" class="bb-photo pet-photo">
+      <img loading="lazy" decoding="async" src="img/9494f565fe3228c9.webp" alt="Garden Egg" class="bb-photo pet-photo">
     </div>
-    <div class="seller-name">MFR Toucan</div>
-    <div class="seller-price"><span class="price-main" data-usd="3.8">$3.80</span></div>
-    <button class="seller-cart" onclick="addToCart('adm-toucan-mfr','MFR Toucan','🐾 Adopt Me',3.8)">🛒 Add to Cart</button>
+    <div class="seller-name">Garden Egg</div>
+    <div class="seller-price"><span class="price-main" data-usd="0.25">$0.25</span></div>
+    <button class="seller-cart" onclick="addToCart('adm-garden-egg','Garden Egg','🐾 Adopt Me',0.25)">🛒 Add to Cart</button>
+  </div>
+  <div class="seller-card bb-card pet-card">
+    <div class="item-stage">
+      <img loading="lazy" decoding="async" src="img/4f7a87c73bfeb50e.webp" alt="Japan Egg" class="bb-photo pet-photo">
+    </div>
+    <div class="seller-name">Japan Egg</div>
+    <div class="seller-price"><span class="price-main" data-usd="0.25">$0.25</span></div>
+    <button class="seller-cart" onclick="addToCart('adm-japan-egg','Japan Egg','🐾 Adopt Me',0.25)">🛒 Add to Cart</button>
+  </div>
+  <div class="seller-card bb-card pet-card">
+    <div class="item-stage">
+      <img loading="lazy" decoding="async" src="img/a826e8596b71963e.webp" alt="Desert Egg" class="bb-photo pet-photo">
+    </div>
+    <div class="seller-name">Desert Egg</div>
+    <div class="seller-price"><span class="price-main" data-usd="0.2">$0.20</span></div>
+    <button class="seller-cart" onclick="addToCart('adm-desert-egg','Desert Egg','🐾 Adopt Me',0.2)">🛒 Add to Cart</button>
+  </div>
+  <div class="seller-card bb-card pet-card">
+    <div class="item-stage">
+      <img loading="lazy" decoding="async" src="img/d58277de84fd088f.webp" alt="Moon Egg" class="bb-photo pet-photo">
+    </div>
+    <div class="seller-name">Moon Egg</div>
+    <div class="seller-price"><span class="price-main" data-usd="0.1">$0.10</span></div>
+    <button class="seller-cart" onclick="addToCart('adm-moon-egg','Moon Egg','🐾 Adopt Me',0.1)">🛒 Add to Cart</button>
+  </div>
+  <div class="seller-card bb-card pet-card">
+    <div class="item-stage">
+      <img loading="lazy" decoding="async" src="img/4ac92f3f6ad98e8f.webp" alt="Crystal Egg" class="bb-photo pet-photo">
+    </div>
+    <div class="seller-name">Crystal Egg</div>
+    <div class="seller-price"><span class="price-main" data-usd="0.1">$0.10</span></div>
+    <button class="seller-cart" onclick="addToCart('adm-crystal-egg','Crystal Egg','🐾 Adopt Me',0.1)">🛒 Add to Cart</button>
   </div>
 <div class="see-all-row" style="grid-column:1/-1; text-align:center; padding:20px 0 6px;">
   <a href="adoptme.html" class="see-all-btn" style="display:inline-block; background:var(--brand-blue); color:#fff; font-family:'Baloo 2', sans-serif; font-weight:700; font-size:14px; padding:12px 28px; border-radius:30px; text-decoration:none;">See All Adopt Me Items →</a>
@@ -1783,88 +1890,88 @@
 </div>
 
 <div class="seller-grid" id="sellers-sab" style="display:none;">
-<div class="seller-card bb-card pet-card" data-mutation="normal">
-<div class="item-stage" style="position:relative;">
-<span class="sab-mutation-badge" style="background:#94A3B8; color:#1F2937;">Normal</span>
-<img loading="lazy" decoding="async" alt="67 (Normal)" class="bb-photo pet-photo titanic-photo" src="img/1c4a75e5cee3c284.webp"/>
-</div>
-<div class="seller-name">67</div>
-<div style="margin-left:16px;"><span class="sab-mutation-label" style="background:#94A3B8; color:#1F2937;">Normal</span></div>
-<div class="seller-price"><span class="price-main" data-usd="5.0">$5.00</span></div>
-<button class="seller-cart" onclick="addToCart('sab-67-normal','67 (Normal)','🧠 Steal a Brainrot',5.0)">🛒 Add to Cart</button>
-</div><div class="seller-card bb-card pet-card" data-mutation="normal">
-<div class="item-stage" style="position:relative;">
-<span class="sab-mutation-badge" style="background:#94A3B8; color:#1F2937;">Normal</span>
-<img loading="lazy" decoding="async" alt="Burguro And Fryuro (Normal)" class="bb-photo pet-photo titanic-photo" src="img/0ce7731c02c11837.webp"/>
-</div>
-<div class="seller-name">Burguro And Fryuro</div>
-<div style="margin-left:16px;"><span class="sab-mutation-label" style="background:#94A3B8; color:#1F2937;">Normal</span></div>
-<div class="seller-price"><span class="price-main" data-usd="5.0">$5.00</span></div>
-<button class="seller-cart" onclick="addToCart('sab-burguro-and-fryuro-normal','Burguro And Fryuro (Normal)','🧠 Steal a Brainrot',5.0)">🛒 Add to Cart</button>
-</div><div class="seller-card bb-card pet-card" data-mutation="normal">
-<div class="item-stage" style="position:relative;">
-<span class="sab-mutation-badge" style="background:#94A3B8; color:#1F2937;">Normal</span>
-<img loading="lazy" decoding="async" alt="Capitano Moby (Normal)" class="bb-photo pet-photo titanic-photo" src="img/2318843754b6b4c2.webp"/>
-</div>
-<div class="seller-name">Capitano Moby</div>
-<div style="margin-left:16px;"><span class="sab-mutation-label" style="background:#94A3B8; color:#1F2937;">Normal</span></div>
-<div class="seller-price"><span class="price-main" data-usd="5.0">$5.00</span></div>
-<button class="seller-cart" onclick="addToCart('sab-capitano-moby-normal','Capitano Moby (Normal)','🧠 Steal a Brainrot',5.0)">🛒 Add to Cart</button>
-</div><div class="seller-card bb-card pet-card" data-mutation="normal">
-<div class="item-stage" style="position:relative;">
-<span class="sab-mutation-badge" style="background:#94A3B8; color:#1F2937;">Normal</span>
-<img loading="lazy" decoding="async" alt="Cash Or Card (Normal)" class="bb-photo pet-photo titanic-photo" src="img/e6df816bc969e686.webp"/>
-</div>
-<div class="seller-name">Cash Or Card</div>
-<div style="margin-left:16px;"><span class="sab-mutation-label" style="background:#94A3B8; color:#1F2937;">Normal</span></div>
-<div class="seller-price"><span class="price-main" data-usd="5.0">$5.00</span></div>
-<button class="seller-cart" onclick="addToCart('sab-cash-or-card-normal','Cash Or Card (Normal)','🧠 Steal a Brainrot',5.0)">🛒 Add to Cart</button>
-</div><div class="seller-card bb-card pet-card" data-mutation="normal">
-<div class="item-stage" style="position:relative;">
-<span class="sab-mutation-badge" style="background:#94A3B8; color:#1F2937;">Normal</span>
-<img loading="lazy" decoding="async" alt="Celestial Pegasus (Normal)" class="bb-photo pet-photo titanic-photo" src="img/78a2ce92ae68171c.webp"/>
-</div>
-<div class="seller-name">Celestial Pegasus</div>
-<div style="margin-left:16px;"><span class="sab-mutation-label" style="background:#94A3B8; color:#1F2937;">Normal</span></div>
-<div class="seller-price"><span class="price-main" data-usd="5.0">$5.00</span></div>
-<button class="seller-cart" onclick="addToCart('sab-celestial-pegasus-normal','Celestial Pegasus (Normal)','🧠 Steal a Brainrot',5.0)">🛒 Add to Cart</button>
-</div><div class="seller-card bb-card pet-card" data-mutation="normal">
-<div class="item-stage" style="position:relative;">
-<span class="sab-mutation-badge" style="background:#94A3B8; color:#1F2937;">Normal</span>
-<img loading="lazy" decoding="async" alt="Cerberus (Normal)" class="bb-photo pet-photo titanic-photo" src="img/74c3f3c2dea9b537.webp"/>
-</div>
-<div class="seller-name">Cerberus</div>
-<div style="margin-left:16px;"><span class="sab-mutation-label" style="background:#94A3B8; color:#1F2937;">Normal</span></div>
-<div class="seller-price"><span class="price-main" data-usd="5.0">$5.00</span></div>
-<button class="seller-cart" onclick="addToCart('sab-cerberus-normal','Cerberus (Normal)','🧠 Steal a Brainrot',5.0)">🛒 Add to Cart</button>
-</div><div class="seller-card bb-card pet-card" data-mutation="normal">
-<div class="item-stage" style="position:relative;">
-<span class="sab-mutation-badge" style="background:#94A3B8; color:#1F2937;">Normal</span>
-<img loading="lazy" decoding="async" alt="Cookie And Milki (Normal)" class="bb-photo pet-photo titanic-photo" src="img/5238dbb95f0b458a.webp"/>
-</div>
-<div class="seller-name">Cookie And Milki</div>
-<div style="margin-left:16px;"><span class="sab-mutation-label" style="background:#94A3B8; color:#1F2937;">Normal</span></div>
-<div class="seller-price"><span class="price-main" data-usd="5.0">$5.00</span></div>
-<button class="seller-cart" onclick="addToCart('sab-cookie-and-milki-normal','Cookie And Milki (Normal)','🧠 Steal a Brainrot',5.0)">🛒 Add to Cart</button>
-</div><div class="seller-card bb-card pet-card" data-mutation="normal">
-<div class="item-stage" style="position:relative;">
-<span class="sab-mutation-badge" style="background:#94A3B8; color:#1F2937;">Normal</span>
-<img loading="lazy" decoding="async" alt="Esok Sekolah (Normal)" class="bb-photo pet-photo titanic-photo" src="img/7b6457c2996900a3.webp"/>
-</div>
-<div class="seller-name">Esok Sekolah</div>
-<div style="margin-left:16px;"><span class="sab-mutation-label" style="background:#94A3B8; color:#1F2937;">Normal</span></div>
-<div class="seller-price"><span class="price-main" data-usd="5.0">$5.00</span></div>
-<button class="seller-cart" onclick="addToCart('sab-esok-sekolah-normal','Esok Sekolah (Normal)','🧠 Steal a Brainrot',5.0)">🛒 Add to Cart</button>
-</div><div class="seller-card bb-card pet-card" data-mutation="normal">
-<div class="item-stage" style="position:relative;">
-<span class="sab-mutation-badge" style="background:#94A3B8; color:#1F2937;">Normal</span>
-<img loading="lazy" decoding="async" alt="Eviledon (Normal)" class="bb-photo pet-photo titanic-photo" src="img/b97046e4dc4db4c4.webp"/>
-</div>
-<div class="seller-name">Eviledon</div>
-<div style="margin-left:16px;"><span class="sab-mutation-label" style="background:#94A3B8; color:#1F2937;">Normal</span></div>
-<div class="seller-price"><span class="price-main" data-usd="5.0">$5.00</span></div>
-<button class="seller-cart" onclick="addToCart('sab-eviledon-normal','Eviledon (Normal)','🧠 Steal a Brainrot',5.0)">🛒 Add to Cart</button>
-</div>
+  <div class="seller-card bb-card pet-card sab-bundle" data-mutation="normal" data-bundle="[[&quot;La Easter Grande&quot;, &quot;img/bbddb30e1db8e3a4.webp&quot;], [&quot;La Extinct Grande&quot;, &quot;img/2cff409c21bbb5c4.webp&quot;], [&quot;La Grande Combinasion&quot;, &quot;img/cc5da432ff47f4c7.webp&quot;], [&quot;La Jolly Grande&quot;, &quot;img/5283e4da30e800a4.webp&quot;], [&quot;La Lucky Grande&quot;, &quot;img/6efc01c952d35657.webp&quot;], [&quot;La Spooky Grande&quot;, &quot;img/0a767b6d3ca7ee19.webp&quot;]]" data-bundle-name="La Grande Bundle" data-bundle-key="sab-la-grande-bundle" data-bundle-price="5">
+    <div class="item-stage" style="position:relative; cursor:pointer;" onclick="openBundleView(this)">
+      <span class="sab-mutation-badge" style="background:linear-gradient(135deg,#7B5CFF,#FF4F8B); color:#fff;">Bundle</span>
+      <span class="bundle-peek">👀 See all 6</span>
+      <img loading="lazy" decoding="async" src="img/07961cef7f5c40a0.webp" alt="La Grande Bundle" class="bb-photo pet-photo titanic-photo">
+    </div>
+    <div class="seller-name">La Grande Bundle</div>
+    <div style="margin-left:16px;"><span class="sab-mutation-label" style="background:linear-gradient(135deg,#7B5CFF,#FF4F8B); color:#fff;">6 in 1</span></div>
+    <button type="button" class="bundle-see" onclick="openBundleView(this)">What's inside? →</button>
+    <div class="seller-price"><span class="price-main" data-usd="5.0">$5.00</span></div>
+    <button class="seller-cart" onclick="addToCart('sab-la-grande-bundle','La Grande Bundle (6 brainrots)','🧠 Steal a Brainrot',5.0)">🛒 Add to Cart</button>
+  </div>
+  <div class="seller-card bb-card pet-card" data-mutation="normal">
+    <div class="item-stage" style="position:relative;">
+      <span class="sab-mutation-badge" style="background:#94A3B8; color:#1F2937;">Normal</span>
+      <img loading="lazy" decoding="async" src="img/dec106331d610291.webp" alt="67 (Normal)" class="bb-photo pet-photo titanic-photo">
+    </div>
+    <div class="seller-name">67</div>
+    <div style="margin-left:16px;"><span class="sab-mutation-label" style="background:#94A3B8; color:#1F2937;">Normal</span></div>
+    <div class="seller-price"><span class="price-main" data-usd="0.35">$0.35</span></div>
+    <button class="seller-cart" onclick="addToCart('sab-67-normal','67 (Normal)','🧠 Steal a Brainrot',0.35)">🛒 Add to Cart</button>
+  </div>
+  <div class="seller-card bb-card pet-card" data-mutation="normal">
+    <div class="item-stage" style="position:relative;">
+      <span class="sab-mutation-badge" style="background:#94A3B8; color:#1F2937;">Normal</span>
+      <img loading="lazy" decoding="async" src="img/a1abaca6f59b5c42.webp" alt="Capitano Moby (Normal)" class="bb-photo pet-photo titanic-photo">
+    </div>
+    <div class="seller-name">Capitano Moby</div>
+    <div style="margin-left:16px;"><span class="sab-mutation-label" style="background:#94A3B8; color:#1F2937;">Normal</span></div>
+    <div class="seller-price"><span class="price-main" data-usd="1.85">$1.85</span></div>
+    <button class="seller-cart" onclick="addToCart('sab-capitano-moby-normal','Capitano Moby (Normal)','🧠 Steal a Brainrot',1.85)">🛒 Add to Cart</button>
+  </div>
+  <div class="seller-card bb-card pet-card" data-mutation="normal">
+    <div class="item-stage" style="position:relative;">
+      <span class="sab-mutation-badge" style="background:#94A3B8; color:#1F2937;">Normal</span>
+      <img loading="lazy" decoding="async" src="img/88cd33f70cfaa925.webp" alt="Celestial Pegasus (Normal)" class="bb-photo pet-photo titanic-photo">
+    </div>
+    <div class="seller-name">Celestial Pegasus</div>
+    <div style="margin-left:16px;"><span class="sab-mutation-label" style="background:#94A3B8; color:#1F2937;">Normal</span></div>
+    <div class="seller-price"><span class="price-main" data-usd="2.1">$2.10</span></div>
+    <button class="seller-cart" onclick="addToCart('sab-celestial-pegasus-normal','Celestial Pegasus (Normal)','🧠 Steal a Brainrot',2.1)">🛒 Add to Cart</button>
+  </div>
+  <div class="seller-card bb-card pet-card" data-mutation="normal">
+    <div class="item-stage" style="position:relative;">
+      <span class="sab-mutation-badge" style="background:#94A3B8; color:#1F2937;">Normal</span>
+      <img loading="lazy" decoding="async" src="img/d0c886ecc5fed97f.webp" alt="Cerberus (Normal)" class="bb-photo pet-photo titanic-photo">
+    </div>
+    <div class="seller-name">Cerberus</div>
+    <div style="margin-left:16px;"><span class="sab-mutation-label" style="background:#94A3B8; color:#1F2937;">Normal</span></div>
+    <div class="seller-price"><span class="price-main" data-usd="2">$2.00</span></div>
+    <button class="seller-cart" onclick="addToCart('sab-cerberus-normal','Cerberus (Normal)','🧠 Steal a Brainrot',2)">🛒 Add to Cart</button>
+  </div>
+  <div class="seller-card bb-card pet-card" data-mutation="normal">
+    <div class="item-stage" style="position:relative;">
+      <span class="sab-mutation-badge" style="background:#94A3B8; color:#1F2937;">Normal</span>
+      <img loading="lazy" decoding="async" src="img/f9eeba087c78b7fb.webp" alt="Cookie And Milki (Normal)" class="bb-photo pet-photo titanic-photo">
+    </div>
+    <div class="seller-name">Cookie And Milki</div>
+    <div style="margin-left:16px;"><span class="sab-mutation-label" style="background:#94A3B8; color:#1F2937;">Normal</span></div>
+    <div class="seller-price"><span class="price-main" data-usd="2.5">$2.50</span></div>
+    <button class="seller-cart" onclick="addToCart('sab-cookie-and-milki-normal','Cookie And Milki (Normal)','🧠 Steal a Brainrot',2.5)">🛒 Add to Cart</button>
+  </div>
+  <div class="seller-card bb-card pet-card" data-mutation="normal">
+    <div class="item-stage" style="position:relative;">
+      <span class="sab-mutation-badge" style="background:#94A3B8; color:#1F2937;">Normal</span>
+      <img loading="lazy" decoding="async" src="img/ec408f5e420f319a.webp" alt="La Secret Combinasion (Normal)" class="bb-photo pet-photo titanic-photo">
+    </div>
+    <div class="seller-name">La Secret Combinasion</div>
+    <div style="margin-left:16px;"><span class="sab-mutation-label" style="background:#94A3B8; color:#1F2937;">Normal</span></div>
+    <div class="seller-price"><span class="price-main" data-usd="1.1">$1.10</span></div>
+    <button class="seller-cart" onclick="addToCart('sab-la-secret-combinasion-normal','La Secret Combinasion (Normal)','🧠 Steal a Brainrot',1.1)">🛒 Add to Cart</button>
+  </div>
+  <div class="seller-card bb-card pet-card" data-mutation="normal">
+    <div class="item-stage" style="position:relative;">
+      <span class="sab-mutation-badge" style="background:#94A3B8; color:#1F2937;">Normal</span>
+      <img loading="lazy" decoding="async" src="img/31cb4301ca25f94e.webp" alt="Los Combinasionas (Normal)" class="bb-photo pet-photo titanic-photo">
+    </div>
+    <div class="seller-name">Los Combinasionas</div>
+    <div style="margin-left:16px;"><span class="sab-mutation-label" style="background:#94A3B8; color:#1F2937;">Normal</span></div>
+    <div class="seller-price"><span class="price-main" data-usd="6.5">$6.50</span></div>
+    <button class="seller-cart" onclick="addToCart('sab-los-combinasionas-normal','Los Combinasionas (Normal)','🧠 Steal a Brainrot',6.5)">🛒 Add to Cart</button>
+  </div>
 <div class="see-all-row" style="grid-column:1/-1; text-align:center; padding:20px 0 6px;">
   <a href="stealabrainrot.html" class="see-all-btn" style="display:inline-block; background:var(--brand-blue); color:#fff; font-family:'Baloo 2', sans-serif; font-weight:700; font-size:14px; padding:12px 28px; border-radius:30px; text-decoration:none;">See All Steal a Brainrot Items →</a>
 </div>
@@ -2397,7 +2504,7 @@
 <script src="visit.js?v=1bc5ef85"></script>
 <script src="reviews.js?v=44e07f25"></script>
 <script src="tip.js?v=12cbe3cf"></script>
-<script src="cart.js?v=fa86d569"></script>
+<script src="cart.js?v=0e7ef0f4"></script>
 
 <script>
   var currentUser = null; // shared login state across all script blocks
@@ -3180,7 +3287,7 @@
 
   const GAME_PAGE_MAP = {"bb": "index.html", "ps": "ps99.html", "gag": "growagarden2.html", "gag1": "growagarden1.html", "tsunami": "escapetsunami.html", "mm2": "mm2.html", "adoptme": "adoptme.html", "baddies": "baddies.html", "psx": "petsimulatorx.html", "tapsim": "tapsim.html", "sab": "stealabrainrot.html"};
   const CURRENT_PAGE_FILE = 'index.html';
-  const SITE_SEARCH_INDEX = [{"n": "x1000 Blade Ball Tokens", "a": "", "t": "bb"}, {"n": "x500 Blade Ball Tokens", "a": "", "t": "bb"}, {"n": "x2500 Blade Ball Tokens", "a": "", "t": "bb"}, {"n": "x5000 Blade Ball Tokens", "a": "", "t": "bb"}, {"n": "x10000 Blade Ball Tokens", "a": "", "t": "bb"}, {"n": "x25000 Blade Ball Tokens", "a": "", "t": "bb"}, {"n": "x50000 Blade Ball Tokens", "a": "", "t": "bb"}, {"n": "1B PS99 Gems", "a": "", "t": "ps"}, {"n": "20B PS99 Gems", "a": "", "t": "ps"}, {"n": "50B PS99 Gems", "a": "", "t": "ps"}, {"n": "100B PS99 Gems", "a": "", "t": "ps"}, {"n": "250B PS99 Gems", "a": "", "t": "ps"}, {"n": "500B PS99 Gems", "a": "", "t": "ps"}, {"n": "1T PS99 Gems", "a": "", "t": "ps"}, {"n": "1000x Gag 1 Tokens", "a": "Grow a Garden 1 Tokens, Grow a Garden Tokens", "t": "gag1"}, {"n": "2000x Gag 1 Tokens", "a": "Grow a Garden 1 Tokens, Grow a Garden Tokens", "t": "gag1"}, {"n": "5000x Gag 1 Tokens", "a": "Grow a Garden 1 Tokens, Grow a Garden Tokens", "t": "gag1"}, {"n": "10000x Gag 1 Tokens", "a": "Grow a Garden 1 Tokens, Grow a Garden Tokens", "t": "gag1"}, {"n": "25000x Gag 1 Tokens", "a": "Grow a Garden 1 Tokens, Grow a Garden Tokens", "t": "gag1"}, {"n": "50000x Gag 1 Tokens", "a": "Grow a Garden 1 Tokens, Grow a Garden Tokens", "t": "gag1"}, {"n": "100000x Gag 1 Tokens", "a": "Grow a Garden 1 Tokens, Grow a Garden Tokens", "t": "gag1"}, {"n": "500x Etfb Tokens", "a": "Escape Tsunami Tokens, Escape That Facility Brainrot Tokens, ETFB Tokens", "t": "tsunami"}, {"n": "1000x Etfb Tokens", "a": "Escape Tsunami Tokens, Escape That Facility Brainrot Tokens, ETFB Tokens", "t": "tsunami"}, {"n": "2500x Etfb Tokens", "a": "Escape Tsunami Tokens, Escape That Facility Brainrot Tokens, ETFB Tokens", "t": "tsunami"}, {"n": "5000x Etfb Tokens", "a": "Escape Tsunami Tokens, Escape That Facility Brainrot Tokens, ETFB Tokens", "t": "tsunami"}, {"n": "10000x Etfb Tokens", "a": "Escape Tsunami Tokens, Escape That Facility Brainrot Tokens, ETFB Tokens", "t": "tsunami"}, {"n": "25000x Etfb Tokens", "a": "Escape Tsunami Tokens, Escape That Facility Brainrot Tokens, ETFB Tokens", "t": "tsunami"}, {"n": "50000x Etfb Tokens", "a": "Escape Tsunami Tokens, Escape That Facility Brainrot Tokens, ETFB Tokens", "t": "tsunami"}, {"n": "Harvester", "a": "", "t": "mm2"}, {"n": "Icepiercer", "a": "", "t": "mm2"}, {"n": "Bat", "a": "", "t": "mm2"}, {"n": "Candy", "a": "", "t": "mm2"}, {"n": "Sugar", "a": "", "t": "mm2"}, {"n": "Candy Set", "a": "", "t": "mm2"}, {"n": "Batwing", "a": "", "t": "mm2"}, {"n": "Icewing", "a": "", "t": "mm2"}, {"n": "Gingerscope", "a": "", "t": "mm2"}, {"n": "Alienbeam", "a": "", "t": "mm2"}, {"n": "Australis", "a": "", "t": "mm2"}, {"n": "Blizzard Set", "a": "", "t": "mm2"}, {"n": "Blaster", "a": "", "t": "mm2"}, {"n": "Bloom Set", "a": "", "t": "mm2"}, {"n": "Chroma Heart Wand", "a": "", "t": "mm2"}, {"n": "Xeno Set", "a": "", "t": "mm2"}, {"n": "Plasmabeam", "a": "", "t": "mm2"}, {"n": "Raygun", "a": "", "t": "mm2"}, {"n": "Snowcannoon", "a": "", "t": "mm2"}, {"n": "Snowflake", "a": "", "t": "mm2"}, {"n": "America Gun", "a": "", "t": "mm2"}, {"n": "Bauble Gun", "a": "", "t": "mm2"}, {"n": "Beachy Sands Gun", "a": "", "t": "mm2"}, {"n": "Blizzard Gun", "a": "", "t": "mm2"}, {"n": "Blossom Gun", "a": "", "t": "mm2"}, {"n": "Borealis Gun", "a": "", "t": "mm2"}, {"n": "Dark Shot Gun", "a": "", "t": "mm2"}, {"n": "Darkbringer Gun", "a": "", "t": "mm2"}, {"n": "Elderwood Revolver Gun", "a": "", "t": "mm2"}, {"n": "Flora Gun", "a": "", "t": "mm2"}, {"n": "Gingermint Gun", "a": "", "t": "mm2"}, {"n": "Hallow Gun", "a": "", "t": "mm2"}, {"n": "Ice Beam Gun", "a": "", "t": "mm2"}, {"n": "Ice Blaster Gun", "a": "", "t": "mm2"}, {"n": "Laser Gun", "a": "", "t": "mm2"}, {"n": "Latte Gun", "a": "", "t": "mm2"}, {"n": "Lightbringer Gun", "a": "", "t": "mm2"}, {"n": "Makeshift Gun", "a": "", "t": "mm2"}, {"n": "Ocean Gun", "a": "", "t": "mm2"}, {"n": "Pearlshine Gun", "a": "", "t": "mm2"}, {"n": "Rainbow Gun", "a": "", "t": "mm2"}, {"n": "Red Ice Blaster Gun", "a": "", "t": "mm2"}, {"n": "Sands Gun", "a": "", "t": "mm2"}, {"n": "Shark Gun", "a": "", "t": "mm2"}, {"n": "Soul Gun", "a": "", "t": "mm2"}, {"n": "Spectre Gun", "a": "", "t": "mm2"}, {"n": "Sunrise Gun", "a": "", "t": "mm2"}, {"n": "Sweet Gun", "a": "", "t": "mm2"}, {"n": "Swirly Gun", "a": "", "t": "mm2"}, {"n": "Traveler&#39;s Gun", "a": "", "t": "mm2"}, {"n": "Vampire Gun", "a": "", "t": "mm2"}, {"n": "Watergun", "a": "", "t": "mm2"}, {"n": "Xenoshot", "a": "", "t": "mm2"}, {"n": "Beachy", "a": "", "t": "mm2"}, {"n": "Bioblade", "a": "", "t": "mm2"}, {"n": "Celestial", "a": "", "t": "mm2"}, {"n": "Cookiecane", "a": "", "t": "mm2"}, {"n": "Corrupt", "a": "", "t": "mm2"}, {"n": "Darksword", "a": "", "t": "mm2"}, {"n": "Deathshard", "a": "", "t": "mm2"}, {"n": "Elderwood Scythe", "a": "", "t": "mm2"}, {"n": "Evergreen", "a": "", "t": "mm2"}, {"n": "Flowerwood", "a": "", "t": "mm2"}, {"n": "Gemstone", "a": "", "t": "mm2"}, {"n": "Hallowscythe", "a": "", "t": "mm2"}, {"n": "Heart Blade", "a": "", "t": "mm2"}, {"n": "Heart Wand", "a": "", "t": "mm2"}, {"n": "Ice Cream", "a": "", "t": "mm2"}, {"n": "Latte", "a": "", "t": "mm2"}, {"n": "Nightblade", "a": "", "t": "mm2"}, {"n": "Ornament", "a": "", "t": "mm2"}, {"n": "Pearl", "a": "", "t": "mm2"}, {"n": "Phantom Knife", "a": "", "t": "mm2"}, {"n": "Pixel", "a": "", "t": "mm2"}, {"n": "Plasmablade", "a": "", "t": "mm2"}, {"n": "Rainbow Knife", "a": "", "t": "mm2"}, {"n": "Sakure Blade", "a": "", "t": "mm2"}, {"n": "Slasher", "a": "", "t": "mm2"}, {"n": "Snow Dagger", "a": "", "t": "mm2"}, {"n": "Spirit", "a": "", "t": "mm2"}, {"n": "Sunset Knife", "a": "", "t": "mm2"}, {"n": "Sweet", "a": "", "t": "mm2"}, {"n": "Swirly Axe", "a": "", "t": "mm2"}, {"n": "Traveler&#39;s", "a": "", "t": "mm2"}, {"n": "Turkey", "a": "", "t": "mm2"}, {"n": "Vampires Axe", "a": "", "t": "mm2"}, {"n": "Waves Knife", "a": "", "t": "mm2"}, {"n": "Beachy Set Chroma", "a": "", "t": "mm2"}, {"n": "Binger Set Chroma", "a": "", "t": "mm2"}, {"n": "Candleflame Chroma", "a": "", "t": "mm2"}, {"n": "Constelattion Gun Chroma", "a": "", "t": "mm2"}, {"n": "Cookiecane Chroma", "a": "", "t": "mm2"}, {"n": "Deathshard Chroma", "a": "", "t": "mm2"}, {"n": "Elderwood Chroma", "a": "", "t": "mm2"}, {"n": "Gemstone Chroma", "a": "", "t": "mm2"}, {"n": "Ice Cream Knife Chroma", "a": "", "t": "mm2"}, {"n": "Laser Chroma", "a": "", "t": "mm2"}, {"n": "Luger Gun Chroma", "a": "", "t": "mm2"}, {"n": "Sands Gun Chroma", "a": "", "t": "mm2"}, {"n": "Shark Chroma", "a": "", "t": "mm2"}, {"n": "Snow Dagger Chroma", "a": "", "t": "mm2"}, {"n": "Snow Dagger Chroma (2)", "a": "", "t": "mm2"}, {"n": "Snowsnorm Chroma", "a": "", "t": "mm2"}, {"n": "Sunset Knife Chroma", "a": "", "t": "mm2"}, {"n": "Sweet Treat Chroma", "a": "", "t": "mm2"}, {"n": "Swirly Gun Chroma", "a": "", "t": "mm2"}, {"n": "Vampire Gun Chroma", "a": "", "t": "mm2"}, {"n": "MFR Bat Dragon", "a": "", "t": "adoptme"}, {"n": "NFR Bat Dragon", "a": "", "t": "adoptme"}, {"n": "Bat Dragon", "a": "", "t": "adoptme"}, {"n": "Fly Potion", "a": "", "t": "adoptme"}, {"n": "Ride Potion", "a": "", "t": "adoptme"}, {"n": "MFR Turtle", "a": "", "t": "adoptme"}, {"n": "NFR Turtle", "a": "", "t": "adoptme"}, {"n": "Turtle", "a": "", "t": "adoptme"}, {"n": "MFR Toucan", "a": "", "t": "adoptme"}, {"n": "NFR Toucan", "a": "", "t": "adoptme"}, {"n": "Toucan", "a": "", "t": "adoptme"}, {"n": "MFR Unicorn", "a": "", "t": "adoptme"}, {"n": "NFR Unicorn", "a": "", "t": "adoptme"}, {"n": "Unicorn", "a": "", "t": "adoptme"}, {"n": "MFR Frost Dragon", "a": "", "t": "adoptme"}, {"n": "NFR Frost Dragon", "a": "", "t": "adoptme"}, {"n": "Frost Dragon", "a": "", "t": "adoptme"}, {"n": "1000x Baddies Tokens", "a": "Baddies Tokens", "t": "baddies"}, {"n": "2500x Baddies Tokens", "a": "Baddies Tokens", "t": "baddies"}, {"n": "5000x Baddies Tokens", "a": "Baddies Tokens", "t": "baddies"}, {"n": "10000x Baddies Tokens", "a": "Baddies Tokens", "t": "baddies"}, {"n": "25000x Baddies Tokens", "a": "Baddies Tokens", "t": "baddies"}, {"n": "50000x Baddies Tokens", "a": "Baddies Tokens", "t": "baddies"}, {"n": "1T Pet Simulator X Gems", "a": "", "t": "psx"}, {"n": "2.5T Pet Simulator X Gems", "a": "", "t": "psx"}, {"n": "5T Pet Simulator X Gems", "a": "", "t": "psx"}, {"n": "10T Pet Simulator X Gems", "a": "", "t": "psx"}, {"n": "25T Pet Simulator X Gems", "a": "", "t": "psx"}, {"n": "50T Pet Simulator X Gems", "a": "", "t": "psx"}, {"n": "Transfered Titanic Hologram", "a": "", "t": "psx"}, {"n": "Transfered Titanic Lucki", "a": "", "t": "psx"}, {"n": "Transfered Titanic Dominus", "a": "", "t": "psx"}, {"n": "Transfered Titanic Hubert", "a": "", "t": "psx"}, {"n": "Transfered Titanic Mystic Corgi", "a": "", "t": "psx"}, {"n": "Transfered Titanic Capybara", "a": "", "t": "psx"}, {"n": "Transfered Titanic Red Balloon Cat", "a": "", "t": "psx"}, {"n": "Transfered Titanic Tiedye Cat", "a": "", "t": "psx"}, {"n": "Transfered Titanic Blue Cat", "a": "", "t": "psx"}, {"n": "Transfered Titanic Tiedye Dragon", "a": "", "t": "psx"}, {"n": "Transfered Titanic Jolly Cat", "a": "", "t": "psx"}, {"n": "Transfered Titanic Atlan", "a": "", "t": "psx"}, {"n": "Transfered Titanic Cosmic Pegasus", "a": "", "t": "psx"}, {"n": "Transfered Titanic Cat", "a": "", "t": "psx"}, {"n": "Transfered Titanic Neon Agony", "a": "", "t": "psx"}, {"n": "Transfered Titanic Blobfish", "a": "", "t": "psx"}, {"n": "Transfered Titanic Hippomelon", "a": "", "t": "psx"}, {"n": "Transfered Titanic Shadow Griffin", "a": "", "t": "psx"}, {"n": "1000 Tap Sim Tokens", "a": "", "t": "tapsim"}, {"n": "2500 Tap Sim Tokens", "a": "", "t": "tapsim"}, {"n": "5000 Tap Sim Tokens", "a": "", "t": "tapsim"}, {"n": "10000 Tap Sim Tokens", "a": "", "t": "tapsim"}, {"n": "25000 Tap Sim Tokens", "a": "", "t": "tapsim"}, {"n": "50000 Tap Sim Tokens", "a": "", "t": "tapsim"}, {"n": "250M Sheckels", "a": "", "t": "gag"}, {"n": "500M Sheckels", "a": "", "t": "gag"}, {"n": "1B Sheckels", "a": "", "t": "gag"}, {"n": "1.5B Sheckels", "a": "", "t": "gag"}, {"n": "2B Sheckels", "a": "", "t": "gag"}, {"n": "5B Sheckels", "a": "", "t": "gag"}, {"n": "10B Sheckels", "a": "", "t": "gag"}, {"n": "Racoon", "a": "", "t": "gag"}, {"n": "Firefly", "a": "", "t": "gag"}, {"n": "Unicorn", "a": "", "t": "gag"}, {"n": "Bear", "a": "", "t": "gag"}, {"n": "Golden Dragonfly", "a": "", "t": "gag"}, {"n": "Butterfly", "a": "", "t": "gag"}, {"n": "Ice Serpent", "a": "", "t": "gag"}, {"n": "Black Dragon", "a": "", "t": "gag"}, {"n": "Super Watering Can", "a": "", "t": "gag"}, {"n": "Super Sprinkler", "a": "", "t": "gag"}, {"n": "Fire Fern", "a": "", "t": "gag"}, {"n": "Venus Fly Trap Seed", "a": "", "t": "gag"}, {"n": "Pomegranate Seed", "a": "", "t": "gag"}, {"n": "Poison Apple Seed", "a": "", "t": "gag"}, {"n": "Venom Spitter Seed", "a": "", "t": "gag"}, {"n": "Moon Bloom Seed", "a": "", "t": "gag"}, {"n": "Sun Bloom Seed", "a": "", "t": "gag"}, {"n": "Hypno Bloom Seed", "a": "", "t": "gag"}, {"n": "Dragon Breathe's Seed", "a": "", "t": "gag"}, {"n": "Star Fruit Seed", "a": "", "t": "gag"}, {"n": "Rainbow Seed", "a": "", "t": "gag"}, {"n": "Gold Seed", "a": "", "t": "gag"}, {"n": "Mega Seed", "a": "", "t": "gag"}, {"n": "Rocket Pop Seed", "a": "", "t": "gag"}, {"n": "Ghost Pepper Seed", "a": "", "t": "gag"}];
+  const SITE_SEARCH_INDEX = [{"n": "x1000 Blade Ball Tokens", "a": "", "t": "bb"}, {"n": "x500 Blade Ball Tokens", "a": "", "t": "bb"}, {"n": "x2500 Blade Ball Tokens", "a": "", "t": "bb"}, {"n": "x5000 Blade Ball Tokens", "a": "", "t": "bb"}, {"n": "x10000 Blade Ball Tokens", "a": "", "t": "bb"}, {"n": "x25000 Blade Ball Tokens", "a": "", "t": "bb"}, {"n": "x50000 Blade Ball Tokens", "a": "", "t": "bb"}, {"n": "1B PS99 Gems", "a": "", "t": "ps"}, {"n": "20B PS99 Gems", "a": "", "t": "ps"}, {"n": "50B PS99 Gems", "a": "", "t": "ps"}, {"n": "100B PS99 Gems", "a": "", "t": "ps"}, {"n": "250B PS99 Gems", "a": "", "t": "ps"}, {"n": "500B PS99 Gems", "a": "", "t": "ps"}, {"n": "1T PS99 Gems", "a": "", "t": "ps"}, {"n": "1000x Gag 1 Tokens", "a": "Grow a Garden 1 Tokens, Grow a Garden Tokens", "t": "gag1"}, {"n": "2000x Gag 1 Tokens", "a": "Grow a Garden 1 Tokens, Grow a Garden Tokens", "t": "gag1"}, {"n": "5000x Gag 1 Tokens", "a": "Grow a Garden 1 Tokens, Grow a Garden Tokens", "t": "gag1"}, {"n": "10000x Gag 1 Tokens", "a": "Grow a Garden 1 Tokens, Grow a Garden Tokens", "t": "gag1"}, {"n": "25000x Gag 1 Tokens", "a": "Grow a Garden 1 Tokens, Grow a Garden Tokens", "t": "gag1"}, {"n": "50000x Gag 1 Tokens", "a": "Grow a Garden 1 Tokens, Grow a Garden Tokens", "t": "gag1"}, {"n": "100000x Gag 1 Tokens", "a": "Grow a Garden 1 Tokens, Grow a Garden Tokens", "t": "gag1"}, {"n": "500x Etfb Tokens", "a": "Escape Tsunami Tokens, Escape That Facility Brainrot Tokens, ETFB Tokens", "t": "tsunami"}, {"n": "1000x Etfb Tokens", "a": "Escape Tsunami Tokens, Escape That Facility Brainrot Tokens, ETFB Tokens", "t": "tsunami"}, {"n": "2500x Etfb Tokens", "a": "Escape Tsunami Tokens, Escape That Facility Brainrot Tokens, ETFB Tokens", "t": "tsunami"}, {"n": "5000x Etfb Tokens", "a": "Escape Tsunami Tokens, Escape That Facility Brainrot Tokens, ETFB Tokens", "t": "tsunami"}, {"n": "10000x Etfb Tokens", "a": "Escape Tsunami Tokens, Escape That Facility Brainrot Tokens, ETFB Tokens", "t": "tsunami"}, {"n": "25000x Etfb Tokens", "a": "Escape Tsunami Tokens, Escape That Facility Brainrot Tokens, ETFB Tokens", "t": "tsunami"}, {"n": "50000x Etfb Tokens", "a": "Escape Tsunami Tokens, Escape That Facility Brainrot Tokens, ETFB Tokens", "t": "tsunami"}, {"n": "Harvester", "a": "", "t": "mm2"}, {"n": "Icepiercer", "a": "", "t": "mm2"}, {"n": "Bat", "a": "", "t": "mm2"}, {"n": "Candy", "a": "", "t": "mm2"}, {"n": "Sugar", "a": "", "t": "mm2"}, {"n": "Candy Set", "a": "", "t": "mm2"}, {"n": "Batwing", "a": "", "t": "mm2"}, {"n": "Icewing", "a": "", "t": "mm2"}, {"n": "Gingerscope", "a": "", "t": "mm2"}, {"n": "Alienbeam", "a": "", "t": "mm2"}, {"n": "Australis", "a": "", "t": "mm2"}, {"n": "Blizzard Set", "a": "", "t": "mm2"}, {"n": "Blaster", "a": "", "t": "mm2"}, {"n": "Bloom Set", "a": "", "t": "mm2"}, {"n": "Chroma Heart Wand", "a": "", "t": "mm2"}, {"n": "Xeno Set", "a": "", "t": "mm2"}, {"n": "Plasmabeam", "a": "", "t": "mm2"}, {"n": "Raygun", "a": "", "t": "mm2"}, {"n": "Snowcannoon", "a": "", "t": "mm2"}, {"n": "Snowflake", "a": "", "t": "mm2"}, {"n": "America Gun", "a": "", "t": "mm2"}, {"n": "Bauble Gun", "a": "", "t": "mm2"}, {"n": "Beachy Sands Gun", "a": "", "t": "mm2"}, {"n": "Blizzard Gun", "a": "", "t": "mm2"}, {"n": "Blossom Gun", "a": "", "t": "mm2"}, {"n": "Borealis Gun", "a": "", "t": "mm2"}, {"n": "Dark Shot Gun", "a": "", "t": "mm2"}, {"n": "Darkbringer Gun", "a": "", "t": "mm2"}, {"n": "Elderwood Revolver Gun", "a": "", "t": "mm2"}, {"n": "Flora Gun", "a": "", "t": "mm2"}, {"n": "Gingermint Gun", "a": "", "t": "mm2"}, {"n": "Hallow Gun", "a": "", "t": "mm2"}, {"n": "Ice Beam Gun", "a": "", "t": "mm2"}, {"n": "Ice Blaster Gun", "a": "", "t": "mm2"}, {"n": "Laser Gun", "a": "", "t": "mm2"}, {"n": "Latte Gun", "a": "", "t": "mm2"}, {"n": "Lightbringer Gun", "a": "", "t": "mm2"}, {"n": "Makeshift Gun", "a": "", "t": "mm2"}, {"n": "Ocean Gun", "a": "", "t": "mm2"}, {"n": "Pearlshine Gun", "a": "", "t": "mm2"}, {"n": "Rainbow Gun", "a": "", "t": "mm2"}, {"n": "Red Ice Blaster Gun", "a": "", "t": "mm2"}, {"n": "Sands Gun", "a": "", "t": "mm2"}, {"n": "Shark Gun", "a": "", "t": "mm2"}, {"n": "Soul Gun", "a": "", "t": "mm2"}, {"n": "Spectre Gun", "a": "", "t": "mm2"}, {"n": "Sunrise Gun", "a": "", "t": "mm2"}, {"n": "Sweet Gun", "a": "", "t": "mm2"}, {"n": "Swirly Gun", "a": "", "t": "mm2"}, {"n": "Traveler&#39;s Gun", "a": "", "t": "mm2"}, {"n": "Vampire Gun", "a": "", "t": "mm2"}, {"n": "Watergun", "a": "", "t": "mm2"}, {"n": "Xenoshot", "a": "", "t": "mm2"}, {"n": "Beachy", "a": "", "t": "mm2"}, {"n": "Bioblade", "a": "", "t": "mm2"}, {"n": "Celestial", "a": "", "t": "mm2"}, {"n": "Cookiecane", "a": "", "t": "mm2"}, {"n": "Corrupt", "a": "", "t": "mm2"}, {"n": "Darksword", "a": "", "t": "mm2"}, {"n": "Deathshard", "a": "", "t": "mm2"}, {"n": "Elderwood Scythe", "a": "", "t": "mm2"}, {"n": "Evergreen", "a": "", "t": "mm2"}, {"n": "Flowerwood", "a": "", "t": "mm2"}, {"n": "Gemstone", "a": "", "t": "mm2"}, {"n": "Hallowscythe", "a": "", "t": "mm2"}, {"n": "Heart Blade", "a": "", "t": "mm2"}, {"n": "Heart Wand", "a": "", "t": "mm2"}, {"n": "Ice Cream", "a": "", "t": "mm2"}, {"n": "Latte", "a": "", "t": "mm2"}, {"n": "Nightblade", "a": "", "t": "mm2"}, {"n": "Ornament", "a": "", "t": "mm2"}, {"n": "Pearl", "a": "", "t": "mm2"}, {"n": "Phantom Knife", "a": "", "t": "mm2"}, {"n": "Pixel", "a": "", "t": "mm2"}, {"n": "Plasmablade", "a": "", "t": "mm2"}, {"n": "Rainbow Knife", "a": "", "t": "mm2"}, {"n": "Sakure Blade", "a": "", "t": "mm2"}, {"n": "Slasher", "a": "", "t": "mm2"}, {"n": "Snow Dagger", "a": "", "t": "mm2"}, {"n": "Spirit", "a": "", "t": "mm2"}, {"n": "Sunset Knife", "a": "", "t": "mm2"}, {"n": "Sweet", "a": "", "t": "mm2"}, {"n": "Swirly Axe", "a": "", "t": "mm2"}, {"n": "Traveler&#39;s", "a": "", "t": "mm2"}, {"n": "Turkey", "a": "", "t": "mm2"}, {"n": "Vampires Axe", "a": "", "t": "mm2"}, {"n": "Waves Knife", "a": "", "t": "mm2"}, {"n": "Beachy Set Chroma", "a": "", "t": "mm2"}, {"n": "Binger Set Chroma", "a": "", "t": "mm2"}, {"n": "Candleflame Chroma", "a": "", "t": "mm2"}, {"n": "Constelattion Gun Chroma", "a": "", "t": "mm2"}, {"n": "Cookiecane Chroma", "a": "", "t": "mm2"}, {"n": "Deathshard Chroma", "a": "", "t": "mm2"}, {"n": "Elderwood Chroma", "a": "", "t": "mm2"}, {"n": "Gemstone Chroma", "a": "", "t": "mm2"}, {"n": "Ice Cream Knife Chroma", "a": "", "t": "mm2"}, {"n": "Laser Chroma", "a": "", "t": "mm2"}, {"n": "Luger Gun Chroma", "a": "", "t": "mm2"}, {"n": "Sands Gun Chroma", "a": "", "t": "mm2"}, {"n": "Shark Chroma", "a": "", "t": "mm2"}, {"n": "Snow Dagger Chroma", "a": "", "t": "mm2"}, {"n": "Snow Dagger Chroma (2)", "a": "", "t": "mm2"}, {"n": "Snowsnorm Chroma", "a": "", "t": "mm2"}, {"n": "Sunset Knife Chroma", "a": "", "t": "mm2"}, {"n": "Sweet Treat Chroma", "a": "", "t": "mm2"}, {"n": "Swirly Gun Chroma", "a": "", "t": "mm2"}, {"n": "Vampire Gun Chroma", "a": "", "t": "mm2"}, {"n": "Frost Dragon", "a": "FR, NFR, MFR, Neon, Mega Neon", "t": "adoptme"}, {"n": "Frostbite Bear", "a": "FR, NFR, MFR, Neon, Mega Neon", "t": "adoptme"}, {"n": "Ballet Swan", "a": "FR, NFR, MFR, Neon, Mega Neon", "t": "adoptme"}, {"n": "Cerberus", "a": "FR, NFR, MFR, Neon, Mega Neon", "t": "adoptme"}, {"n": "Kitsune", "a": "FR, NFR, MFR, Neon, Mega Neon", "t": "adoptme"}, {"n": "Unicorn", "a": "FR, NFR, MFR, Neon, Mega Neon", "t": "adoptme"}, {"n": "Turtle", "a": "FR, NFR, MFR, Neon, Mega Neon", "t": "adoptme"}, {"n": "Reindeer", "a": "FR, NFR, MFR, Neon, Mega Neon", "t": "adoptme"}, {"n": "Purrowl", "a": "FR, NFR, MFR, Neon, Mega Neon", "t": "adoptme"}, {"n": "Mochi Meow", "a": "FR, NFR, MFR, Neon, Mega Neon", "t": "adoptme"}, {"n": "Toucan", "a": "FR, NFR, MFR, Neon, Mega Neon", "t": "adoptme"}, {"n": "Fly Potion", "a": "", "t": "adoptme"}, {"n": "Ride Potion", "a": "", "t": "adoptme"}, {"n": "Aussie Egg", "a": "", "t": "adoptme"}, {"n": "Fossil Egg", "a": "", "t": "adoptme"}, {"n": "Ocean Egg", "a": "", "t": "adoptme"}, {"n": "Garden Egg", "a": "", "t": "adoptme"}, {"n": "Japan Egg", "a": "", "t": "adoptme"}, {"n": "Desert Egg", "a": "", "t": "adoptme"}, {"n": "Moon Egg", "a": "", "t": "adoptme"}, {"n": "Crystal Egg", "a": "", "t": "adoptme"}, {"n": "1000x Baddies Tokens", "a": "Baddies Tokens", "t": "baddies"}, {"n": "2500x Baddies Tokens", "a": "Baddies Tokens", "t": "baddies"}, {"n": "5000x Baddies Tokens", "a": "Baddies Tokens", "t": "baddies"}, {"n": "10000x Baddies Tokens", "a": "Baddies Tokens", "t": "baddies"}, {"n": "25000x Baddies Tokens", "a": "Baddies Tokens", "t": "baddies"}, {"n": "50000x Baddies Tokens", "a": "Baddies Tokens", "t": "baddies"}, {"n": "1T Pet Simulator X Gems", "a": "", "t": "psx"}, {"n": "2.5T Pet Simulator X Gems", "a": "", "t": "psx"}, {"n": "5T Pet Simulator X Gems", "a": "", "t": "psx"}, {"n": "10T Pet Simulator X Gems", "a": "", "t": "psx"}, {"n": "25T Pet Simulator X Gems", "a": "", "t": "psx"}, {"n": "50T Pet Simulator X Gems", "a": "", "t": "psx"}, {"n": "Transfered Titanic Hologram", "a": "", "t": "psx"}, {"n": "Transfered Titanic Lucki", "a": "", "t": "psx"}, {"n": "Transfered Titanic Dominus", "a": "", "t": "psx"}, {"n": "Transfered Titanic Hubert", "a": "", "t": "psx"}, {"n": "Transfered Titanic Mystic Corgi", "a": "", "t": "psx"}, {"n": "Transfered Titanic Capybara", "a": "", "t": "psx"}, {"n": "Transfered Titanic Red Balloon Cat", "a": "", "t": "psx"}, {"n": "Transfered Titanic Tiedye Cat", "a": "", "t": "psx"}, {"n": "Transfered Titanic Blue Cat", "a": "", "t": "psx"}, {"n": "Transfered Titanic Tiedye Dragon", "a": "", "t": "psx"}, {"n": "Transfered Titanic Jolly Cat", "a": "", "t": "psx"}, {"n": "Transfered Titanic Atlan", "a": "", "t": "psx"}, {"n": "Transfered Titanic Cosmic Pegasus", "a": "", "t": "psx"}, {"n": "Transfered Titanic Cat", "a": "", "t": "psx"}, {"n": "Transfered Titanic Neon Agony", "a": "", "t": "psx"}, {"n": "Transfered Titanic Blobfish", "a": "", "t": "psx"}, {"n": "Transfered Titanic Hippomelon", "a": "", "t": "psx"}, {"n": "Transfered Titanic Shadow Griffin", "a": "", "t": "psx"}, {"n": "1000 Tap Sim Tokens", "a": "", "t": "tapsim"}, {"n": "2500 Tap Sim Tokens", "a": "", "t": "tapsim"}, {"n": "5000 Tap Sim Tokens", "a": "", "t": "tapsim"}, {"n": "10000 Tap Sim Tokens", "a": "", "t": "tapsim"}, {"n": "25000 Tap Sim Tokens", "a": "", "t": "tapsim"}, {"n": "50000 Tap Sim Tokens", "a": "", "t": "tapsim"}, {"n": "250M Sheckels", "a": "", "t": "gag"}, {"n": "500M Sheckels", "a": "", "t": "gag"}, {"n": "1B Sheckels", "a": "", "t": "gag"}, {"n": "1.5B Sheckels", "a": "", "t": "gag"}, {"n": "2B Sheckels", "a": "", "t": "gag"}, {"n": "5B Sheckels", "a": "", "t": "gag"}, {"n": "10B Sheckels", "a": "", "t": "gag"}, {"n": "Racoon", "a": "", "t": "gag"}, {"n": "Firefly", "a": "", "t": "gag"}, {"n": "Unicorn", "a": "", "t": "gag"}, {"n": "Bear", "a": "", "t": "gag"}, {"n": "Golden Dragonfly", "a": "", "t": "gag"}, {"n": "Butterfly", "a": "", "t": "gag"}, {"n": "Ice Serpent", "a": "", "t": "gag"}, {"n": "Black Dragon", "a": "", "t": "gag"}, {"n": "Super Watering Can", "a": "", "t": "gag"}, {"n": "Super Sprinkler", "a": "", "t": "gag"}, {"n": "Fire Fern", "a": "", "t": "gag"}, {"n": "Venus Fly Trap Seed", "a": "", "t": "gag"}, {"n": "Pomegranate Seed", "a": "", "t": "gag"}, {"n": "Poison Apple Seed", "a": "", "t": "gag"}, {"n": "Venom Spitter Seed", "a": "", "t": "gag"}, {"n": "Moon Bloom Seed", "a": "", "t": "gag"}, {"n": "Sun Bloom Seed", "a": "", "t": "gag"}, {"n": "Hypno Bloom Seed", "a": "", "t": "gag"}, {"n": "Dragon Breathe's Seed", "a": "", "t": "gag"}, {"n": "Star Fruit Seed", "a": "", "t": "gag"}, {"n": "Rainbow Seed", "a": "", "t": "gag"}, {"n": "Gold Seed", "a": "", "t": "gag"}, {"n": "Mega Seed", "a": "", "t": "gag"}, {"n": "Rocket Pop Seed", "a": "", "t": "gag"}, {"n": "Ghost Pepper Seed", "a": "", "t": "gag"}];
   const GAME_ALIASES_BY_TAB = {"psx": ["psx", "pet simulator x", "pet sim x"], "ps": ["ps99", "pet sim 99", "pet simulator 99"], "bb": ["bb", "blade ball"], "tsunami": ["etfb", "escape tsunami", "escape that facility brainrot"], "gag1": ["gag1", "grow a garden 1"], "gag": ["gag", "gag2", "grow a garden 2", "grow a garden"]};
   const MATCH_TEXT_MAP = {"bb": "Blade Ball", "ps": "PS99", "gag": "Grow a Garden 2", "gag1": "Grow a Garden 1", "tsunami": "Escape Tsunami", "mm2": "Murder Mystery 2", "adoptme": "Adopt Me", "baddies": "Baddies", "psx": "Pet Simulator X", "tapsim": "Tap Sim", "sab": "Steal a Brainrot"};
 
@@ -3468,7 +3575,7 @@
 <script>
   const BOT_FAQ_CATEGORIES = [
     { label: '🚀 Getting Started', ids: ['signup', 'legit', 'password-safety', 'payment', 'processing-fee', 'tip'] },
-    { label: '📦 Ordering & Delivery', ids: ['how-receive', 'waiting-status', 'order-chat', 'delivery-proof', 'which-games', 'mutations', 'prices-change', 'sell'] },
+    { label: '📦 Ordering & Delivery', ids: ['how-receive', 'waiting-status', 'order-chat', 'delivery-proof', 'which-games', 'adm-versions', 'mutations', 'prices-change', 'sell'] },
     { label: '💸 Money & Rewards', ids: ['wallet-cashback', 'rewards', 'vip', 'spin-wheel', 'promo-code'] },
     { label: '⭐ After Your Order', ids: ['reviews', 'refund', 'cancel-order'] },
     { label: '👤 Account', ids: ['cant-login', 'account-warnings', 'why-warning', 'notifications', 'currency'] },
@@ -3488,7 +3595,8 @@
     'order-chat': { q: 'How does Order Chat work?', a: `Every order gets its own private chat with your seller 💬. You can send messages and screenshots, reply to a specific message, and react with emojis — just like a normal messaging app.` },
     'delivery-proof': { q: 'What is delivery proof?', a: `When your item is delivered, the seller attaches a screenshot of the trade 📸. It keeps both you and us protected if anything ever goes wrong.` },
     'which-games': { q: 'Which games do you sell?', a: `Murder Mystery 2, Adopt Me, Steal a Brainrot, Grow a Garden 1 & 2, Pet Simulator 99, Pet Simulator X, Blade Ball, Escape Tsunami, Baddies and Tap Simulator 🎮. More games are coming soon!` },
-    'mutations': { q: 'What are mutations? (Steal a Brainrot)', a: `They're special versions of the same brainrot ✨ — Normal, Gold, Crystal, Cyber, Phantom, Yin Yang, Cursed, Divine and Rainbow. Each one has its own price, and rarer mutations cost more.` },
+    'adm-versions': { q: 'What do FR, NFR and MFR mean? (Adopt Me)', a: `They're versions of the same pet 🐾:<br>• **Normal:** no potions<br>• **FR:** Fly + Ride<br>• **NFR:** Neon Fly + Ride<br>• **MFR:** Mega Neon Fly + Ride<br>Tap the buttons on a pet's card to see each price.` },
+    'mutations': { q: 'What is the La Grande Bundle? (Steal a Brainrot)', a: `It's **6 brainrots in one** for **$5** 🧠 — La Easter, Extinct, Jolly, Lucky and Spooky Grande plus La Grande Combinasion. Tap the bundle card to see all 6. All our Steal a Brainrot items are the **Normal** version.` },
     'prices-change': { q: 'Why do prices change?', a: `Prices follow the in-game market 📈, so they go up and down. Don't worry — the price in your cart at checkout is exactly what you pay.` },
     'sell': { q: 'Can I sell my items to you?', a: `Yes! 💰 We buy items and pay you in Robux. Tap **"Want to sell your items?"** on the homepage or email us at **buyrblx.com@gmail.com**.` },
 

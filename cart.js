@@ -1391,3 +1391,58 @@ async function openMilestoneSpin(){
   });
 }
 
+
+// ---------- Adopt Me: one card per pet with Normal / FR / NFR / MFR ----------
+// Cards carry data-key, data-name and data-prices="normal,fr,nfr,mfr" (USD).
+const ADM_VARIANTS = ['', 'FR', 'NFR', 'MFR'];
+function admPick(btn, i){
+  const card = btn.closest('.adm-card');
+  card.querySelectorAll('.adm-var').forEach((b, k) => b.classList.toggle('on', k === i));
+  card.dataset.v = i;
+  const price = Number(card.dataset.prices.split(',')[i]);
+  const el = card.querySelector('.price-main');
+  el.setAttribute('data-usd', price);
+  el.textContent = ctMoney(price);
+  el.classList.remove('adm-bump'); void el.offsetWidth; el.classList.add('adm-bump');
+}
+function admAdd(btn){
+  const card = btn.closest('.adm-card');
+  const i = Number(card.dataset.v || 0);
+  const price = Number(card.dataset.prices.split(',')[i]);
+  const v = ADM_VARIANTS[i];
+  addToCart(card.dataset.key + (v ? '-' + v.toLowerCase() : ''), (v ? v + ' ' : '') + card.dataset.name, '🐾 Adopt Me', price);
+}
+
+// ---------- Bundles (e.g. Steal a Brainrot "La Grande Bundle") ----------
+// The card carries data-bundle='[[name, img], ...]', data-bundle-name, -key and -price.
+function openBundleView(el){
+  const card = el.closest('[data-bundle]');
+  const items = JSON.parse(card.dataset.bundle);
+  const price = Number(card.dataset.bundlePrice);
+  let box = document.getElementById('bundleView');
+  if(!box){
+    box = document.createElement('div');
+    box.id = 'bundleView';
+    box.className = 'bv-overlay';
+    box.addEventListener('click', e => { if(e.target === box) closeBundleView(); });
+    document.body.appendChild(box);
+  }
+  box.innerHTML = `
+    <div class="bv-box" role="dialog" aria-modal="true">
+      <button type="button" class="bv-x" onclick="closeBundleView()" aria-label="Close">✕</button>
+      <span class="bv-tag">🎁 ${items.length} in 1 bundle</span>
+      <h3 class="notranslate">${ctEsc(card.dataset.bundleName)}</h3>
+      <p>You get all ${items.length} of these for <b>${ctMoney(price)}</b>.</p>
+      <div class="bv-grid">
+        ${items.map(([n, img]) => `<div class="bv-item"><img src="${ctEsc(img)}" alt="" loading="lazy"><span class="notranslate">${ctEsc(n)}</span></div>`).join('')}
+      </div>
+      <button type="button" class="bv-add">🛒 Add bundle to cart — ${ctMoney(price)}</button>
+    </div>`;
+  box.querySelector('.bv-add').onclick = () => { card.querySelector('.seller-cart').click(); closeBundleView(); };
+  box.classList.add('open');
+}
+function closeBundleView(){
+  const box = document.getElementById('bundleView');
+  if(box) box.classList.remove('open');
+}
+document.addEventListener('keydown', e => { if(e.key === 'Escape') closeBundleView(); });

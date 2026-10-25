@@ -6,7 +6,7 @@ Static HTML shop for Roblox items (formerly "Buylance"), backed by Supabase proj
 ## Owner's backlog — bring these up when they ask "what next?" or for suggestions
 - **More games/bundles** (Blox Fruits, Da Hood, Jailbreak, MM2 bundles) — later.
 - **PayPal is in sandbox mode** (`verify-paypal` uses api-m.sandbox.paypal.com) — owner will switch to live before real selling.
-- **Adopt Me pictures** — owner is adding them; ask for real image files, not pasted base64.
+- **Adopt Me:** Koala + T-rex pictures were sent (2026-10-25) but no prices yet — add them once priced. Moon / Garden / Japan / Desert eggs use simple generated egg cards until real pictures arrive.
 
 ## Gotchas
 - Cloudflare (owner's account, no connector): SSL/TLS = Full, the 4 apex A records are Proxied (2026-10-22); `www` CNAME and the Resend records (send, rsend, resend._domainkey, _dmarc) stay DNS only. GitHub Pages may show DNS warnings because of the proxy — expected.
@@ -34,6 +34,8 @@ Static HTML shop for Roblox items (formerly "Buylance"), backed by Supabase proj
 - Language + currency: `intl.js` (all 12 shop pages) — header button `#currencyBtn` (🌐 EN · USD) opens one popup. Currencies USD/EUR/GBP/JPY/AUD/BRL only (owner's call 2026-10-25, no PHP); `formatMoney()` / `CURRENT_CURRENCY` live there, charges stay USD. 11 languages through Google's website translator (`googtrans` cookie, page reloads on change; English never loads Google's script); item names, prices, logo get `notranslate`.
 - Shared look in cart.css (edit there, not per page): header (logo `.hdr-logo` inside `.hdr-left`, chip buttons), "Pay Your Way" `.pay2-*`, "Safe To Use" `.safe2-*`, FAQ (`.faq-*` overrides, 6 questions identical on all pages), "Still Have Questions?" `.help2-*` (links to support.html + settings orders).
 - Support bot (index.html only, `BOT_FAQ_TREE`): keep answers in sync when rules change (fee, tip, cashback, VIP, wheels, Trustpilot, language/currency).
+- Adopt Me catalog (adoptme.html + homepage tab, identical cards): pets are one card each (`.adm-card`, `data-prices="normal,fr,nfr,mfr"`) with Normal/FR/NFR/MFR buttons → `admPick` / `admAdd` in cart.js; cart keys `adm-<pet>` / `adm-<pet>-fr|nfr|mfr`, names "FR Kitsune" etc. Potions and eggs are plain cards. Search index entries (`SITE_SEARCH_INDEX`, all 12 pages) list one entry per pet.
+- Steal a Brainrot: Normal only (mutation filter removed, owner's call 2026-10-25). The six "La … Grande" brainrots are sold together as one **La Grande Bundle** card ($5, key `sab-la-grande-bundle`, collage picture); tapping it opens `openBundleView()` (cart.js, reads `data-bundle`) showing all six. Others have their own prices. Homepage tab shows 9 featured cards + See All.
 - Pages load local .js/.css as `file.js?v=<hash>` so browsers don't keep old copies. **After editing any .js/.css, run `python3 tools/version-assets.py`** (updates the ?v= in every page).
 - 🥷/🪙 were replaced with 🧠/💰 — Unicode 13+ emoji render as boxes on older Windows; avoid them.
 - Branding: logo → `favicon.ico`, `favicon-32.png`, `icon-192.png`, `apple-touch-icon.png`; banner → `og-image.jpg` (1200×630, used by og:image/twitter:image). Every page has icon tags; public pages have description/og/twitter tags + canonical, private/admin pages have `noindex`. New pages need the same head block. `sitemap.xml` + `robots.txt` at the root.
