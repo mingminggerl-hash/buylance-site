@@ -6,7 +6,7 @@ Static HTML shop for Roblox items (formerly "Buylance"), backed by Supabase proj
 ## Owner's backlog — bring these up when they ask "what next?" or for suggestions
 - **More games/bundles** (Blox Fruits, Da Hood, Jailbreak, MM2 bundles) — later.
 - **PayPal is in sandbox mode** (`verify-paypal` uses api-m.sandbox.paypal.com) — owner will switch to live before real selling.
-- **Adopt Me:** Koala + T-rex pictures were sent (2026-10-25) but no prices yet — add them once priced. Moon / Garden / Japan / Desert eggs use simple generated egg cards until real pictures arrive.
+- **Adopt Me:** Koala + T-rex pictures were sent (2026-10-25) but no prices yet — add them once priced. Moon / Garden / Japan / Desert eggs were removed until the owner has pictures (prices: Moon $0.10, Garden $0.25, Japan $0.25, Desert $0.20).
 
 ## Gotchas
 - Cloudflare (owner's account, no connector): SSL/TLS = Full, the 4 apex A records are Proxied (2026-10-22); `www` CNAME and the Resend records (send, rsend, resend._domainkey, _dmarc) stay DNS only. GitHub Pages may show DNS warnings because of the proxy — expected.
