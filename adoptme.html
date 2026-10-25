@@ -682,8 +682,8 @@
   }
 </style>
 <script src="https://www.paypal.com/sdk/js?client-id=AQvXxaPmRMQk9sfoo9AcSJs26LuWGE2RsUYCzhagWOk6fDXVqOApJBwfHtAYWeaI9rP4K0JRjRaR5_I2&currency=USD"></script>
-<link rel="stylesheet" href="reviews.css?v=be83a25a">
-<link rel="stylesheet" href="cart.css?v=29389582">
+<link rel="stylesheet" href="reviews.css?v=94cd0145">
+<link rel="stylesheet" href="cart.css?v=e580a666">
 </head>
 <body>
 
@@ -709,6 +709,8 @@
 
 <header>
 
+  <div class="hdr-left">
+  <a href="index.html" class="hdr-logo notranslate" aria-label="BuyRBLX home"><img src="icon-192.png" alt=""><b>BUY<span>RBLX</span></b></a>
   <div class="select-game-wrap">
     <button class="select-game-btn" onclick="toggleGameMenu()">Select Game <span id="gameChevron">▾</span></button>
     <div class="game-menu" id="gameMenu">
@@ -724,6 +726,7 @@
       <a onclick="goToSellerTab('tapsim', 'Tap Sim'); toggleGameMenu();">👆 Tap Sim</a>
       <a onclick="goToSellerTab('sab', 'Steal a Brainrot'); toggleGameMenu();">🧠 Steal a Brainrot</a>
     </div>
+  </div>
   </div>
 
   <nav>
@@ -742,8 +745,7 @@
       </div>
     </div>
     <div style="position:relative;">
-      <button class="icon-btn" id="currencyBtn" onclick="toggleCurrencyMenu()" style="width:auto; padding:0 10px; font-size:12px; font-weight:800; white-space:nowrap;">🌍 <span id="currencyLabel">USD</span></button>
-      <div class="game-menu" id="currencyMenu" style="display:none; right:0; left:auto; min-width:160px;"></div>
+      <button class="icon-btn lc-btn" id="currencyBtn" onclick="openIntlModal()" title="Language & currency"><span class="lc-btn-globe">🌐</span><span id="langLabel">EN</span><i></i><span id="currencyLabel">USD</span></button>
     </div>
     <button class="icon-btn cart-icon" onclick="toggleCart()">🛒<span class="cart-count" id="cartCount">0</span></button>
     <button class="icon-btn" onclick="toggleSearch()">🔍</button>
@@ -1320,7 +1322,7 @@
 <script src="supabase-config.js?v=aee8e303"></script>
 <script src="visit.js?v=1bc5ef85"></script>
 <script src="tip.js?v=12cbe3cf"></script>
-<script src="cart.js?v=6ac3cd1b"></script>
+<script src="cart.js?v=fa86d569"></script>
 <script src="reviews.js?v=44e07f25"></script>
 
 <script>
@@ -2089,137 +2091,8 @@
   refreshAuthUI();
 </script>
 
+<script src="intl.js?v=94377e5d"></script>
 <script>
-  // ============================================================
-  // CURRENCY ENGINE
-  // ------------------------------------------------------------
-  // Every price on the site is stored/priced in USD (that's the
-  // real settlement currency — PayPal always charges in USD here).
-  // This script only changes what's DISPLAYED: it detects the
-  // visitor's likely local currency, pulls a live USD exchange
-  // rate, and rewrites every element with a data-usd="X" attribute
-  // (plus the cart, which is JS-driven) into that currency.
-  // Nothing about checkout math changes — formatMoney() is purely
-  // cosmetic and everything still totals correctly in USD under
-  // the hood.
-  // ============================================================
-
-  let CURRENT_CURRENCY = 'USD';
-  let CURRENT_RATE = 1; // multiply a USD amount by this to get CURRENT_CURRENCY
-
-  const COMMON_CURRENCIES = [
-    'USD','PHP','JPY','EUR','GBP','INR','AUD','CAD','SGD','MYR',
-    'IDR','THB','VND','KRW','CNY','MXN','BRL','ZAR','NZD','AED'
-  ];
-
-  function formatMoney(usdAmount){
-    try {
-      return new Intl.NumberFormat(undefined, {
-        style: 'currency',
-        currency: CURRENT_CURRENCY,
-        currencyDisplay: 'narrowSymbol'
-      }).format(usdAmount * CURRENT_RATE);
-    } catch(e){
-      // Fallback if the browser doesn't recognize the currency code
-      return '$' + (usdAmount * CURRENT_RATE).toFixed(2);
-    }
-  }
-
-  function repaintAllPrices(){
-    document.querySelectorAll('[data-usd]').forEach(el => {
-      const usd = parseFloat(el.getAttribute('data-usd'));
-      if(!isNaN(usd)) el.textContent = formatMoney(usd);
-    });
-    document.getElementById('currencyLabel').textContent = CURRENT_CURRENCY;
-    if(typeof renderCart === 'function') renderCart();
-  }
-
-  async function setCurrency(code, rate){
-    CURRENT_CURRENCY = code;
-    CURRENT_RATE = rate;
-    repaintAllPrices();
-  }
-
-  async function fetchRateFor(code){
-    if(code === 'USD') return 1;
-    // Cache exchange rates for 12 hours so we're not hitting the API on every page load
-    const cacheKey = 'buylance_fx_' + code;
-    try {
-      const cached = JSON.parse(localStorage.getItem(cacheKey) || 'null');
-      if(cached && (Date.now() - cached.t) < 12*60*60*1000){
-        return cached.rate;
-      }
-    } catch(e){}
-
-    try {
-      const res = await fetch('https://open.er-api.com/v6/latest/USD');
-      const data = await res.json();
-      const rate = data && data.rates && data.rates[code];
-      if(rate){
-        localStorage.setItem(cacheKey, JSON.stringify({ rate, t: Date.now() }));
-        return rate;
-      }
-    } catch(e){
-      console.warn('Exchange rate lookup failed, staying on USD.', e);
-    }
-    return null; // signals failure — caller should fall back to USD
-  }
-
-  async function applyCurrency(code){
-    if(code === 'USD'){ await setCurrency('USD', 1); localStorage.setItem('buylance_currency_pref', 'USD'); return; }
-    const rate = await fetchRateFor(code);
-    if(rate){
-      await setCurrency(code, rate);
-      localStorage.setItem('buylance_currency_pref', code);
-    } else {
-      await setCurrency('USD', 1); // graceful fallback
-    }
-  }
-
-  function toggleCurrencyMenu(){
-    const menu = document.getElementById('currencyMenu');
-    const isOpen = menu.style.display === 'block';
-    if(isOpen){ menu.style.display = 'none'; return; }
-    menu.innerHTML = COMMON_CURRENCIES.map(c =>
-      `<a onclick="applyCurrency('${c}'); toggleCurrencyMenu();">${c}${c === CURRENT_CURRENCY ? ' ✓' : ''}</a>`
-    ).join('') + `<a onclick="detectCurrencyFromLocation(true); toggleCurrencyMenu();" style="border-top:1px solid var(--card-border); font-weight:800;">🌍 Auto-detect</a>`;
-    menu.style.display = 'block';
-  }
-  document.addEventListener('click', (e) => {
-    const menu = document.getElementById('currencyMenu');
-    const btn = document.getElementById('currencyBtn');
-    if(menu && menu.style.display === 'block' && !menu.contains(e.target) && e.target !== btn){
-      menu.style.display = 'none';
-    }
-  });
-
-  async function detectCurrencyFromLocation(forceRefresh){
-    if(!forceRefresh){
-      const saved = localStorage.getItem('buylance_currency_pref');
-      if(saved){ await applyCurrency(saved); return; }
-    }
-    try {
-      // ipapi.co returns the visitor's likely currency directly based on IP —
-      // no key needed, but ad-blockers sometimes block it, so we fail quietly to USD.
-      const res = await fetch('https://ipapi.co/json/');
-      const data = await res.json();
-      const code = data && data.currency;
-      if(code && COMMON_CURRENCIES.includes(code)){
-        await applyCurrency(code);
-      } else if(code){
-        // Still try it even if it's not in our quick-pick list — Intl can usually format it
-        await applyCurrency(code);
-      } else {
-        await setCurrency('USD', 1);
-      }
-    } catch(e){
-      console.warn('Currency auto-detect failed, staying on USD.', e);
-      await setCurrency('USD', 1);
-    }
-  }
-
-  // Kick things off once the page (and all the addToCart price divs) exist
-  document.addEventListener('DOMContentLoaded', () => detectCurrencyFromLocation(false));
   document.addEventListener('DOMContentLoaded', () => { loadCartFromStorage(); renderCart(); });
 </script>
 

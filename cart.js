@@ -601,7 +601,7 @@ function renderCart(){
         <div class="ct-item locked${anim}" data-key="${ctEsc(i.key)}">
           <div class="ct-thumb">${thumb}</div>
           <div class="ct-info">
-            <div class="ct-name">${ctEsc(i.name)}</div>
+            <div class="ct-name notranslate">${ctEsc(i.name)}</div>
             <div class="ct-row"><span class="ct-lock">🔒 Free prize · qty locked</span><span class="ct-free">FREE</span></div>
           </div>
         </div>`;
@@ -609,7 +609,7 @@ function renderCart(){
         <div class="ct-item${anim}" data-key="${ctEsc(i.key)}">
           <div class="ct-thumb">${thumb}</div>
           <div class="ct-info">
-            <div class="ct-name">${ctEsc(i.name)}</div>
+            <div class="ct-name notranslate">${ctEsc(i.name)}</div>
             <div class="ct-unit">${ctMoney(i.price)} each</div>
             <div class="ct-row">
               <div class="ct-qty">
