@@ -1391,3 +1391,24 @@ async function openMilestoneSpin(){
   });
 }
 
+
+// ---------- Adopt Me: one card per pet with Normal / FR / NFR / MFR ----------
+// Cards carry data-key, data-name and data-prices="normal,fr,nfr,mfr" (USD).
+const ADM_VARIANTS = ['', 'FR', 'NFR', 'MFR'];
+function admPick(btn, i){
+  const card = btn.closest('.adm-card');
+  card.querySelectorAll('.adm-var').forEach((b, k) => b.classList.toggle('on', k === i));
+  card.dataset.v = i;
+  const price = Number(card.dataset.prices.split(',')[i]);
+  const el = card.querySelector('.price-main');
+  el.setAttribute('data-usd', price);
+  el.textContent = ctMoney(price);
+  el.classList.remove('adm-bump'); void el.offsetWidth; el.classList.add('adm-bump');
+}
+function admAdd(btn){
+  const card = btn.closest('.adm-card');
+  const i = Number(card.dataset.v || 0);
+  const price = Number(card.dataset.prices.split(',')[i]);
+  const v = ADM_VARIANTS[i];
+  addToCart(card.dataset.key + (v ? '-' + v.toLowerCase() : ''), (v ? v + ' ' : '') + card.dataset.name, '🐾 Adopt Me', price);
+}
