@@ -771,7 +771,7 @@
 </style>
 <script src="https://www.paypal.com/sdk/js?client-id=AQvXxaPmRMQk9sfoo9AcSJs26LuWGE2RsUYCzhagWOk6fDXVqOApJBwfHtAYWeaI9rP4K0JRjRaR5_I2&currency=USD"></script>
 <link rel="stylesheet" href="reviews.css?v=94cd0145">
-<link rel="stylesheet" href="cart.css?v=f31bc4fd">
+<link rel="stylesheet" href="cart.css?v=a84a5f7a">
 </head>
 <body>
 
@@ -931,6 +931,18 @@
 
 <div id="sabWrapper">
   <div class="seller-grid sab-grid" id="sabGrid">
+  <div class="seller-card bb-card pet-card sab-bundle" data-mutation="normal" data-bundle="[[&quot;La Easter Grande&quot;, &quot;img/bbddb30e1db8e3a4.webp&quot;], [&quot;La Extinct Grande&quot;, &quot;img/2cff409c21bbb5c4.webp&quot;], [&quot;La Grande Combinasion&quot;, &quot;img/cc5da432ff47f4c7.webp&quot;], [&quot;La Jolly Grande&quot;, &quot;img/5283e4da30e800a4.webp&quot;], [&quot;La Lucky Grande&quot;, &quot;img/6efc01c952d35657.webp&quot;], [&quot;La Spooky Grande&quot;, &quot;img/0a767b6d3ca7ee19.webp&quot;]]" data-bundle-name="La Grande Bundle" data-bundle-key="sab-la-grande-bundle" data-bundle-price="5">
+    <div class="item-stage" style="position:relative; cursor:pointer;" onclick="openBundleView(this)">
+      <span class="sab-mutation-badge" style="background:linear-gradient(135deg,#7B5CFF,#FF4F8B); color:#fff;">Bundle</span>
+      <span class="bundle-peek">👀 See all 6</span>
+      <img loading="lazy" decoding="async" src="img/07961cef7f5c40a0.webp" alt="La Grande Bundle" class="bb-photo pet-photo titanic-photo">
+    </div>
+    <div class="seller-name">La Grande Bundle</div>
+    <div style="margin-left:16px;"><span class="sab-mutation-label" style="background:linear-gradient(135deg,#7B5CFF,#FF4F8B); color:#fff;">6 in 1</span></div>
+    <button type="button" class="bundle-see" onclick="openBundleView(this)">What's inside? →</button>
+    <div class="seller-price"><span class="price-main" data-usd="5.0">$5.00</span></div>
+    <button class="seller-cart" onclick="addToCart('sab-la-grande-bundle','La Grande Bundle (6 brainrots)','🧠 Steal a Brainrot',5.0)">🛒 Add to Cart</button>
+  </div>
   <div class="seller-card bb-card pet-card" data-mutation="normal">
     <div class="item-stage" style="position:relative;">
       <span class="sab-mutation-badge" style="background:#94A3B8; color:#1F2937;">Normal</span>
@@ -1120,66 +1132,6 @@
     <div style="margin-left:16px;"><span class="sab-mutation-label" style="background:#94A3B8; color:#1F2937;">Normal</span></div>
     <div class="seller-price"><span class="price-main" data-usd="0.85">$0.85</span></div>
     <button class="seller-cart" onclick="addToCart('sab-w-or-l-normal','W Or L (Normal)','🧠 Steal a Brainrot',0.85)">🛒 Add to Cart</button>
-  </div>
-  <div class="seller-card bb-card pet-card" data-mutation="normal">
-    <div class="item-stage" style="position:relative;">
-      <span class="sab-mutation-badge" style="background:linear-gradient(135deg,#7B5CFF,#FF4F8B); color:#fff;">Bundle</span>
-      <img data-char="la-easter-grande" alt="La Easter Grande (Bundle)" class="bb-photo pet-photo titanic-photo">
-    </div>
-    <div class="seller-name">La Easter Grande</div>
-    <div style="margin-left:16px;"><span class="sab-mutation-label" style="background:linear-gradient(135deg,#7B5CFF,#FF4F8B); color:#fff;">Bundle</span></div>
-    <div class="seller-price"><span class="price-main" data-usd="5.0">$5.00</span></div>
-    <button class="seller-cart" onclick="addToCart('sab-la-easter-grande-normal','La Easter Grande (Bundle)','🧠 Steal a Brainrot',5.0)">🛒 Add to Cart</button>
-  </div>
-  <div class="seller-card bb-card pet-card" data-mutation="normal">
-    <div class="item-stage" style="position:relative;">
-      <span class="sab-mutation-badge" style="background:linear-gradient(135deg,#7B5CFF,#FF4F8B); color:#fff;">Bundle</span>
-      <img data-char="la-extinct-grande" alt="La Extinct Grande (Bundle)" class="bb-photo pet-photo titanic-photo">
-    </div>
-    <div class="seller-name">La Extinct Grande</div>
-    <div style="margin-left:16px;"><span class="sab-mutation-label" style="background:linear-gradient(135deg,#7B5CFF,#FF4F8B); color:#fff;">Bundle</span></div>
-    <div class="seller-price"><span class="price-main" data-usd="5.0">$5.00</span></div>
-    <button class="seller-cart" onclick="addToCart('sab-la-extinct-grande-normal','La Extinct Grande (Bundle)','🧠 Steal a Brainrot',5.0)">🛒 Add to Cart</button>
-  </div>
-  <div class="seller-card bb-card pet-card" data-mutation="normal">
-    <div class="item-stage" style="position:relative;">
-      <span class="sab-mutation-badge" style="background:linear-gradient(135deg,#7B5CFF,#FF4F8B); color:#fff;">Bundle</span>
-      <img data-char="la-grande-combinasion" alt="La Grande Combinasion (Bundle)" class="bb-photo pet-photo titanic-photo">
-    </div>
-    <div class="seller-name">La Grande Combinasion</div>
-    <div style="margin-left:16px;"><span class="sab-mutation-label" style="background:linear-gradient(135deg,#7B5CFF,#FF4F8B); color:#fff;">Bundle</span></div>
-    <div class="seller-price"><span class="price-main" data-usd="5.0">$5.00</span></div>
-    <button class="seller-cart" onclick="addToCart('sab-la-grande-combinasion-normal','La Grande Combinasion (Bundle)','🧠 Steal a Brainrot',5.0)">🛒 Add to Cart</button>
-  </div>
-  <div class="seller-card bb-card pet-card" data-mutation="normal">
-    <div class="item-stage" style="position:relative;">
-      <span class="sab-mutation-badge" style="background:linear-gradient(135deg,#7B5CFF,#FF4F8B); color:#fff;">Bundle</span>
-      <img data-char="la-jolly-grande" alt="La Jolly Grande (Bundle)" class="bb-photo pet-photo titanic-photo">
-    </div>
-    <div class="seller-name">La Jolly Grande</div>
-    <div style="margin-left:16px;"><span class="sab-mutation-label" style="background:linear-gradient(135deg,#7B5CFF,#FF4F8B); color:#fff;">Bundle</span></div>
-    <div class="seller-price"><span class="price-main" data-usd="5.0">$5.00</span></div>
-    <button class="seller-cart" onclick="addToCart('sab-la-jolly-grande-normal','La Jolly Grande (Bundle)','🧠 Steal a Brainrot',5.0)">🛒 Add to Cart</button>
-  </div>
-  <div class="seller-card bb-card pet-card" data-mutation="normal">
-    <div class="item-stage" style="position:relative;">
-      <span class="sab-mutation-badge" style="background:linear-gradient(135deg,#7B5CFF,#FF4F8B); color:#fff;">Bundle</span>
-      <img data-char="la-lucky-grande" alt="La Lucky Grande (Bundle)" class="bb-photo pet-photo titanic-photo">
-    </div>
-    <div class="seller-name">La Lucky Grande</div>
-    <div style="margin-left:16px;"><span class="sab-mutation-label" style="background:linear-gradient(135deg,#7B5CFF,#FF4F8B); color:#fff;">Bundle</span></div>
-    <div class="seller-price"><span class="price-main" data-usd="5.0">$5.00</span></div>
-    <button class="seller-cart" onclick="addToCart('sab-la-lucky-grande-normal','La Lucky Grande (Bundle)','🧠 Steal a Brainrot',5.0)">🛒 Add to Cart</button>
-  </div>
-  <div class="seller-card bb-card pet-card" data-mutation="normal">
-    <div class="item-stage" style="position:relative;">
-      <span class="sab-mutation-badge" style="background:linear-gradient(135deg,#7B5CFF,#FF4F8B); color:#fff;">Bundle</span>
-      <img data-char="la-spooky-grande" alt="La Spooky Grande (Bundle)" class="bb-photo pet-photo titanic-photo">
-    </div>
-    <div class="seller-name">La Spooky Grande</div>
-    <div style="margin-left:16px;"><span class="sab-mutation-label" style="background:linear-gradient(135deg,#7B5CFF,#FF4F8B); color:#fff;">Bundle</span></div>
-    <div class="seller-price"><span class="price-main" data-usd="5.0">$5.00</span></div>
-    <button class="seller-cart" onclick="addToCart('sab-la-spooky-grande-normal','La Spooky Grande (Bundle)','🧠 Steal a Brainrot',5.0)">🛒 Add to Cart</button>
   </div>
   </div>
 </div>
@@ -1543,7 +1495,7 @@
 <script src="supabase-config.js?v=aee8e303"></script>
 <script src="visit.js?v=1bc5ef85"></script>
 <script src="tip.js?v=12cbe3cf"></script>
-<script src="cart.js?v=f60d3944"></script>
+<script src="cart.js?v=0e7ef0f4"></script>
 <script src="reviews.js?v=44e07f25"></script>
 
 <script>
@@ -2408,7 +2360,7 @@
 
 
 <script>
-  const SAB_IMAGE_DATA = {"67": "img/dec106331d610291.webp", "burguro-and-fryuro": "img/f629a15d1e2bc058.webp", "capitano-moby": "img/a1abaca6f59b5c42.webp", "cash-or-card": "img/ed69461c5ceeca9c.webp", "celestial-pegasus": "img/88cd33f70cfaa925.webp", "cerberus": "img/d0c886ecc5fed97f.webp", "cookie-and-milki": "img/f9eeba087c78b7fb.webp", "esok-sekolah": "img/8f04a5d5c0641b87.webp", "eviledon": "img/c125474b9504a7ce.webp", "fragrama-and-chocrama": "img/3221b1dcc42d9ee9.webp", "garama-and-madundung": "img/72a5f2f6dfbdc14c.webp", "ketchuru-and-musturu": "img/991aa2d2e7542f23.webp", "la-easter-grande": "img/bbddb30e1db8e3a4.webp", "la-extinct-grande": "img/2cff409c21bbb5c4.webp", "la-ginger-sekolah": "img/46527a743a45baaa.webp", "la-grande-combinasion": "img/cc5da432ff47f4c7.webp", "la-jolly-grande": "img/5283e4da30e800a4.webp", "la-lucky-grande": "img/6efc01c952d35657.webp", "la-secret-combinasion": "img/ec408f5e420f319a.webp", "la-spooky-grande": "img/0a767b6d3ca7ee19.webp", "los-67": "img/1dd3ca493cf9f778.webp", "los-combinasionas": "img/31cb4301ca25f94e.webp", "los-mobilis": "img/0dd8f46d3ce422cc.webp", "los-spaghettis": "img/dc00d4ce34161d84.webp", "w-or-l": "img/8c735a42b1163b52.webp"};
+  const SAB_IMAGE_DATA = {"67": "img/dec106331d610291.webp", "burguro-and-fryuro": "img/f629a15d1e2bc058.webp", "capitano-moby": "img/a1abaca6f59b5c42.webp", "cash-or-card": "img/ed69461c5ceeca9c.webp", "celestial-pegasus": "img/88cd33f70cfaa925.webp", "cerberus": "img/d0c886ecc5fed97f.webp", "cookie-and-milki": "img/f9eeba087c78b7fb.webp", "esok-sekolah": "img/8f04a5d5c0641b87.webp", "eviledon": "img/c125474b9504a7ce.webp", "fragrama-and-chocrama": "img/3221b1dcc42d9ee9.webp", "garama-and-madundung": "img/72a5f2f6dfbdc14c.webp", "ketchuru-and-musturu": "img/991aa2d2e7542f23.webp", "la-ginger-sekolah": "img/46527a743a45baaa.webp", "la-secret-combinasion": "img/ec408f5e420f319a.webp", "los-67": "img/1dd3ca493cf9f778.webp", "los-combinasionas": "img/31cb4301ca25f94e.webp", "los-mobilis": "img/0dd8f46d3ce422cc.webp", "los-spaghettis": "img/dc00d4ce34161d84.webp", "w-or-l": "img/8c735a42b1163b52.webp"};
   document.querySelectorAll('img[data-char]').forEach(img => {
     const src = SAB_IMAGE_DATA[img.getAttribute('data-char')];
     if(src) img.src = src;

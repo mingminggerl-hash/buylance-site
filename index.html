@@ -770,7 +770,7 @@
   @keyframes ocNudge{ 0%,88%,100%{ transform:translateY(0); } 92%{ transform:translateY(-6px); } 96%{ transform:translateY(0); } }
   @media (prefers-reduced-motion: reduce){ .ongoing-card{ animation:none; } }
 </style>
-<link rel="stylesheet" href="cart.css?v=f31bc4fd">
+<link rel="stylesheet" href="cart.css?v=a84a5f7a">
 </head>
 <body>
 
@@ -1890,6 +1890,18 @@
 </div>
 
 <div class="seller-grid" id="sellers-sab" style="display:none;">
+  <div class="seller-card bb-card pet-card sab-bundle" data-mutation="normal" data-bundle="[[&quot;La Easter Grande&quot;, &quot;img/bbddb30e1db8e3a4.webp&quot;], [&quot;La Extinct Grande&quot;, &quot;img/2cff409c21bbb5c4.webp&quot;], [&quot;La Grande Combinasion&quot;, &quot;img/cc5da432ff47f4c7.webp&quot;], [&quot;La Jolly Grande&quot;, &quot;img/5283e4da30e800a4.webp&quot;], [&quot;La Lucky Grande&quot;, &quot;img/6efc01c952d35657.webp&quot;], [&quot;La Spooky Grande&quot;, &quot;img/0a767b6d3ca7ee19.webp&quot;]]" data-bundle-name="La Grande Bundle" data-bundle-key="sab-la-grande-bundle" data-bundle-price="5">
+    <div class="item-stage" style="position:relative; cursor:pointer;" onclick="openBundleView(this)">
+      <span class="sab-mutation-badge" style="background:linear-gradient(135deg,#7B5CFF,#FF4F8B); color:#fff;">Bundle</span>
+      <span class="bundle-peek">👀 See all 6</span>
+      <img loading="lazy" decoding="async" src="img/07961cef7f5c40a0.webp" alt="La Grande Bundle" class="bb-photo pet-photo titanic-photo">
+    </div>
+    <div class="seller-name">La Grande Bundle</div>
+    <div style="margin-left:16px;"><span class="sab-mutation-label" style="background:linear-gradient(135deg,#7B5CFF,#FF4F8B); color:#fff;">6 in 1</span></div>
+    <button type="button" class="bundle-see" onclick="openBundleView(this)">What's inside? →</button>
+    <div class="seller-price"><span class="price-main" data-usd="5.0">$5.00</span></div>
+    <button class="seller-cart" onclick="addToCart('sab-la-grande-bundle','La Grande Bundle (6 brainrots)','🧠 Steal a Brainrot',5.0)">🛒 Add to Cart</button>
+  </div>
   <div class="seller-card bb-card pet-card" data-mutation="normal">
     <div class="item-stage" style="position:relative;">
       <span class="sab-mutation-badge" style="background:#94A3B8; color:#1F2937;">Normal</span>
@@ -1959,26 +1971,6 @@
     <div style="margin-left:16px;"><span class="sab-mutation-label" style="background:#94A3B8; color:#1F2937;">Normal</span></div>
     <div class="seller-price"><span class="price-main" data-usd="6.5">$6.50</span></div>
     <button class="seller-cart" onclick="addToCart('sab-los-combinasionas-normal','Los Combinasionas (Normal)','🧠 Steal a Brainrot',6.5)">🛒 Add to Cart</button>
-  </div>
-  <div class="seller-card bb-card pet-card" data-mutation="normal">
-    <div class="item-stage" style="position:relative;">
-      <span class="sab-mutation-badge" style="background:linear-gradient(135deg,#7B5CFF,#FF4F8B); color:#fff;">Bundle</span>
-      <img loading="lazy" decoding="async" src="img/cc5da432ff47f4c7.webp" alt="La Grande Combinasion (Bundle)" class="bb-photo pet-photo titanic-photo">
-    </div>
-    <div class="seller-name">La Grande Combinasion</div>
-    <div style="margin-left:16px;"><span class="sab-mutation-label" style="background:linear-gradient(135deg,#7B5CFF,#FF4F8B); color:#fff;">Bundle</span></div>
-    <div class="seller-price"><span class="price-main" data-usd="5.0">$5.00</span></div>
-    <button class="seller-cart" onclick="addToCart('sab-la-grande-combinasion-normal','La Grande Combinasion (Bundle)','🧠 Steal a Brainrot',5.0)">🛒 Add to Cart</button>
-  </div>
-  <div class="seller-card bb-card pet-card" data-mutation="normal">
-    <div class="item-stage" style="position:relative;">
-      <span class="sab-mutation-badge" style="background:linear-gradient(135deg,#7B5CFF,#FF4F8B); color:#fff;">Bundle</span>
-      <img loading="lazy" decoding="async" src="img/5283e4da30e800a4.webp" alt="La Jolly Grande (Bundle)" class="bb-photo pet-photo titanic-photo">
-    </div>
-    <div class="seller-name">La Jolly Grande</div>
-    <div style="margin-left:16px;"><span class="sab-mutation-label" style="background:linear-gradient(135deg,#7B5CFF,#FF4F8B); color:#fff;">Bundle</span></div>
-    <div class="seller-price"><span class="price-main" data-usd="5.0">$5.00</span></div>
-    <button class="seller-cart" onclick="addToCart('sab-la-jolly-grande-normal','La Jolly Grande (Bundle)','🧠 Steal a Brainrot',5.0)">🛒 Add to Cart</button>
   </div>
 <div class="see-all-row" style="grid-column:1/-1; text-align:center; padding:20px 0 6px;">
   <a href="stealabrainrot.html" class="see-all-btn" style="display:inline-block; background:var(--brand-blue); color:#fff; font-family:'Baloo 2', sans-serif; font-weight:700; font-size:14px; padding:12px 28px; border-radius:30px; text-decoration:none;">See All Steal a Brainrot Items →</a>
@@ -2512,7 +2504,7 @@
 <script src="visit.js?v=1bc5ef85"></script>
 <script src="reviews.js?v=44e07f25"></script>
 <script src="tip.js?v=12cbe3cf"></script>
-<script src="cart.js?v=f60d3944"></script>
+<script src="cart.js?v=0e7ef0f4"></script>
 
 <script>
   var currentUser = null; // shared login state across all script blocks
@@ -3604,7 +3596,7 @@
     'delivery-proof': { q: 'What is delivery proof?', a: `When your item is delivered, the seller attaches a screenshot of the trade 📸. It keeps both you and us protected if anything ever goes wrong.` },
     'which-games': { q: 'Which games do you sell?', a: `Murder Mystery 2, Adopt Me, Steal a Brainrot, Grow a Garden 1 & 2, Pet Simulator 99, Pet Simulator X, Blade Ball, Escape Tsunami, Baddies and Tap Simulator 🎮. More games are coming soon!` },
     'adm-versions': { q: 'What do FR, NFR and MFR mean? (Adopt Me)', a: `They're versions of the same pet 🐾:<br>• **Normal:** no potions<br>• **FR:** Fly + Ride<br>• **NFR:** Neon Fly + Ride<br>• **MFR:** Mega Neon Fly + Ride<br>Tap the buttons on a pet's card to see each price.` },
-    'mutations': { q: 'What are the Steal a Brainrot bundles?', a: `All our Steal a Brainrot brainrots are the **Normal** version 🧠. The **La … Grande** ones (like La Jolly Grande or La Spooky Grande) are **bundles** — **$5 each**.` },
+    'mutations': { q: 'What is the La Grande Bundle? (Steal a Brainrot)', a: `It's **6 brainrots in one** for **$5** 🧠 — La Easter, Extinct, Jolly, Lucky and Spooky Grande plus La Grande Combinasion. Tap the bundle card to see all 6. All our Steal a Brainrot items are the **Normal** version.` },
     'prices-change': { q: 'Why do prices change?', a: `Prices follow the in-game market 📈, so they go up and down. Don't worry — the price in your cart at checkout is exactly what you pay.` },
     'sell': { q: 'Can I sell my items to you?', a: `Yes! 💰 We buy items and pay you in Robux. Tap **"Want to sell your items?"** on the homepage or email us at **buyrblx.com@gmail.com**.` },
 
