@@ -3469,7 +3469,7 @@
   const BOT_FAQ_CATEGORIES = [
     { label: '🚀 Getting Started', ids: ['signup', 'legit', 'password-safety', 'payment', 'processing-fee', 'tip'] },
     { label: '📦 Ordering & Delivery', ids: ['how-receive', 'waiting-status', 'order-chat', 'delivery-proof', 'which-games', 'mutations', 'prices-change', 'sell'] },
-    { label: '💸 Money & Rewards', ids: ['wallet-cashback', 'rewards', 'spin-wheel', 'promo-code'] },
+    { label: '💸 Money & Rewards', ids: ['wallet-cashback', 'rewards', 'vip', 'spin-wheel', 'promo-code'] },
     { label: '⭐ After Your Order', ids: ['reviews', 'refund', 'cancel-order'] },
     { label: '👤 Account', ids: ['cant-login', 'account-warnings', 'why-warning', 'notifications', 'currency'] },
   ];
@@ -3477,11 +3477,11 @@
   // Answers support **bold** and [text](link).
   const BOT_FAQ_TREE = {
     'signup': { q: 'How do I make an account?', a: `Easy! Tap **Log In**, enter your email, and we'll send you a 6-character code 📧. Type it in and you're in — if it's your first time, your account is created automatically. No password needed!` },
-    'legit': { q: 'Is BuyRBLX legit?', a: `Yep! ✅ Every order is delivered by a real person, has its own private Order Chat, and gets a screenshot as delivery proof. Reviews on our site come only from buyers with completed orders — no fakes.` },
+    'legit': { q: 'Is BuyRBLX legit?', a: `Yep! ✅ Every order is delivered by a real person, has its own private Order Chat, and gets a screenshot as delivery proof. Payments go through PayPal, and our reviews come only from buyers with completed orders. You can also read what buyers say on [Trustpilot](https://www.trustpilot.com/review/buyrblx.com).` },
     'password-safety': { q: 'Will you ask for my Roblox password?', a: `**Never.** 🚫 We only need your Roblox **username** to deliver. If anyone asks for your password or a 2-step code saying they're from BuyRBLX, it's a scam — tell our [Support](support.html) team.` },
     'payment': { q: 'How can I pay?', a: `We accept **PayPal** and **Visa** 💳 — pay with your PayPal balance or a debit/credit card at checkout. You're always charged in USD.` },
-    'processing-fee': { q: 'Why is there a processing fee?', a: `Payment providers take a small cut of every payment, and the fee covers that. It's between **$0.50 and $1.50** depending on your order — never more than $1.50. 👍` },
-    'tip': { q: 'Can I tip the seller?', a: `You can! 💖 There's an optional tip box in your cart, right under the processing fee (minimum $0.10). Totally up to you — leave it blank if you want.` },
+    'processing-fee': { q: 'Why is there a processing fee?', a: `PayPal takes a cut of every payment, and the fee covers that. On small orders it's between **$0.50 and $1.50**; on bigger orders (about $27+) it's **4.5% + $0.30** — the same as what PayPal charges us. 👍` },
+    'tip': { q: 'Can I tip the seller?', a: `You can! 💖 Checkout has an optional tip step — pick **10%, 20%, 30%**, type your own amount (from $0.10), or choose **No tip**. Totally up to you.` },
 
     'how-receive': { q: 'How do I get my item?', a: `After you pay, a real seller picks up your order and messages you in your **Order Chat** with what to do — usually join their server and accept a trade in-game 🎮. Most orders are done in **5–15 minutes** ⚡.` },
     'waiting-status': { q: 'My order says "Waiting for Seller" — is that okay?', a: `Totally normal! ⏳ It just means a seller hasn't picked it up yet. It switches to **In Progress** as soon as they do — keep an eye on your Order Chat, and we'll email you when the seller messages you.` },
@@ -3494,10 +3494,11 @@
 
     'wallet-cashback': { q: 'How does cashback work?', a: `You get **3% back** on every order (**5% if you're VIP** 👑) 💸 — it's added to your Store Credit (shown at the top of the page). At checkout, tick **"Apply Cashback Discount"** in your cart to use it. Store credit can't be cashed out.` },
     'rewards': { q: 'What rewards can I get?', a: `Lots! 🎁<br>• **$20 spent:** a free MM2 Gun or Knife (one time)<br>• **After $10 spent:** 5% off one order every day ($2+) — comes back 24 hours after you use it ⚡<br>• **Every $50 spent:** a free spin 🎡<br>• **5 completed orders:** a one-time 10% off code 🏆<br>• **Every Monday:** a fresh 10% code, valid for 7 days 🎟️<br>We'll notify you whenever you unlock one!` },
-    'spin-wheel': { q: 'How does the spin wheel work?', a: `Every time your total spending goes up by **$50**, you unlock a free spin 🎡 on the Gun or Knife wheel. Whatever you win goes into your cart for free. Spins are paused if your account has 2 or more strikes.` },
-    'promo-code': { q: 'How do I use the BUYRBLX code?', a: `Type **BUYRBLX** in your cart for **10% off** 🎉. It works once per account, and only counts as used after you finish an order with it.` },
+    'vip': { q: 'What is Crown VIP?', a: `Crown VIP 👑 is **$9.99/month** through PayPal: a VIP wheel spin every month (your first one right after you subscribe), **5% cashback** instead of 3%, **2x Luck** on every wheel, a 👑 badge next to your name, and first access to new drops. It renews monthly — cancel anytime in **Settings → VIP Subscription**, and you keep VIP until the month you paid for ends.` },
+    'spin-wheel': { q: 'How does the spin wheel work?', a: `Every time your total spending goes up by **$50**, you unlock a free spin 🎡 on the Gun or Knife wheel — each wheel has one ⭐ special item. Whatever you win goes into your cart for free. Crown VIPs get **2x Luck** 👑 on every wheel, plus a VIP wheel spin every month. Spins are paused if your account has 2 or more strikes.` },
+    'promo-code': { q: 'How do I use the BUYRBLX code?', a: `Type **BUYRBLX** in your cart for **10% off** 🎉. It works once per account, and only counts as used after you finish an order with it. Heads up: you can use **one discount per order** — a code, a reward code, or your daily 5%.` },
 
-    'reviews': { q: 'How do I leave a review?', a: `Once your order is **Completed**, you can rate it ⭐ on your order page or in the "What Buyers Are Saying" section. Your review shows your Roblox name with a ✔ Verified Buyer badge.` },
+    'reviews': { q: 'How do I leave a review?', a: `Once your order is **Completed**, you can rate it ⭐ on your order page or in the "What Buyers Are Saying" section — your review shows your Roblox name with a ✔ Verified Buyer badge. We'll also email you a Trustpilot invite, and there's a **Review us on Trustpilot** button on your completed order. 💙` },
     'refund': { q: 'Something went wrong with my order', a: `Sorry about that! 🙏 Tap **Report an Issue** on your order. A real person checks it and either finishes your delivery or sorts out a refund.` },
     'cancel-order': { q: 'Can I cancel my order?', a: `Orders start moving fast, so we can't promise a cancel once you've paid. Message us right away in your Order Chat or [Support](support.html) and we'll do our best. ⚡` },
 
@@ -3505,7 +3506,7 @@
     'account-warnings': { q: 'What happens if I break the rules?', a: `We use 3 strikes ⚠️:<br>• **1st:** a warning<br>• **2nd:** your $50 spins get locked<br>• **3rd:** your account is frozen for 1 month<br>Strikes go away after 90 days. See our [Rules](rules.html).` },
     'why-warning': { q: 'Why did I get a warning?', a: `Usually for rude language, harassing support or other buyers, chargebacks, abusing spins or promo codes, or giving false delivery info. You can see the reason in your **Settings**.` },
     'notifications': { q: 'What is the bell icon for?', a: `The 🔔 lets you know when your order status changes, a seller or support replies, or you unlock a reward. Tap it to see your latest updates.` },
-    'currency': { q: 'Can I see prices in my currency?', a: `Yes! 🌍 Pick your currency at the top of the page. It's just to help you compare — you're always charged in **USD**.` },
+    'currency': { q: 'Can I change the language or currency?', a: `Yes! 🌐 Tap the **🌐 EN · USD** button at the top of the page. Pick from 11 languages and 6 currencies (USD, EUR, GBP, JPY, AUD, BRL). Prices in other currencies are just to help you compare — you're always charged in **USD**.` },
   };
 
   let botAsked = new Set();
