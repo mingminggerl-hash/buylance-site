@@ -62,7 +62,7 @@
   content: ""; position: absolute; z-index: -1; width: 220px; height: 220px; right: -70px; top: -80px;
   background: radial-gradient(circle, rgba(255,184,0,.45), transparent 65%);
 }
-@media (max-width: 860px){ .rv-summary{ position: static; } }
+@media (max-width: 860px){ .rv-summary{ position: relative; top: 0; } }
 .rv-score-row{ display: flex; align-items: center; gap: 14px; }
 .rv-score{ font-family: 'Baloo 2', sans-serif; font-weight: 800; font-size: 58px; line-height: .9; }
 .rv-score-side .rv-stars{ font-size: 20px; }

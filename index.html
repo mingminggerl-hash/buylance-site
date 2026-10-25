@@ -749,7 +749,7 @@
   }
 </style>
 <script src="https://www.paypal.com/sdk/js?client-id=AQvXxaPmRMQk9sfoo9AcSJs26LuWGE2RsUYCzhagWOk6fDXVqOApJBwfHtAYWeaI9rP4K0JRjRaR5_I2&currency=USD"></script>
-<link rel="stylesheet" href="reviews.css?v=be83a25a">
+<link rel="stylesheet" href="reviews.css?v=94cd0145">
 <style>
   .ongoing-card{
     position:fixed; left:18px; bottom:22px; z-index:480; max-width:min(360px, calc(100vw - 112px));
@@ -770,7 +770,7 @@
   @keyframes ocNudge{ 0%,88%,100%{ transform:translateY(0); } 92%{ transform:translateY(-6px); } 96%{ transform:translateY(0); } }
   @media (prefers-reduced-motion: reduce){ .ongoing-card{ animation:none; } }
 </style>
-<link rel="stylesheet" href="cart.css?v=29389582">
+<link rel="stylesheet" href="cart.css?v=812b2d62">
 </head>
 <body>
 
@@ -796,6 +796,8 @@
 
 <header>
 
+  <div class="hdr-left">
+  <a href="index.html" class="hdr-logo notranslate" aria-label="BuyRBLX home"><img src="icon-192.png" alt=""><b>BUY<span>RBLX</span></b></a>
   <div class="select-game-wrap">
     <button class="select-game-btn" onclick="toggleGameMenu()">Select Game <span id="gameChevron">▾</span></button>
     <div class="game-menu" id="gameMenu">
@@ -811,6 +813,7 @@
       <a onclick="goToSellerTab('tapsim', 'Tap Sim'); toggleGameMenu();">👆 Tap Sim</a>
       <a href="stealabrainrot.html">🧠 Steal a Brainrot</a>
     </div>
+  </div>
   </div>
 
   <nav>
@@ -829,8 +832,7 @@
       </div>
     </div>
     <div style="position:relative;">
-      <button class="icon-btn" id="currencyBtn" onclick="toggleCurrencyMenu()" style="width:auto; padding:0 10px; font-size:12px; font-weight:800; white-space:nowrap;">🌍 <span id="currencyLabel">USD</span></button>
-      <div class="game-menu" id="currencyMenu" style="display:none; right:0; left:auto; min-width:160px;"></div>
+      <button class="icon-btn lc-btn" id="currencyBtn" onclick="openIntlModal()" title="Language & currency"><span class="lc-btn-globe">🌐</span><span id="langLabel">EN</span><i></i><span id="currencyLabel">USD</span></button>
     </div>
     <div style="position:relative;">
       <button class="icon-btn" id="notifBtn" onclick="toggleNotifDropdown()" style="position:relative;">
@@ -2106,27 +2108,40 @@
 </div>
 
 <div class="section-heading" style="margin-top:80px;">
-  <h2>What <span class="hl">Payment</span> Do We Accept?</h2>
-  <p>Pick whichever's easiest for you</p>
+  <h2>Pay Your <span class="hl">Way</span></h2>
+  <p>Fast, protected checkout — no account needed for cards</p>
 </div>
-<div class="payment-grid">
-  <div class="pay-badge" style="color:#003087;">PayPal</div>
-  <div class="pay-badge" style="color:#1A1F71;">VISA</div>
+<div class="pay2">
+  <div class="pay2-card pay2-pp">
+    <div class="pay2-shine"></div>
+    <div class="pay2-logo notranslate"><b>Pay</b><i>Pal</i></div>
+    <div class="pay2-text">Pay with your PayPal balance or any card linked to it.</div>
+    <div class="pay2-tag">🛡️ PayPal Buyer Protection</div>
+  </div>
+  <div class="pay2-card pay2-visa">
+    <div class="pay2-shine"></div>
+    <div class="pay2-logo notranslate"><span class="pay2-chip"></span>VISA</div>
+    <div class="pay2-text">Debit or credit card — pay as a guest right inside checkout.</div>
+    <div class="pay2-tag">⚡ No sign-up needed</div>
+  </div>
+</div>
+<div class="pay2-chips">
+  <span>🔒 Encrypted checkout</span><span>🙈 We never see your card details</span><span>💵 Charged in USD</span>
 </div>
 
-<div class="safety">
-  <div class="section-heading">
-    <h2>Safe To Use, <span class="hl">Simple to Trust.</span></h2>
+<div class="safe2">
+  <div class="safe2-glow"></div>
+  <div class="safe2-head">
+    <span class="safe2-badge">🛡️ Trusted by Roblox players</span>
+    <h2>Safe To Use, <span>Simple to Trust.</span></h2>
   </div>
-  <div class="safety-icons">
-    <div class="safety-icon"><div class="ico">⚡</div><h4>Instant Delivery</h4><p>Minutes, not hours</p></div>
-    <div class="safety-icon"><div class="ico">🔒</div><h4>No Password</h4><p>Username only</p></div>
-    <div class="safety-icon"><div class="ico">✅</div><h4>Secure Checkout</h4><p>Trusted payment methods</p></div>
-    <div class="safety-icon"><div class="ico">💰</div><h4>Fair Pricing</h4><p>No hidden markups</p></div>
+  <div class="safe2-grid">
+    <div class="safe2-tile" style="--a:#FFB547; --b:#FF7A29;"><div class="safe2-ico">⚡</div><h4>Fast Delivery</h4><p>Most orders land in 5–15 minutes</p></div>
+    <div class="safe2-tile" style="--a:#6FA8FF; --b:#2F6FFF;"><div class="safe2-ico">🔒</div><h4>No Password</h4><p>We only need your username</p></div>
+    <div class="safe2-tile" style="--a:#5EE0A0; --b:#18A865;"><div class="safe2-ico">✅</div><h4>Secure Checkout</h4><p>Payments handled by PayPal</p></div>
+    <div class="safe2-tile" style="--a:#C59BFF; --b:#7B5CFF;"><div class="safe2-ico">💰</div><h4>Fair Pricing</h4><p>No hidden markups</p></div>
   </div>
-  <div class="safety-note">
-    We only ever ask for your in-game username to deliver your order — never your password. Every payment goes through a trusted, secure provider, so your information stays private.
-  </div>
+  <div class="safe2-note"><span>🙌</span>We'll never ask for your password and never ask you to download anything. If someone claiming to be BuyRBLX does, it isn't us.</div>
 </div>
 
 <section id="buyerReviews" class="rv"></section>
@@ -2151,45 +2166,53 @@
 </div>
 <div class="faq">
   <div class="faq-item">
-    <div class="faq-q">What happens after I pay? How do I actually receive my items? <div class="chev">▾</div></div>
+    <div class="faq-q"><span class="faq-ico">🎮</span><span class="faq-qt">What happens after I pay? How do I get my items?</span> <div class="chev">+</div></div>
     <div class="faq-a">
-      <p>Once your payment goes through, there's a short manual step on our end before delivery starts.</p>
-      <p>Right after checking out, send us your Roblox username through the order form or the Log-in/Claim Order option in the header. That username is the only thing we need from you — we'll never ask for your password.</p>
-      <p>From there, we reach out to you directly in-game to complete the handoff. Most orders are completed within 5–15 minutes of us receiving your username, though this can shift slightly depending on Roblox's own trade cooldowns or availability on our end.</p>
+      <p>A real seller picks up your order and messages you in your <b>Order Chat</b>. Usually you just join their server and accept the trade in-game.</p><p>All we ever need is your Roblox username — never your password. Most orders are done in <b>5–15 minutes</b>.</p>
     </div>
   </div>
   <div class="faq-item">
-    <div class="faq-q">My order hasn't arrived — what do I do? <div class="chev">▾</div></div>
+    <div class="faq-q"><span class="faq-ico">⏳</span><span class="faq-qt">My order hasn't arrived — what do I do?</span> <div class="chev">+</div></div>
     <div class="faq-a">
-      <p>First, don't panic — delivery delays usually come down to something simple, like a Roblox trade cooldown or us needing to double check your username.</p>
-      <p>Message support with your order number, your Roblox username, and a short description of what's going on. Screenshots help us sort it out faster if you have any.</p>
-      <p>It might take a little while to get back to you. We'll either finish the delivery or figure out what went wrong together.</p>
+      <p>Open your order (profile → <b>Ongoing Orders</b>) and message the seller in the Order Chat. If nobody has answered yet, tap <b>Remind</b>.</p><p>Delays usually come from a Roblox trade cooldown. Still stuck? <a href="support.html">Open a support ticket</a> with your order number and we'll sort it out.</p>
     </div>
   </div>
   <div class="faq-item">
-    <div class="faq-q">Is BuyRBLX safe to buy from? <div class="chev">▾</div></div>
+    <div class="faq-q"><span class="faq-ico">🛡️</span><span class="faq-qt">Is BuyRBLX safe to buy from?</span> <div class="chev">+</div></div>
     <div class="faq-a">
-      <p>We built the checkout flow specifically to avoid asking for anything sensitive — the only thing we ever need to deliver your order is your Roblox username.</p>
-      <p>Payments themselves are handled by trusted third-party providers (like PayPal), so your card or account details are never something we see or store directly.</p>
-      <p>We'll never ask for your password, and we'll never ask you to download anything to "claim" an order — if anyone claiming to be from BuyRBLX asks for either of those, it's not really us.</p>
+      <p>Yes. Payments go through PayPal, so your card and account details never reach us.</p><p>We only ever need your Roblox username. We'll never ask for your password or ask you to download anything to "claim" an order — if anyone does, it isn't us.</p>
     </div>
   </div>
   <div class="faq-item">
-    <div class="faq-q">Can I get a refund? <div class="chev">▾</div></div>
+    <div class="faq-q"><span class="faq-ico">💸</span><span class="faq-qt">How does cashback work?</span> <div class="chev">+</div></div>
     <div class="faq-a">
-      <p>Once an item or currency pack has been delivered to your account, it's considered final — digital goods can't really be "returned" the way a physical item can.</p>
-      <p>That said, if something went wrong on our end — wrong item delivered, or an order that never showed up despite you doing everything right — we'll make it right, either by redelivering or refunding.</p>
-      <p>Full details live on our <a href="refund.html" style="color:#FF7A7A; text-decoration:underline;">Refund Policy</a> page, including what happens if you don't respond to delivery instructions within 14 days.</p>
+      <p>Every completed order gives you <b>3% back</b> (<b>5%</b> for Crown VIP 👑) as store credit in your wallet. Use it on any order at checkout.</p>
+    </div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q"><span class="faq-ico">👑</span><span class="faq-qt">What is Crown VIP?</span> <div class="chev">+</div></div>
+    <div class="faq-a">
+      <p>Crown VIP is <b>$9.99/month</b>: a VIP wheel spin every month, 5% cashback instead of 3%, a 👑 badge next to your name and first access to new drops. Cancel anytime in your settings.</p>
+    </div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q"><span class="faq-ico">↩️</span><span class="faq-qt">Can I get a refund?</span> <div class="chev">+</div></div>
+    <div class="faq-a">
+      <p>Delivered items are final — digital items can't be returned. But if something went wrong on our side (wrong item, or an order that never arrived), we'll redeliver or refund you.</p><p>Full details are on our <a href="refund.html">Refund Policy</a> page.</p>
     </div>
   </div>
 </div>
 
 <div class="help-cta">
-  <div class="help-cta-box">
+  <div class="help2">
+    <div class="help2-glow"></div>
+    <div class="help2-emoji">💬</div>
     <h3>Still Have Questions?</h3>
-    <p>Our Help Center has step-by-step guides, delivery info, and everything else you need to know before ordering.</p>
-    <!-- point this at your real help/support page once it's built -->
-    <a href="#" class="help-cta-btn">📄 Visit Help Center</a>
+    <p>A real person reads every message. Open a ticket or check on your order anytime.</p>
+    <div class="help2-btns">
+      <a href="support.html" class="help2-btn help2-main">🎫 Contact Support</a>
+      <a href="settings.html?tab=orders" class="help2-btn help2-alt">📦 Track My Order</a>
+    </div>
   </div>
 </div>
 
@@ -2374,7 +2397,7 @@
 <script src="visit.js?v=1bc5ef85"></script>
 <script src="reviews.js?v=44e07f25"></script>
 <script src="tip.js?v=12cbe3cf"></script>
-<script src="cart.js?v=6ac3cd1b"></script>
+<script src="cart.js?v=fa86d569"></script>
 
 <script>
   var currentUser = null; // shared login state across all script blocks
@@ -3329,137 +3352,8 @@
   refreshAuthUI();
 </script>
 
+<script src="intl.js?v=94377e5d"></script>
 <script>
-  // ============================================================
-  // CURRENCY ENGINE
-  // ------------------------------------------------------------
-  // Every price on the site is stored/priced in USD (that's the
-  // real settlement currency — PayPal always charges in USD here).
-  // This script only changes what's DISPLAYED: it detects the
-  // visitor's likely local currency, pulls a live USD exchange
-  // rate, and rewrites every element with a data-usd="X" attribute
-  // (plus the cart, which is JS-driven) into that currency.
-  // Nothing about checkout math changes — formatMoney() is purely
-  // cosmetic and everything still totals correctly in USD under
-  // the hood.
-  // ============================================================
-
-  let CURRENT_CURRENCY = 'USD';
-  let CURRENT_RATE = 1; // multiply a USD amount by this to get CURRENT_CURRENCY
-
-  const COMMON_CURRENCIES = [
-    'USD','PHP','JPY','EUR','GBP','INR','AUD','CAD','SGD','MYR',
-    'IDR','THB','VND','KRW','CNY','MXN','BRL','ZAR','NZD','AED'
-  ];
-
-  function formatMoney(usdAmount){
-    try {
-      return new Intl.NumberFormat(undefined, {
-        style: 'currency',
-        currency: CURRENT_CURRENCY,
-        currencyDisplay: 'narrowSymbol'
-      }).format(usdAmount * CURRENT_RATE);
-    } catch(e){
-      // Fallback if the browser doesn't recognize the currency code
-      return '$' + (usdAmount * CURRENT_RATE).toFixed(2);
-    }
-  }
-
-  function repaintAllPrices(){
-    document.querySelectorAll('[data-usd]').forEach(el => {
-      const usd = parseFloat(el.getAttribute('data-usd'));
-      if(!isNaN(usd)) el.textContent = formatMoney(usd);
-    });
-    document.getElementById('currencyLabel').textContent = CURRENT_CURRENCY;
-    if(typeof renderCart === 'function') renderCart();
-  }
-
-  async function setCurrency(code, rate){
-    CURRENT_CURRENCY = code;
-    CURRENT_RATE = rate;
-    repaintAllPrices();
-  }
-
-  async function fetchRateFor(code){
-    if(code === 'USD') return 1;
-    // Cache exchange rates for 12 hours so we're not hitting the API on every page load
-    const cacheKey = 'buylance_fx_' + code;
-    try {
-      const cached = JSON.parse(localStorage.getItem(cacheKey) || 'null');
-      if(cached && (Date.now() - cached.t) < 12*60*60*1000){
-        return cached.rate;
-      }
-    } catch(e){}
-
-    try {
-      const res = await fetch('https://open.er-api.com/v6/latest/USD');
-      const data = await res.json();
-      const rate = data && data.rates && data.rates[code];
-      if(rate){
-        localStorage.setItem(cacheKey, JSON.stringify({ rate, t: Date.now() }));
-        return rate;
-      }
-    } catch(e){
-      console.warn('Exchange rate lookup failed, staying on USD.', e);
-    }
-    return null; // signals failure — caller should fall back to USD
-  }
-
-  async function applyCurrency(code){
-    if(code === 'USD'){ await setCurrency('USD', 1); localStorage.setItem('buylance_currency_pref', 'USD'); return; }
-    const rate = await fetchRateFor(code);
-    if(rate){
-      await setCurrency(code, rate);
-      localStorage.setItem('buylance_currency_pref', code);
-    } else {
-      await setCurrency('USD', 1); // graceful fallback
-    }
-  }
-
-  function toggleCurrencyMenu(){
-    const menu = document.getElementById('currencyMenu');
-    const isOpen = menu.style.display === 'block';
-    if(isOpen){ menu.style.display = 'none'; return; }
-    menu.innerHTML = COMMON_CURRENCIES.map(c =>
-      `<a onclick="applyCurrency('${c}'); toggleCurrencyMenu();">${c}${c === CURRENT_CURRENCY ? ' ✓' : ''}</a>`
-    ).join('') + `<a onclick="detectCurrencyFromLocation(true); toggleCurrencyMenu();" style="border-top:1px solid var(--card-border); font-weight:800;">🌍 Auto-detect</a>`;
-    menu.style.display = 'block';
-  }
-  document.addEventListener('click', (e) => {
-    const menu = document.getElementById('currencyMenu');
-    const btn = document.getElementById('currencyBtn');
-    if(menu && menu.style.display === 'block' && !menu.contains(e.target) && e.target !== btn){
-      menu.style.display = 'none';
-    }
-  });
-
-  async function detectCurrencyFromLocation(forceRefresh){
-    if(!forceRefresh){
-      const saved = localStorage.getItem('buylance_currency_pref');
-      if(saved){ await applyCurrency(saved); return; }
-    }
-    try {
-      // ipapi.co returns the visitor's likely currency directly based on IP —
-      // no key needed, but ad-blockers sometimes block it, so we fail quietly to USD.
-      const res = await fetch('https://ipapi.co/json/');
-      const data = await res.json();
-      const code = data && data.currency;
-      if(code && COMMON_CURRENCIES.includes(code)){
-        await applyCurrency(code);
-      } else if(code){
-        // Still try it even if it's not in our quick-pick list — Intl can usually format it
-        await applyCurrency(code);
-      } else {
-        await setCurrency('USD', 1);
-      }
-    } catch(e){
-      console.warn('Currency auto-detect failed, staying on USD.', e);
-      await setCurrency('USD', 1);
-    }
-  }
-
-  // Kick things off once the page (and all the addToCart price divs) exist
-  document.addEventListener('DOMContentLoaded', () => detectCurrencyFromLocation(false));
   document.addEventListener('DOMContentLoaded', () => { loadCartFromStorage(); renderCart(); });
 </script>
 
@@ -3575,7 +3469,7 @@
   const BOT_FAQ_CATEGORIES = [
     { label: '🚀 Getting Started', ids: ['signup', 'legit', 'password-safety', 'payment', 'processing-fee', 'tip'] },
     { label: '📦 Ordering & Delivery', ids: ['how-receive', 'waiting-status', 'order-chat', 'delivery-proof', 'which-games', 'mutations', 'prices-change', 'sell'] },
-    { label: '💸 Money & Rewards', ids: ['wallet-cashback', 'rewards', 'spin-wheel', 'promo-code'] },
+    { label: '💸 Money & Rewards', ids: ['wallet-cashback', 'rewards', 'vip', 'spin-wheel', 'promo-code'] },
     { label: '⭐ After Your Order', ids: ['reviews', 'refund', 'cancel-order'] },
     { label: '👤 Account', ids: ['cant-login', 'account-warnings', 'why-warning', 'notifications', 'currency'] },
   ];
@@ -3583,11 +3477,11 @@
   // Answers support **bold** and [text](link).
   const BOT_FAQ_TREE = {
     'signup': { q: 'How do I make an account?', a: `Easy! Tap **Log In**, enter your email, and we'll send you a 6-character code 📧. Type it in and you're in — if it's your first time, your account is created automatically. No password needed!` },
-    'legit': { q: 'Is BuyRBLX legit?', a: `Yep! ✅ Every order is delivered by a real person, has its own private Order Chat, and gets a screenshot as delivery proof. Reviews on our site come only from buyers with completed orders — no fakes.` },
+    'legit': { q: 'Is BuyRBLX legit?', a: `Yep! ✅ Every order is delivered by a real person, has its own private Order Chat, and gets a screenshot as delivery proof. Payments go through PayPal, and our reviews come only from buyers with completed orders. You can also read what buyers say on [Trustpilot](https://www.trustpilot.com/review/buyrblx.com).` },
     'password-safety': { q: 'Will you ask for my Roblox password?', a: `**Never.** 🚫 We only need your Roblox **username** to deliver. If anyone asks for your password or a 2-step code saying they're from BuyRBLX, it's a scam — tell our [Support](support.html) team.` },
     'payment': { q: 'How can I pay?', a: `We accept **PayPal** and **Visa** 💳 — pay with your PayPal balance or a debit/credit card at checkout. You're always charged in USD.` },
-    'processing-fee': { q: 'Why is there a processing fee?', a: `Payment providers take a small cut of every payment, and the fee covers that. It's between **$0.50 and $1.50** depending on your order — never more than $1.50. 👍` },
-    'tip': { q: 'Can I tip the seller?', a: `You can! 💖 There's an optional tip box in your cart, right under the processing fee (minimum $0.10). Totally up to you — leave it blank if you want.` },
+    'processing-fee': { q: 'Why is there a processing fee?', a: `PayPal takes a cut of every payment, and the fee covers that. On small orders it's between **$0.50 and $1.50**; on bigger orders (about $27+) it's **4.5% + $0.30** — the same as what PayPal charges us. 👍` },
+    'tip': { q: 'Can I tip the seller?', a: `You can! 💖 Checkout has an optional tip step — pick **10%, 20%, 30%**, type your own amount (from $0.10), or choose **No tip**. Totally up to you.` },
 
     'how-receive': { q: 'How do I get my item?', a: `After you pay, a real seller picks up your order and messages you in your **Order Chat** with what to do — usually join their server and accept a trade in-game 🎮. Most orders are done in **5–15 minutes** ⚡.` },
     'waiting-status': { q: 'My order says "Waiting for Seller" — is that okay?', a: `Totally normal! ⏳ It just means a seller hasn't picked it up yet. It switches to **In Progress** as soon as they do — keep an eye on your Order Chat, and we'll email you when the seller messages you.` },
@@ -3600,10 +3494,11 @@
 
     'wallet-cashback': { q: 'How does cashback work?', a: `You get **3% back** on every order (**5% if you're VIP** 👑) 💸 — it's added to your Store Credit (shown at the top of the page). At checkout, tick **"Apply Cashback Discount"** in your cart to use it. Store credit can't be cashed out.` },
     'rewards': { q: 'What rewards can I get?', a: `Lots! 🎁<br>• **$20 spent:** a free MM2 Gun or Knife (one time)<br>• **After $10 spent:** 5% off one order every day ($2+) — comes back 24 hours after you use it ⚡<br>• **Every $50 spent:** a free spin 🎡<br>• **5 completed orders:** a one-time 10% off code 🏆<br>• **Every Monday:** a fresh 10% code, valid for 7 days 🎟️<br>We'll notify you whenever you unlock one!` },
-    'spin-wheel': { q: 'How does the spin wheel work?', a: `Every time your total spending goes up by **$50**, you unlock a free spin 🎡 on the Gun or Knife wheel. Whatever you win goes into your cart for free. Spins are paused if your account has 2 or more strikes.` },
-    'promo-code': { q: 'How do I use the BUYRBLX code?', a: `Type **BUYRBLX** in your cart for **10% off** 🎉. It works once per account, and only counts as used after you finish an order with it.` },
+    'vip': { q: 'What is Crown VIP?', a: `Crown VIP 👑 is **$9.99/month** through PayPal: a VIP wheel spin every month (your first one right after you subscribe), **5% cashback** instead of 3%, **2x Luck** on every wheel, a 👑 badge next to your name, and first access to new drops. It renews monthly — cancel anytime in **Settings → VIP Subscription**, and you keep VIP until the month you paid for ends.` },
+    'spin-wheel': { q: 'How does the spin wheel work?', a: `Every time your total spending goes up by **$50**, you unlock a free spin 🎡 on the Gun or Knife wheel — each wheel has one ⭐ special item. Whatever you win goes into your cart for free. Crown VIPs get **2x Luck** 👑 on every wheel, plus a VIP wheel spin every month. Spins are paused if your account has 2 or more strikes.` },
+    'promo-code': { q: 'How do I use the BUYRBLX code?', a: `Type **BUYRBLX** in your cart for **10% off** 🎉. It works once per account, and only counts as used after you finish an order with it. Heads up: you can use **one discount per order** — a code, a reward code, or your daily 5%.` },
 
-    'reviews': { q: 'How do I leave a review?', a: `Once your order is **Completed**, you can rate it ⭐ on your order page or in the "What Buyers Are Saying" section. Your review shows your Roblox name with a ✔ Verified Buyer badge.` },
+    'reviews': { q: 'How do I leave a review?', a: `Once your order is **Completed**, you can rate it ⭐ on your order page or in the "What Buyers Are Saying" section — your review shows your Roblox name with a ✔ Verified Buyer badge. We'll also email you a Trustpilot invite, and there's a **Review us on Trustpilot** button on your completed order. 💙` },
     'refund': { q: 'Something went wrong with my order', a: `Sorry about that! 🙏 Tap **Report an Issue** on your order. A real person checks it and either finishes your delivery or sorts out a refund.` },
     'cancel-order': { q: 'Can I cancel my order?', a: `Orders start moving fast, so we can't promise a cancel once you've paid. Message us right away in your Order Chat or [Support](support.html) and we'll do our best. ⚡` },
 
@@ -3611,7 +3506,7 @@
     'account-warnings': { q: 'What happens if I break the rules?', a: `We use 3 strikes ⚠️:<br>• **1st:** a warning<br>• **2nd:** your $50 spins get locked<br>• **3rd:** your account is frozen for 1 month<br>Strikes go away after 90 days. See our [Rules](rules.html).` },
     'why-warning': { q: 'Why did I get a warning?', a: `Usually for rude language, harassing support or other buyers, chargebacks, abusing spins or promo codes, or giving false delivery info. You can see the reason in your **Settings**.` },
     'notifications': { q: 'What is the bell icon for?', a: `The 🔔 lets you know when your order status changes, a seller or support replies, or you unlock a reward. Tap it to see your latest updates.` },
-    'currency': { q: 'Can I see prices in my currency?', a: `Yes! 🌍 Pick your currency at the top of the page. It's just to help you compare — you're always charged in **USD**.` },
+    'currency': { q: 'Can I change the language or currency?', a: `Yes! 🌐 Tap the **🌐 EN · USD** button at the top of the page. Pick from 11 languages and 6 currencies (USD, EUR, GBP, JPY, AUD, BRL). Prices in other currencies are just to help you compare — you're always charged in **USD**.` },
   };
 
   let botAsked = new Set();
