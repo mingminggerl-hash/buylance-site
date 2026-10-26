@@ -726,3 +726,13 @@ body > .skiptranslate, .goog-te-banner-frame, iframe.skiptranslate, #goog-gt-tt,
   transition:transform .15s ease, background .15s ease, border-color .15s ease, box-shadow .15s ease; }
 .mm2-chip:hover{ transform:translateY(-2px); border-color:#AFC3FF; }
 .mm2-chip.on{ color:#fff; border-color:transparent; background:linear-gradient(135deg, #3D6BFF, #7B5CFF); box-shadow:0 10px 20px -10px rgba(61,107,255,.9); }
+
+/* Nudge popup (offer at login / random moment) */
+.ct-nudge{ padding-top:30px; }
+.ct-nudge p{ font-size:13.5px; margin-top:8px; }
+.ct-nudge-x{ position:absolute; top:12px; right:12px; width:30px; height:30px; margin:0 !important; padding:0 !important; border-radius:10px !important;
+  background:rgba(255,255,255,.18) !important; color:#fff !important; font-size:13px !important; }
+.ct-nudge-btns{ display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:4px; }
+.ct-nudge-btns button{ margin-top:12px; }
+.ct-nudge .ct-nudge-later{ background:rgba(255,255,255,.18); color:#fff; border:1px solid rgba(255,255,255,.35); }
+.ct-nudge-no{ display:inline-block; margin-top:12px; font-size:12px; font-weight:700; color:rgba(255,255,255,.75); text-decoration:underline; }
