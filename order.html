@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<script>if(/\.html$/.test(location.pathname)&&location.protocol!=='file:')history.replaceState(null,'',location.pathname.replace(/(index)?\.html$/,'')+location.search+location.hash);</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Your Order | BuyRBLX</title>
 <link rel="icon" href="favicon.ico" sizes="any">
@@ -249,7 +250,7 @@
 </head>
 <body>
 
-<a href="index.html" class="logo">BUY<span>RBLX</span></a>
+<a href="/" class="logo">BUY<span>RBLX</span></a>
 
 <div class="wrap">
   <div id="reminder-banner">🔔 <span id="reminder-text">Seller is waiting for you!</span></div>
@@ -270,7 +271,7 @@
       <button class="remind-btn" id="remindBtn" onclick="remindSeller()" title="Ping the seller (or type !remind)"><span class="bell">🔔</span> Remind seller</button>
     </div>
     <div class="chat-helper-tip">
-      💡 <b>Questions about receiving your item?</b> Ask here. Seller taking a while? Tap <b>Remind seller</b> or type <b>!remind</b>. Need something else? <a href="support.html">Visit Support</a>.
+      💡 <b>Questions about receiving your item?</b> Ask here. Seller taking a while? Tap <b>Remind seller</b> or type <b>!remind</b>. Need something else? <a href="support">Visit Support</a>.
     </div>
     <div id="chat-box"></div>
     <div class="reply-preview-bar" id="replyPreviewBar">
@@ -419,7 +420,7 @@
     }
 
     document.getElementById('orderSummaryCard').innerHTML = `
-      <a href="index.html" class="back-home-link">← Back to Home</a>
+      <a href="/" class="back-home-link">← Back to Home</a>
       ${statusHero(order.status)}
       <h2>Order #${order.order_number}</h2>
       ${items}
@@ -462,7 +463,7 @@
           <div class="sa-emoji">🎉</div>
           <div class="sa-title">Order complete — thank you!</div>
           <div class="sa-sub">Want to shop with us again?</div>
-          <a class="sa-btn" href="index.html">🛒 Shop again</a>
+          <a class="sa-btn" href="/">🛒 Shop again</a>
           <div class="tp-ask">
             <div class="tp-ask-text">Enjoyed it? A quick review helps other buyers trust us 💚</div>
             <a class="tp-btn" href="https://www.trustpilot.com/evaluate/buyrblx.com" target="_blank" rel="noopener"><span class="tp-star">★</span> Review us on Trustpilot</a>
@@ -476,7 +477,7 @@
   async function loadOrder(){
     if(!orderId){
       document.getElementById('orderSummaryCard').innerHTML = `
-        <a href="index.html" class="back-home-link">← Back to Home</a>
+        <a href="/" class="back-home-link">← Back to Home</a>
         <p class="sub">No order specified.</p>
       `;
       return;
@@ -485,15 +486,15 @@
     currentUser = session ? session.user : null;
     if(!currentUser){
       document.getElementById('orderSummaryCard').innerHTML = `
-        <a href="index.html" class="back-home-link">← Back to Home</a>
-        <p class="sub">Please <a href="login-code.html">log in</a> to view this order.</p>
+        <a href="/" class="back-home-link">← Back to Home</a>
+        <p class="sub">Please <a href="login-code">log in</a> to view this order.</p>
       `;
       return;
     }
     const { data: order, error } = await supabaseClient.from('orders').select('*').eq('id', orderId).single();
     if(error || !order){
       document.getElementById('orderSummaryCard').innerHTML = `
-        <a href="index.html" class="back-home-link">← Back to Home</a>
+        <a href="/" class="back-home-link">← Back to Home</a>
         <p class="sub">Order not found, or you don't have access to it.</p>
       `;
       return;
@@ -502,7 +503,7 @@
     // so they can accept/deliver (and don't chat as the buyer).
     if(order.user_id !== currentUser.id){
       const { data: me } = await supabaseClient.from('profiles').select('is_admin').eq('id', currentUser.id).maybeSingle();
-      if(me && me.is_admin){ window.location.replace('admin-order.html?id=' + encodeURIComponent(order.id)); return; }
+      if(me && me.is_admin){ window.location.replace('admin-order?id=' + encodeURIComponent(order.id)); return; }
     }
     renderSummary(order);
     await loadMessages();

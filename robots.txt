@@ -1,8 +1,8 @@
 User-agent: *
-Disallow: /admin-broadcast.html
-Disallow: /admin-order.html
-Disallow: /admin-support.html
-Disallow: /settings.html
-Disallow: /order.html
+Disallow: /admin-broadcast
+Disallow: /admin-order
+Disallow: /admin-support
+Disallow: /settings
+Disallow: /order
 
 Sitemap: https://buyrblx.com/sitemap.xml

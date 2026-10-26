@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<script>if(/\.html$/.test(location.pathname)&&location.protocol!=='file:')history.replaceState(null,'',location.pathname.replace(/(index)?\.html$/,'')+location.search+location.hash);</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>VIP Wheel | BuyRBLX</title>
 <link rel="icon" href="favicon.ico" sizes="any">
@@ -10,12 +11,12 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="theme-color" content="#2F5FE0">
 <meta name="description" content="Buy Roblox items fast and safe — MM2, Blade Ball, PS99, Adopt Me, Grow a Garden and more. Delivered in-game in minutes, pay with PayPal or card, plus 3% cashback and daily rewards.">
-<link rel="canonical" href="https://buyrblx.com/spin_wheel_vip.html">
+<link rel="canonical" href="https://buyrblx.com/spin_wheel_vip">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="BuyRBLX">
 <meta property="og:title" content="VIP Wheel | BuyRBLX">
 <meta property="og:description" content="Buy Roblox items fast and safe — MM2, Blade Ball, PS99, Adopt Me, Grow a Garden and more. Delivered in-game in minutes, pay with PayPal or card, plus 3% cashback and daily rewards.">
-<meta property="og:url" content="https://buyrblx.com/spin_wheel_vip.html">
+<meta property="og:url" content="https://buyrblx.com/spin_wheel_vip">
 <meta property="og:image" content="https://buyrblx.com/og-image.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -113,7 +114,7 @@
 </head>
 <body>
 <div class="stars"></div>
-<a class="back" href="index.html#rewards">← Back to shop</a>
+<a class="back" href="/#rewards">← Back to shop</a>
 <div class="crown-badge">👑 Crown VIP</div>
 <div class="luck-badge" id="luckBadge">👑 VIP 2x Luck</div>
 <h1>VIP Wheel</h1>
@@ -276,7 +277,7 @@
     if(!currentUser){
       btn.textContent = 'Log in to spin';
       btn.disabled = false;
-      btn.onclick = () => { location.href = 'login-code.html?next=spin_wheel_vip.html'; };
+      btn.onclick = () => { location.href = 'login-code?next=spin_wheel_vip'; };
       return;
     }
     const { data: vip, error } = await supabaseClient.rpc('get_vip_status');
@@ -297,7 +298,7 @@
     } else {
       btn.textContent = '👑 Get VIP to spin';
       btn.disabled = false;
-      btn.onclick = () => { location.href = 'index.html#rewards'; };
+      btn.onclick = () => { location.href = '/#rewards'; };
       statusEl.textContent = 'Crown VIP ($9.99/month) comes with a new spin every month.';
     }
   }
@@ -322,7 +323,7 @@
       document.getElementById('winImg').src = PRIZES[data.prize].img;
       const qty = data.qty || PRIZES[data.prize].qty;
       document.getElementById('winName').textContent = (qty > 1 ? qty + 'x ' : '') + 'MM2 ' + data.prize + '!';
-      document.getElementById('winBtn').href = 'order.html?id=' + encodeURIComponent(data.order_id);
+      document.getElementById('winBtn').href = 'order?id=' + encodeURIComponent(data.order_id);
       document.getElementById('win').classList.add('open');
       confetti();
       init();

@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<script>if(/\.html$/.test(location.pathname)&&location.protocol!=='file:')history.replaceState(null,'',location.pathname.replace(/(index)?\.html$/,'')+location.search+location.hash);</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Support Tickets | BuyRBLX</title>
 <link rel="icon" href="favicon.ico" sizes="any">
@@ -92,8 +93,8 @@
 </head>
 <body>
 
-<a href="index.html" class="back-home-link">← Back to Home</a>
-<a href="index.html" class="logo">BUY<span>RBLX</span> <span style="color:var(--muted); font-size:14px;">Support Tickets</span></a>
+<a href="/" class="back-home-link">← Back to Home</a>
+<a href="/" class="logo">BUY<span>RBLX</span> <span style="color:var(--muted); font-size:14px;">Support Tickets</span></a>
 
 <div id="accessGate" class="card" style="max-width:500px; margin:40px auto;">
   <p class="sub">Checking access…</p>
@@ -138,7 +139,7 @@
     const { data: { session } } = await supabaseClient.auth.getSession();
     currentUser = session ? session.user : null;
     if(!currentUser){
-      document.getElementById('accessGate').innerHTML = '<p class="sub">Please <a href="login-code.html">log in</a> to access this page.</p>';
+      document.getElementById('accessGate').innerHTML = '<p class="sub">Please <a href="login-code">log in</a> to access this page.</p>';
       return;
     }
     const { data: profile } = await supabaseClient.from('profiles').select('is_admin').eq('id', currentUser.id).single();

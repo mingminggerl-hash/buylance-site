@@ -102,7 +102,7 @@ document.body.insertAdjacentHTML('beforeend', `
         </div>
         <div id="checkoutRobloxMissing" class="ct-co-missing" style="display:none;">
           You haven't set a Roblox username on your account yet.
-          <a href="settings.html">Set it in Settings →</a>
+          <a href="settings">Set it in Settings →</a>
         </div>
         <div class="ct-co-hint">Wrong account? Just tell us in the order chat and we'll sort it out.</div>
 
@@ -1077,7 +1077,7 @@ async function finalizeOrder(paypalOrderId, payload){
   document.getElementById('checkoutForm').style.display = 'none';
   document.getElementById('ctSuccessTitle').textContent = order.order_number ? `Order #${order.order_number} placed!` : 'Order placed!';
   document.getElementById('checkoutSuccess').classList.add('show');
-  document.getElementById('checkoutOrderChatLink').href = 'order.html?id=' + order.id;
+  document.getElementById('checkoutOrderChatLink').href = 'order?id=' + order.id;
   ctConfetti(document.getElementById('checkoutSuccess'));
   if(boughtVip) ctAfterVipPurchase();
 }
@@ -1163,7 +1163,7 @@ async function addVIPToCart(){
   }
   await ctLoadVip();
   if(vipStatus && vipStatus.active){
-    if(vipStatus.spins > 0){ window.location.href = 'spin_wheel_vip.html'; return; }
+    if(vipStatus.spins > 0){ window.location.href = 'spin_wheel_vip'; return; }
     ctInfoPop({
       icon: '👑',
       title: "You're already VIP!",
@@ -1256,7 +1256,7 @@ async function openVipSubscribe(){
         sheet.innerHTML = `<div class="ct-success" style="text-align:center;">
           <div class="big">👑</div><h3>You're VIP!</h3>
           <p class="sub">Your VIP spin is ready — go win something!</p>
-          <a class="ct-success-btn" href="spin_wheel_vip.html">🎡 Spin your VIP wheel</a></div>`;
+          <a class="ct-success-btn" href="spin_wheel_vip">🎡 Spin your VIP wheel</a></div>`;
         ctConfetti(sheet.querySelector('.ct-success'));
       },
       onError: (err) => { console.error('PayPal subscription error:', err); showErr('PayPal ran into an error. Please try again.'); },
@@ -1353,7 +1353,7 @@ function openFeedback(kind){
     const btn = document.getElementById('ctFbSend');
     btn.disabled = true;
     btn.textContent = 'Sending…';
-    const { data, error } = await supabaseClient.rpc('submit_feedback', { p_kind: kind, p_message: text, p_page: location.pathname.split('/').pop() || 'index.html' });
+    const { data, error } = await supabaseClient.rpc('submit_feedback', { p_kind: kind, p_message: text, p_page: location.pathname.split('/').pop().replace(/\.html$/, '') || 'index' });
     if(error || !data || !data.ok){
       btn.disabled = false;
       btn.textContent = 'Try again';
@@ -1376,7 +1376,7 @@ async function openMilestoneSpin(){
   }
   const { data: s, error } = await supabaseClient.rpc('get_spin_status', { p_user_id: currentUser.id });
   if(error || !s){ showCartToast("Couldn't check your spins — please try again."); return; }
-  if(s.has_spin_available){ window.location.href = 'spin_wheel_choose.html'; return; }
+  if(s.has_spin_available){ window.location.href = 'spin_wheel_choose'; return; }
   if(s.last_won_item && !s.prize_redeemed){
     ctInfoPop({ icon:'🎁', title:'Your prize is waiting!', text:`You won ${s.last_won_item} — it's in your cart. Check out to claim it, then keep shopping for your next spin.`, button:'Open my cart' });
     document.querySelector('#ctPopWrap button').onclick = () => { closeDailyCountdown(); toggleCart(true); };
@@ -1491,7 +1491,7 @@ async function nudgeCandidates(){
   if(spin && spin.has_spin_available){
     list.push({ id: 'spin-ready', weight: 5, icon: '🎡', title: 'You have a free spin!',
       text: 'Your $50 Milestone Spin is ready — spin the Gun or Knife wheel now.', yes: 'Spin now 🎡',
-      go: () => { location.href = 'spin_wheel_choose.html'; } });
+      go: () => { location.href = 'spin_wheel_choose'; } });
   } else if(spin){
     const spent = Number(spin.total_spent) || 0, goal = (Math.floor(spent / 50) + 1) * 50;
     list.push({ id: 'spin', icon: '🎡', title: spent < 50 ? 'Unlock your first free spin' : 'Your next spin is close',
@@ -1592,7 +1592,7 @@ async function maybeNudge(force){
   }, NUDGE_RANDOM_MIN + Math.random() * (NUDGE_RANDOM_MAX - NUDGE_RANDOM_MIN));
 })();
 // Right after a real login (not on every page load with a saved session).
-// Login happens on login-code.html, so "just logged in" = a sign-in in the last
+// Login happens on login-code, so "just logged in" = a sign-in in the last
 // 10 minutes that hasn't had its nudge yet.
 supabaseClient.auth.onAuthStateChange((event, session) => {
   if(!session || (event !== 'INITIAL_SESSION' && event !== 'SIGNED_IN')) return;
