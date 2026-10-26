@@ -962,7 +962,9 @@ function renderPayPalButtons(){
       }
       TipPicker.lock(); // the tip can't change while PayPal is open
       return actions.order.create({
-        purchase_units: [{ amount: { value: payload.totalUSD.toFixed(2), currency_code: 'USD' } }]
+        purchase_units: [{ amount: { value: payload.totalUSD.toFixed(2), currency_code: 'USD' } }],
+        // Digital items: no shipping address step in PayPal.
+        application_context: { shipping_preference: 'NO_SHIPPING', brand_name: 'BuyRBLX' }
       });
     },
     onApprove: async function(data, actions){
@@ -1446,3 +1448,156 @@ function closeBundleView(){
   if(box) box.classList.remove('open');
 }
 document.addEventListener('keydown', e => { if(e.key === 'Escape') closeBundleView(); });
+
+
+// ---------- Nudges: one friendly offer popup per visit ----------
+// Shown a few seconds after a real login, and once per browsing session at a
+// random moment. Picks one offer that fits the buyer (VIP, next $50 spin, $20
+// gift, daily 5%, store credit, or the BUYRBLX code for visitors). "Maybe later"
+// hides that offer for a day, "No thanks" for a week. Never shows while the
+// cart, checkout or another popup is open.
+const NUDGE_GAP_MS = 20 * 60 * 1000;        // at least 20 min between any two nudges
+const NUDGE_RANDOM_MIN = 45 * 1000, NUDGE_RANDOM_MAX = 150 * 1000;
+
+function nudgeGet(k){ try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch(e){ return null; } }
+function nudgeSet(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} }
+function nudgeSnoozed(id){ const until = (nudgeGet('nudge_snooze') || {})[id]; return until && until > Date.now(); }
+function nudgeSnooze(id, days){ const all = nudgeGet('nudge_snooze') || {}; all[id] = Date.now() + days * 86400000; nudgeSet('nudge_snooze', all); }
+
+function nudgeBusy(){
+  if(document.hidden) return true;
+  if(document.getElementById('ctPopWrap') || document.getElementById('ctNudge')) return true;
+  const open = sel => { const el = document.querySelector(sel); return el && el.classList.contains('open'); };
+  if(open('#cartOverlay') || open('#checkoutModal') || open('#lcModal') || open('#bundleView') || open('#vipSubModal')) return true;
+  return !!document.querySelector('.modal-overlay.open, .modal.open, .ct-vip-wrap');
+}
+
+async function nudgeCandidates(){
+  const list = [];
+  if(!currentUser){
+    list.push({ id: 'code', icon: '🎉', title: 'First time here?',
+      text: 'Use code BUYRBLX at checkout for 10% off your first order — and earn 3% cashback on every order after.',
+      yes: 'Log in & shop 🛒', go: () => openLoginModal() });
+    return list;
+  }
+  const [spinRes, giftRes] = await Promise.all([
+    supabaseClient.rpc('get_spin_status', { p_user_id: currentUser.id }).catch(() => ({})),
+    supabaseClient.rpc('check_20_reward_eligibility').catch(() => ({})),
+    vipStatus ? null : ctLoadVip(),
+    dailyDiscount ? null : loadCartRewards(),
+  ]);
+  const spin = spinRes && spinRes.data, gift = giftRes && giftRes.data;
+
+  if(spin && spin.has_spin_available){
+    list.push({ id: 'spin-ready', weight: 5, icon: '🎡', title: 'You have a free spin!',
+      text: 'Your $50 Milestone Spin is ready — spin the Gun or Knife wheel now.', yes: 'Spin now 🎡',
+      go: () => { location.href = 'spin_wheel_choose.html'; } });
+  } else if(spin){
+    const spent = Number(spin.total_spent) || 0, goal = (Math.floor(spent / 50) + 1) * 50;
+    list.push({ id: 'spin', icon: '🎡', title: spent < 50 ? 'Unlock your first free spin' : 'Your next spin is close',
+      text: `Spend ${ctMoney(goal - spent)} more to unlock a free spin on the Gun or Knife wheel!`,
+      progress: { value: spent, goal }, yes: 'Keep shopping 🛒', go: () => {} });
+  }
+  if(gift && gift.eligible){
+    list.push({ id: 'gift-ready', weight: 5, icon: '🎁', title: 'Your free MM2 gift is ready!',
+      text: "You've spent $20 — claim a free MM2 Gun or Knife on us.", yes: 'Claim my gift 🎁', go: () => claimGiftInstantly() });
+  } else if(gift && gift.reason === 'not_enough_spent'){
+    const goal = gift.threshold || 20, spent = Number(gift.spent) || 0;
+    list.push({ id: 'gift', icon: '🎁', title: 'A free MM2 gift is waiting',
+      text: `Spend ${ctMoney(Math.max(goal - spent, 0))} more and get a free MM2 Gun or Knife!`,
+      progress: { value: spent, goal }, yes: 'Keep shopping 🛒', go: () => {} });
+  }
+  if(!(vipStatus && vipStatus.active)){
+    list.push({ id: 'vip', weight: 2, icon: '👑', title: 'Wanna try Crown VIP?',
+      text: 'A VIP wheel spin every month, 5% cashback instead of 3%, 2x Luck on every wheel and a 👑 badge. $9.99/month — cancel anytime.',
+      yes: 'Yes, show me 👑', go: () => addVIPToCart() });
+  }
+  if(dailyDiscount){
+    if(dailyLocked()){
+      const goal = Number(dailyDiscount.unlock_spend) || 10, spent = Number(dailyDiscount.spent) || 0;
+      list.push({ id: 'daily', icon: '⚡', title: 'Unlock 5% off every day',
+        text: `Spend ${ctMoney(Math.max(goal - spent, 0))} more and get 5% off one order every single day.`,
+        progress: { value: spent, goal }, yes: 'Keep shopping 🛒', go: () => {} });
+    } else if(dailyDiscount.available){
+      list.push({ id: 'daily-ready', weight: 2, icon: '⚡', title: 'Your 5% off is ready',
+        text: `Today's 5% applies by itself on orders of ${ctMoney(dailyDiscount.min_spend)}+. Grab something before it's used!`,
+        yes: 'Open my cart 🛒', go: () => toggleCart(true) });
+    }
+  }
+  const credit = typeof walletBalance === 'number' ? walletBalance : 0;
+  if(credit >= 0.5){
+    list.push({ id: 'credit', weight: 2, icon: '💰', title: `You have ${ctMoney(credit)} store credit`,
+      text: 'Your cashback is waiting — tick "Apply Cashback Discount" in your cart to use it on your next order.',
+      yes: 'Use it now 🛒', go: () => toggleCart(true) });
+  }
+  return list;
+}
+
+function nudgePick(list){
+  const ok = list.filter(n => !nudgeSnoozed(n.id));
+  if(!ok.length) return null;
+  let total = ok.reduce((t, n) => t + (n.weight || 1), 0), r = Math.random() * total;
+  for(const n of ok){ r -= (n.weight || 1); if(r <= 0) return n; }
+  return ok[0];
+}
+
+function nudgeShow(n){
+  const wrap = document.createElement('div');
+  wrap.className = 'ct-pop-wrap';
+  wrap.id = 'ctNudge';
+  const p = n.progress;
+  const pct = p ? Math.max(3, Math.min(100, p.value / p.goal * 100)) : 0;
+  wrap.innerHTML = `
+    <div class="ct-pop ct-info-pop ct-nudge" role="dialog" aria-modal="true">
+      <button type="button" class="ct-nudge-x" aria-label="Close">✕</button>
+      <div class="ct-pop-clock" style="animation:ctFloat 2.6s ease-in-out infinite;">${n.icon}</div>
+      <h4>${ctEsc(n.title)}</h4>
+      ${p ? `<div class="ct-info-bar"><i style="width:0"></i></div>
+        <div class="ct-info-nums"><span>${ctMoney(p.value)} spent</span><span>${ctMoney(p.goal)}</span></div>` : ''}
+      <p>${ctEsc(n.text)}</p>
+      <div class="ct-nudge-btns">
+        <button type="button" class="ct-nudge-yes">${ctEsc(n.yes)}</button>
+        <button type="button" class="ct-nudge-later">Maybe later</button>
+      </div>
+      <a href="#" class="ct-nudge-no">No thanks</a>
+    </div>`;
+  const close = () => wrap.remove();
+  wrap.querySelector('.ct-nudge-yes').onclick = () => { close(); n.go(); };
+  wrap.querySelector('.ct-nudge-later').onclick = () => { nudgeSnooze(n.id, 1); close(); };
+  wrap.querySelector('.ct-nudge-x').onclick = () => { nudgeSnooze(n.id, 1); close(); };
+  wrap.querySelector('.ct-nudge-no').onclick = (e) => { e.preventDefault(); nudgeSnooze(n.id, 7); close(); };
+  wrap.onclick = (e) => { if(e.target === wrap){ nudgeSnooze(n.id, 1); close(); } };
+  document.body.appendChild(wrap);
+  if(p) requestAnimationFrame(() => requestAnimationFrame(() => { wrap.querySelector('.ct-info-bar i').style.width = pct + '%'; }));
+  nudgeSet('nudge_last', Date.now());
+}
+
+async function maybeNudge(force){
+  if(!force && Date.now() - (nudgeGet('nudge_last') || 0) < NUDGE_GAP_MS) return;
+  if(nudgeBusy()){ setTimeout(() => maybeNudge(force), 15000); return; }
+  try {
+    const n = nudgePick(await nudgeCandidates());
+    if(n && !nudgeBusy()) nudgeShow(n);
+  } catch(e){ console.warn('Nudge skipped:', e); }
+}
+
+// Once per browsing session, at a random moment.
+(function(){
+  let done = false;
+  try { done = sessionStorage.getItem('nudge_random') === '1'; } catch(e){}
+  if(done) return;
+  setTimeout(() => {
+    try { sessionStorage.setItem('nudge_random', '1'); } catch(e){}
+    maybeNudge(false);
+  }, NUDGE_RANDOM_MIN + Math.random() * (NUDGE_RANDOM_MAX - NUDGE_RANDOM_MIN));
+})();
+// Right after a real login (not on every page load with a saved session).
+// Login happens on login-code.html, so "just logged in" = a sign-in in the last
+// 10 minutes that hasn't had its nudge yet.
+supabaseClient.auth.onAuthStateChange((event, session) => {
+  if(!session || (event !== 'INITIAL_SESSION' && event !== 'SIGNED_IN')) return;
+  const t = session.user && session.user.last_sign_in_at;
+  if(!t || Date.now() - Date.parse(t) > 10 * 60 * 1000 || nudgeGet('nudge_login') === t) return;
+  nudgeSet('nudge_login', t);
+  setTimeout(() => maybeNudge(true), 2500);
+});
