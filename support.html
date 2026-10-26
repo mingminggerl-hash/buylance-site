@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<script>if(/\.html$/.test(location.pathname)&&location.protocol!=='file:')history.replaceState(null,'',location.pathname.replace(/(index)?\.html$/,'')+location.search+location.hash);</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Support | BuyRBLX</title>
 <link rel="icon" href="favicon.ico" sizes="any">
@@ -10,12 +11,12 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="theme-color" content="#2F5FE0">
 <meta name="description" content="Buy Roblox items fast and safe — MM2, Blade Ball, PS99, Adopt Me, Grow a Garden and more. Delivered in-game in minutes, pay with PayPal or card, plus 3% cashback and daily rewards.">
-<link rel="canonical" href="https://buyrblx.com/support.html">
+<link rel="canonical" href="https://buyrblx.com/support">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="BuyRBLX">
 <meta property="og:title" content="Support | BuyRBLX">
 <meta property="og:description" content="Buy Roblox items fast and safe — MM2, Blade Ball, PS99, Adopt Me, Grow a Garden and more. Delivered in-game in minutes, pay with PayPal or card, plus 3% cashback and daily rewards.">
-<meta property="og:url" content="https://buyrblx.com/support.html">
+<meta property="og:url" content="https://buyrblx.com/support">
 <meta property="og:image" content="https://buyrblx.com/og-image.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -286,8 +287,8 @@
 <body>
 
 <div class="top-bar">
-  <a href="index.html" class="back-pill">← Back to Home</a>
-  <a href="index.html" class="logo">BUY<span>RBLX</span></a>
+  <a href="/" class="back-pill">← Back to Home</a>
+  <a href="/" class="logo">BUY<span>RBLX</span></a>
 </div>
 
 <div class="wrap">
@@ -409,7 +410,7 @@
     if(currentUser){
       loadTickets();
     } else {
-      document.getElementById('formCard').innerHTML = '<h1>Contact Support</h1><p class="sub">Please <a href="login-code.html">log in</a> to send us a message.</p>';
+      document.getElementById('formCard').innerHTML = '<h1>Contact Support</h1><p class="sub">Please <a href="login-code">log in</a> to send us a message.</p>';
     }
   }
 

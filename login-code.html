@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<script>if(/\.html$/.test(location.pathname)&&location.protocol!=='file:')history.replaceState(null,'',location.pathname.replace(/(index)?\.html$/,'')+location.search+location.hash);</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Log In | BuyRBLX</title>
 <link rel="icon" href="favicon.ico" sizes="any">
@@ -10,12 +11,12 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="theme-color" content="#2F5FE0">
 <meta name="description" content="Buy Roblox items fast and safe — MM2, Blade Ball, PS99, Adopt Me, Grow a Garden and more. Delivered in-game in minutes, pay with PayPal or card, plus 3% cashback and daily rewards.">
-<link rel="canonical" href="https://buyrblx.com/login-code.html">
+<link rel="canonical" href="https://buyrblx.com/login-code">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="BuyRBLX">
 <meta property="og:title" content="Log In | BuyRBLX">
 <meta property="og:description" content="Buy Roblox items fast and safe — MM2, Blade Ball, PS99, Adopt Me, Grow a Garden and more. Delivered in-game in minutes, pay with PayPal or card, plus 3% cashback and daily rewards.">
-<meta property="og:url" content="https://buyrblx.com/login-code.html">
+<meta property="og:url" content="https://buyrblx.com/login-code">
 <meta property="og:image" content="https://buyrblx.com/og-image.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -78,7 +79,7 @@
 </head>
 <body>
 
-<a href="index.html" class="logo">BUY<span>RBLX</span></a>
+<a href="/" class="logo">BUY<span>RBLX</span></a>
 
 <div class="card">
 
@@ -98,7 +99,7 @@
       <label for="marketingOptIn">Email me with news and offers</label>
     </div>
 
-    <p class="terms-note">By continuing, you agree to our <a href="terms.html">Terms of Service</a> and <a href="privacy.html">Privacy Policy</a></p>
+    <p class="terms-note">By continuing, you agree to our <a href="terms">Terms of Service</a> and <a href="privacy">Privacy Policy</a></p>
   </div>
 
   <div id="codeStep" style="display:none;">
@@ -240,7 +241,8 @@
 
       // Return to the page that sent them here (our own pages only).
       const next = new URLSearchParams(location.search).get('next') || '';
-      window.location.href = /^[a-z0-9_-]+\.html(\?[a-z0-9=&_%-]*)?$/i.test(next) ? next : 'index.html';
+      // Only our own pages: "mm2", "order?id=...", "?prize=1" (homepage) or old "x.html" links.
+      window.location.href = /^[a-z0-9_-]*(\.html)?(\?[a-z0-9=&_%-]*)?$/i.test(next) ? '/' + next : '/';
     } catch(e){
       btn.disabled = false;
       btn.textContent = 'Verify & Log In';
@@ -260,7 +262,7 @@
     try {
       const { data: { session } } = await supabaseClient.auth.getSession();
       if(session){
-        window.location.replace('index.html');
+        window.location.replace('/');
       }
     } catch(e){}
   })();

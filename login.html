@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<script>if(/\.html$/.test(location.pathname)&&location.protocol!=='file:')history.replaceState(null,'',location.pathname.replace(/(index)?\.html$/,'')+location.search+location.hash);</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Log In | BuyRBLX</title>
 <link rel="icon" href="favicon.ico" sizes="any">
@@ -10,12 +11,12 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="theme-color" content="#2F5FE0">
 <meta name="description" content="Buy Roblox items fast and safe — MM2, Blade Ball, PS99, Adopt Me, Grow a Garden and more. Delivered in-game in minutes, pay with PayPal or card, plus 3% cashback and daily rewards.">
-<link rel="canonical" href="https://buyrblx.com/login.html">
+<link rel="canonical" href="https://buyrblx.com/login">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="BuyRBLX">
 <meta property="og:title" content="Log In | BuyRBLX">
 <meta property="og:description" content="Buy Roblox items fast and safe — MM2, Blade Ball, PS99, Adopt Me, Grow a Garden and more. Delivered in-game in minutes, pay with PayPal or card, plus 3% cashback and daily rewards.">
-<meta property="og:url" content="https://buyrblx.com/login.html">
+<meta property="og:url" content="https://buyrblx.com/login">
 <meta property="og:image" content="https://buyrblx.com/og-image.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -70,7 +71,7 @@
 </head>
 <body>
 
-<a href="index.html" class="logo">BUY<span>RBLX</span></a>
+<a href="/" class="logo">BUY<span>RBLX</span></a>
 
 <div class="card">
   <h1>Log in</h1>
@@ -87,8 +88,8 @@
   <button id="loginBtn" onclick="handleLogin()">Log In</button>
 
   <div class="row">
-    <span class="foot"><a href="forgot-password.html">Forgot password?</a></span>
-    <span class="foot"><a href="signup.html">Sign up</a></span>
+    <span class="foot"><a href="forgot-password">Forgot password?</a></span>
+    <span class="foot"><a href="signup">Sign up</a></span>
   </div>
 </div>
 
@@ -160,7 +161,7 @@
 
     try { await supabaseClient.rpc('record_successful_login', { p_email: email }); } catch(e){}
 
-    window.location.href = 'index.html';
+    window.location.href = '/';
   }
 
   function startLoginCountdown(seconds){

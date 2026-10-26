@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<script>if(/\.html$/.test(location.pathname)&&location.protocol!=='file:')history.replaceState(null,'',location.pathname.replace(/(index)?\.html$/,'')+location.search+location.hash);</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Was This You? | BuyRBLX</title>
 <link rel="icon" href="favicon.ico" sizes="any">
@@ -54,7 +55,7 @@
 </head>
 <body>
 
-<a href="index.html" class="logo">BUY<span>RBLX</span></a>
+<a href="/" class="logo">BUY<span>RBLX</span></a>
 
 <div class="card" id="mainCard">
   <p class="sub">Loading...</p>
@@ -109,7 +110,7 @@
         <div class="big">⚠️</div>
         <h1>Link already used or expired</h1>
         <p class="sub">This confirmation link isn't valid anymore — if you're still having trouble logging in, reset your password or contact support.</p>
-        <a href="forgot-password.html" class="btn">Reset Password</a>
+        <a href="forgot-password" class="btn">Reset Password</a>
       `;
       return;
     }
@@ -119,14 +120,14 @@
         <div class="big">✅</div>
         <h1>All good — you're unlocked</h1>
         <p class="sub">Thanks for confirming. Your account is unlocked again, go ahead and log in.</p>
-        <a href="login-code.html" class="btn">Go to Log In</a>
+        <a href="login-code" class="btn">Go to Log In</a>
       `;
     } else if(data.action === 'reset_needed'){
       document.getElementById('mainCard').innerHTML = `
         <div class="big">🔒</div>
         <h1>Let's secure your account</h1>
         <p class="sub">Good thing you told us. Your account is staying locked for now — reset your password to get back in safely.</p>
-        <a href="forgot-password.html" class="btn">Reset Password</a>
+        <a href="forgot-password" class="btn">Reset Password</a>
       `;
     }
   };

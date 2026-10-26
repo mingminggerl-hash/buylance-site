@@ -241,7 +241,7 @@
   function loginButton(){
     return typeof window.openLoginModal === 'function'
       ? `<button class="rv-btn" type="button" onclick="openLoginModal()">Log in / Sign up</button>`
-      : `<a class="rv-btn" href="login.html">Log in / Sign up</a>`;
+      : `<a class="rv-btn" href="login">Log in / Sign up</a>`;
   }
 
   function stateHtml(icon, title, sub, extra){
